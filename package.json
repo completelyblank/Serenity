@@ -1,7 +1,21 @@
 {
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "description": "",
+  "main": "backend.js",
+  "scripts": {
+    "start": "node backend.js",
+    "dev": "nodemon backend.js"
+  },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.24.0"
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "framer-motion": "^11.3.31",
+    "prop-types": "^15.8.1",
+    "react-router-dom": "^6.26.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
   }
 }
