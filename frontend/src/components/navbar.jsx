@@ -3,38 +3,59 @@ import { Link } from 'react-router-dom'; // Use Link for client-side routing
 
 const Navbar = () => {
   return (
-    <nav className="flex items-center justify-between bg-gray-900 p-4 opacity-60">
+    <nav className="flex items-center justify-between bg-gray-900 p-4" style={{ opacity: 0.85, backgroundColor: 'rgba(198, 226, 255, 0.2)' }}>
       <div
-        className="text-white text-lg font-bold"
+        className="text-lg font-bold"
         style={{
           fontSize: '2em',
           fontFamily: 'Poppins',
-          color: '#FFFFFF',
-          textShadow: '10px 10px 10px #000000',
+          color: '#C8857E', // Soft pastel blue for the text
+          textShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)', // Subtle shadow for a calming effect
         }}
       >
-        DreamCatcher
+        Serenity
       </div>
       <div className="flex space-x-4">
-        <Link to="/" className="text-gray-400 hover:text-white transition duration-300">
+        <Link
+          to="/"
+          className="text-pink-900 hover:text-pink-700 transition duration-300"
+          style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)' }}
+        >
           Dashboard
         </Link>
-        <Link to="/home" className="text-gray-400 hover:text-white transition duration-300">
-          Homepage
-        </Link>
-        <Link to="/analysis" className="text-gray-400 hover:text-white transition duration-300">
+        <Link
+          to="/analysis"
+          className="text-pink-900 hover:text-pink-700 transition duration-300"
+          style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)' }}
+        >
           Analysis
         </Link>
-        <Link to="/form" className="text-gray-400 hover:text-white transition duration-300">
-          Dream Form
+        <Link
+          to="/form"
+          className="text-pink-900 hover:text-pink-700 transition duration-300"
+          style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)' }}
+        >
+          Mood Form
         </Link>
-        <Link to="/jumper" className="text-gray-400 hover:text-white transition duration-300">
+        <Link
+          to="/jumper"
+          className="text-pink-900 hover:text-pink-700 transition duration-300"
+          style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)' }}
+        >
           Jumper Game
         </Link>
-        <Link to="/quiz" className="text-gray-400 hover:text-white transition duration-300">
+        <Link
+          to="/quiz"
+          className="text-pink-900 hover:text-pink-700 transition duration-300"
+          style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)' }}
+        >
           Quiz Game
         </Link>
-        <Link to="/memory" className="text-gray-400 hover:text-white transition duration-300">
+        <Link
+          to="/memory"
+          className="text-pink-900 hover:text-pink-700 transition duration-300"
+          style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)' }}
+        >
           Memory Game
         </Link>
       </div>

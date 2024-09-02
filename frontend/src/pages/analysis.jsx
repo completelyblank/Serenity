@@ -19,7 +19,15 @@ function Analysis() {
     <div className="flex flex-col min-h-screen bg-cover bg-center bg-fixed text-white" style={{ backgroundImage: `url("dream_analysis.jpg")` }}>
       <Navbar />
       <div className="flex-1 p-4">
-        <div className="text-xl text-center mb-4" style={{ fontSize: '3em', fontFamily: 'Poppins', color: '#FFFFFF', textShadow: '10px 10px 10px #000000' }}>
+        <div
+          className="text-xl text-center mb-4"
+          style={{
+            fontSize: '3em',
+            fontFamily: 'Poppins',
+            color: '#C6E2FF', // Soft pastel blue
+            textShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)', // Soft shadow for a calming effect
+          }}
+        >
           Analysis
         </div>
         {loading ? (

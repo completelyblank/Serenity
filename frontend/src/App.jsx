@@ -40,28 +40,22 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-center h-screen bg-cover bg-center" style={{ backgroundImage: `url("dream_home.jpg")` }}>
+    <div className="flex items-center justify-center h-screen bg-cover bg-center" style={{ backgroundImage: `url("serenity_login.png")` }}>
       {loading ? (
         <div className="flex justify-center items-center h-full">
           <Spinner /> {/* Spinner component displayed while loading */}
         </div>
       ) : (
-        <div className="flex w-3/4 p-1">
+        <div className="flex w-3/4 p-4">
           {/* Left Side with Typewriter Effect */}
           <div className="w-3/4 p-6 mr-4">
             <div className="flex items-center mb-4 mr-6">
-              <img
-                src="src/assets/Dream_Catcher_Logo.png"
-                alt="DreamCatcher Logo"
-                className="mr-1"
-                style={{ width: '250px', height: '200px' }}
-              />
-              <h1 className="text-white" style={{ fontSize: '3em', fontFamily: 'Poppins', textShadow: '10px 10px 10px #000000' }}>
-                DreamCatcher
+              <h1 className="text-white" style={{ fontSize: '3em', fontFamily: 'Poppins', textShadow: '5px 5px 5px rgba(0, 0, 0, 0.5)' }}>
+                Serenity
               </h1>
             </div>
             <Sparkle
-              color="white"
+              color="pink"
               count={20}
               fadeOutSpeed={10}
               flicker={true}
@@ -71,71 +65,77 @@ const HomePage = () => {
               maxSize={10}
               newSparkleOnFadeOut={true}
             />
-            <div className="text-white">
+            <div className="text-white text-lg">
               <Typewriter
                 options={{
-                  strings: ['Unlock the secrets of your dreams', 'Join our community', 'Explore the world of lucid dreaming'],
-                  autoStart: true,
+                  strings: ['Log and track your emotions securely',
+                    'Earn Mood Tokens for premium features',
+                    'Explore personalized mindfulness exercises',
+                    'Engage with our real-time community forum',
+                    'Unlock badges and rewards through gamification',
+                    'Customize your profile and mood graphs'],
+                    autoStart: true,
                   loop: true,
+                  cursor: '•',
                 }}
               />
             </div>
           </div>
           {/* Right Side with Login/Signup Form */}
-          <div className="w-1/2 p-4 bg-black bg-opacity-60 rounded-lg shadow-lg backdrop-filter backdrop-blur-lg">
-            <h2 className="text-2xl font-bold mb-4 text-white">{isSignup ? 'Sign Up' : 'Login'}</h2>
+          <div className="w-1/2 p-4 bg-yellow-900 text-gray-800 rounded-lg shadow-lg bg-opacity-50">
+            <h2 className="text-2xl font-bold mb-4 text-pink-300">{isSignup ? 'Sign Up' : 'Login'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block mb-1 text-gold">Email</label>
+                <label className="block mb-1 text-pink-300">Email</label>
                 <input
                   type="email"
-                  className="w-full p-2 rounded-lg bg-gray-700 text-white"
+                  className="w-full p-2 rounded-lg bg-gray-100 text-gray-800 border border-pink-300"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+                {errors.email && <p className="text-red-300 text-sm">{errors.email}</p>}
               </div>
               <div className="mb-4">
-                <label className="block mb-1 text-gray-200">Password</label>
+                <label className="block mb-1 text-pink-300">Password</label>
                 <input
                   type="password"
-                  className="w-full p-2 rounded-lg bg-gray-700 text-white"
+                  className="w-full p-2 rounded-lg bg-gray-100 text-gray-800 border border-pink-300"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+                {errors.password && <p className="text-red-700 text-sm">{errors.password}</p>}
               </div>
               {isSignup && (
                 <div className="mb-4">
-                  <label className="block mb-1 text-gray-200">Confirm Password</label>
+                  <label className="block mb-1 text-pink-300">Confirm Password</label>
                   <input
                     type="password"
-                    className="w-full p-2 rounded-lg bg-gray-700 text-white"
+                    className="w-full p-2 rounded-lg bg-gray-100 text-gray-800 border border-pink-300"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                   {errors.confirmPassword && (
-                    <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+                    <p className="text-red-700 text-sm">{errors.confirmPassword}</p>
                   )}
                 </div>
               )}
               <button
                 type="submit"
-                className="w-full py-2 mt-4 bg-gray-200 text-black font-bold items-center flex-col rounded-lg hover:bg-yellow-500 transition duration-300"
+                className="w-full py-2 mt-4 bg-pink-900 text-white font-bold rounded-lg hover:bg-pink-700 transition duration-300"
               >
                 {isSignup ? 'Sign Up' : 'Login'}
               </button>
             </form>
             <div className="mt-4 text-center">
               <button
-                className="text-gray-200 hover:text-yellow-500 transition duration-300"
+                className="text-pink-300 hover:text-white transition duration-300"
                 onClick={() => setIsSignup(!isSignup)}
               >
                 {isSignup ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
               </button>
             </div>
             <div className="mt-4 text-center">
-              <Link to="/home" className="text-gray-200 hover:text-yellow-500 transition duration-300">
+              <Link to="/" className="text-pink-300 hover:text-white transition duration-300">
                 Back to Home
               </Link>
             </div>
