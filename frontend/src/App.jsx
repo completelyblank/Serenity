@@ -65,7 +65,7 @@ const HomePage = () => {
               maxSize={10}
               newSparkleOnFadeOut={true}
             />
-            <div className="text-white text-lg">
+            <div className="text-white` text-lg">
               <Typewriter
                 options={{
                   strings: ['Log and track your emotions securely',

@@ -45,11 +45,11 @@ const Navbar = () => {
           Jumper Game
         </Link>
         <Link
-          to="/quiz"
+          to="/breathe"
           className="text-pink-900 hover:text-pink-700 transition duration-300"
           style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)' }}
         >
-          Quiz Game
+          Breathe
         </Link>
         <Link
           to="/memory"

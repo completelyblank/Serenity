@@ -31,11 +31,9 @@ const MoodLoggingForm = () => {
 
   return (
     <>
-      <Navbar />
       <div className="flex items-center justify-center h-screen bg-cover" style={{ backgroundImage: `url("serenity_bg.png")` }}>
         {/* Diary image container */}
         <img src="diary.png" alt="Diary" className="w-[100vw] h-screen object-cover" />
-
         {/* Form container on the journal */}
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
           <h2 className="text-4xl font-bold mb-2 text-gray-600 animate-pulse">Mood Logging</h2>
