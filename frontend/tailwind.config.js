@@ -5,7 +5,14 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'Moonshine': ['Moonshine', 'sans-serif'],
+        'Poppins': ['Poppins', 'sans-serif'],
+        'PoppinsBold': ['PoppinsBold', 'sans-serif'],
+        'CoolVetica': ['CoolVetica', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }
