@@ -4,3 +4,56 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: "Moonshine";   /*Can be any text*/
+    src: local("Moonshine"),
+      url("./fonts/Moonshine.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Poppins";   /*Can be any text*/
+    src: local("Poppins"),
+      url("./fonts/PoppinsRegular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "PoppinsBold";   /*Can be any text*/
+    src: local("PoppinsBold"),
+      url("./fonts/Poppins.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "CoolVetica";   /*Can be any text*/
+    src: local("CoolVetica"),
+      url("./fonts/CoolVetica.otf") format("opentype");
+}/* src/index.css */
+
+/* Apply default styles and fonts */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Moonshine";   /*Can be any text*/
+    src: local("Moonshine"),
+      url("./fonts/Moonshine.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Poppins";   /*Can be any text*/
+    src: local("Poppins"),
+      url("./fonts/PoppinsRegular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "PoppinsBold";   /*Can be any text*/
+    src: local("PoppinsBold"),
+      url("./fonts/Poppins.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "CoolVetica";   /*Can be any text*/
+    src: local("CoolVetica"),
+      url("./fonts/CoolVetica.otf") format("opentype");
+}
