@@ -40,7 +40,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-center h-screen bg-cover bg-center" style={{ backgroundImage: `url("serenity_login.png")` }}>
+    <div className="flex items-center justify-center h-screen bg-cover bg-center" style={{ backgroundImage: `url("serene_login.png")` }}>
       {loading ? (
         <div className="flex justify-center items-center h-full">
           <Spinner /> {/* Spinner component displayed while loading */}
@@ -50,12 +50,12 @@ const HomePage = () => {
           {/* Left Side with Typewriter Effect */}
           <div className="w-3/4 p-6 mr-4">
             <div className="flex items-center mb-4 mr-6">
-              <h1 className="text-white" style={{ fontSize: '3em', fontFamily: 'Poppins', textShadow: '5px 5px 5px rgba(0, 0, 0, 0.5)' }}>
+              <h1 className="text-teal-400" style={{ fontSize: '3em', fontFamily: 'Poppins', textShadow: '5px 5px 5px rgba(0, 0, 0, 0.5)' }}>
                 Serenity
               </h1>
             </div>
             <Sparkle
-              color="pink"
+              color="blue"
               count={20}
               fadeOutSpeed={10}
               flicker={true}
@@ -65,7 +65,7 @@ const HomePage = () => {
               maxSize={10}
               newSparkleOnFadeOut={true}
             />
-            <div className="text-white` text-lg">
+            <div className="text-teal-300 text-lg">
               <Typewriter
                 options={{
                   strings: ['Log and track your emotions securely',
@@ -74,7 +74,7 @@ const HomePage = () => {
                     'Engage with our real-time community forum',
                     'Unlock badges and rewards through gamification',
                     'Customize your profile and mood graphs'],
-                    autoStart: true,
+                  autoStart: true,
                   loop: true,
                   cursor: '•',
                 }}
@@ -82,60 +82,60 @@ const HomePage = () => {
             </div>
           </div>
           {/* Right Side with Login/Signup Form */}
-          <div className="w-1/2 p-4 bg-yellow-900 text-gray-800 rounded-lg shadow-lg bg-opacity-50">
-            <h2 className="text-2xl font-bold mb-4 text-pink-300">{isSignup ? 'Sign Up' : 'Login'}</h2>
+          <div className="w-1/2 p-4 bg-gray-800 text-gray-300 rounded-lg shadow-lg bg-opacity-90">
+            <h2 className="text-2xl font-bold mb-4 text-teal-400">{isSignup ? 'Sign Up' : 'Login'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block mb-1 text-pink-300">Email</label>
+                <label className="block mb-1 text-teal-400">Email</label>
                 <input
                   type="email"
-                  className="w-full p-2 rounded-lg bg-gray-100 text-gray-800 border border-pink-300"
+                  className="w-full p-2 rounded-lg bg-gray-700 text-gray-300 border border-teal-500"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                {errors.email && <p className="text-red-300 text-sm">{errors.email}</p>}
+                {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               </div>
               <div className="mb-4">
-                <label className="block mb-1 text-pink-300">Password</label>
+                <label className="block mb-1 text-teal-400">Password</label>
                 <input
                   type="password"
-                  className="w-full p-2 rounded-lg bg-gray-100 text-gray-800 border border-pink-300"
+                  className="w-full p-2 rounded-lg bg-gray-700 text-gray-300 border border-teal-500"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                {errors.password && <p className="text-red-700 text-sm">{errors.password}</p>}
+                {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
               </div>
               {isSignup && (
                 <div className="mb-4">
-                  <label className="block mb-1 text-pink-300">Confirm Password</label>
+                  <label className="block mb-1 text-teal-400">Confirm Password</label>
                   <input
                     type="password"
-                    className="w-full p-2 rounded-lg bg-gray-100 text-gray-800 border border-pink-300"
+                    className="w-full p-2 rounded-lg bg-gray-700 text-gray-300 border border-teal-500"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                   {errors.confirmPassword && (
-                    <p className="text-red-700 text-sm">{errors.confirmPassword}</p>
+                    <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
                   )}
                 </div>
               )}
               <button
                 type="submit"
-                className="w-full py-2 mt-4 bg-pink-900 text-white font-bold rounded-lg hover:bg-pink-700 transition duration-300"
+                className="w-full py-2 mt-4 bg-teal-500 text-white font-bold rounded-lg border border-teal-600 hover:bg-teal-600 transition duration-300"
               >
                 {isSignup ? 'Sign Up' : 'Login'}
               </button>
             </form>
             <div className="mt-4 text-center">
               <button
-                className="text-pink-300 hover:text-white transition duration-300"
+                className="text-teal-400 hover:text-teal-300 transition duration-300"
                 onClick={() => setIsSignup(!isSignup)}
               >
                 {isSignup ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
               </button>
             </div>
             <div className="mt-4 text-center">
-              <Link to="/" className="text-pink-300 hover:text-white transition duration-300">
+              <Link to="/" className="text-teal-400 hover:text-teal-300 transition duration-300">
                 Back to Home
               </Link>
             </div>

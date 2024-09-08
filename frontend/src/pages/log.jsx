@@ -31,25 +31,26 @@ const MoodLoggingForm = () => {
 
   return (
     <>
-      <div className="flex items-center justify-center h-screen bg-cover" style={{ backgroundImage: `url("serenity_bg.png")` }}>
-        {/* Diary image container */}
-        <img src="diary.png" alt="Diary" className="w-[100vw] h-screen object-cover" />
+    <Navbar />
+      <div className="flex items-center justify-center h-screen bg-cover overflow-auto" style={{ backgroundImage: `url("serenity_bg.png")` }}>
+        {/* Parchment image container */}
+        <img src="parchment.png" alt="Parchment" className="mr-20 w-[100vw] h-screen object-cover" />
         {/* Form container on the journal */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
-          <h2 className="text-4xl font-bold mb-2 text-gray-600 animate-pulse">Mood Logging</h2>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 ml-20 mt-20">
+          <h2 className="text-4xl font-CoolVetica mb-2 text-gray-800 ">Mood Logging</h2>
           <div className="bg-transparent rounded-lg p-4 shadow-lg mr-10">
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
-                <label className="block mb-2 text-pink-600 font-bold">Your Mood:</label>
+                <label className="block mb-2 text-gray-800 font-CoolVetica">Your Mood:</label>
                 <textarea
-                  className="w-full p-2 rounded-lg text-gray-800 bg-white border border-pink-400"
+                  className="w-full p-2 rounded-lg bg-transparent border font-CoolVetica border-transparent"
                   value={mood}
                   onChange={(e) => setMood(e.target.value)}
-                  placeholder="Describe your mood today..."
+                  placeholder="..."
                 />
               </div>
               <div className="mb-6">
-                <label className="block mb-2 text-pink-600 font-bold">Emotion:</label>
+                <label className="block mb-2 text-gray-800 font-CoolVetica">Emotion:</label>
                 <div className="flex justify-around">
                   {emotions.map(({ name, image }) => (
                     <img
@@ -64,12 +65,12 @@ const MoodLoggingForm = () => {
               </div>
               <button
                 type="submit"
-                className="w-full py-3 mt-4 text-white bg-pink-600 font-bold rounded-lg border border-pink-500 hover:bg-pink-700 transition duration-300"
+                className="w-full font-CoolVetica py-3 mt-4 text-gray-800 bg-transparent font-bold rounded-lg border border-transparent hover:bg-transparent hover:text-white transition duration-300"
               >
                 Log Mood
               </button>
             </form>
-            <div className="mt-6 text-yellow-100 font-bold">
+            <div className="mt-6 text-gray-900 font-CoolVetica">
               Mood Tokens (MT): {moodTokens}
             </div>
           </div>

@@ -1,0 +1,121 @@
+/* Body with background image */
+body {
+  background: url('bubbles.png') no-repeat center center fixed;
+  background-size: cover;
+  font-family: sans-serif;
+  color: #ffffff;
+}
+
+/* Game container centered */
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* Header styling */
+.header-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Adjust based on your design */
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-family: 'coolVetica', sans-serif; /* Ensure you include the font */
+  padding: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3); /* Slight transparent white border */
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  border-radius: 15px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+  backdrop-filter: blur(10px); /* Frosted glass effect */
+}
+
+/* Score and lives display */
+.score-lives {
+  display: flex;
+  justify-content: space-between;
+  width: 200px;
+  margin-bottom: 10px;
+  color: #cce7f1;
+}
+
+/* Button styling with teal and blue gradient */
+.start-btn,
+.pause-btn {
+  background: linear-gradient(135deg, #0d6b8f, #3dc1d3);
+  color: #fff;
+  font-size: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border: none;
+  transition: background 0.3s ease;
+}
+
+.start-btn:hover,
+.pause-btn:hover {
+  background: linear-gradient(135deg, #084d66, #32b3c5);
+}
+
+/* Game canvas with teal background */
+.canvas {
+  position: relative;
+  width: 480px;
+  height: 800px;
+  background: url('bubbles.png') no-repeat center center fixed;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Bubbles with white base and gradients */
+.bubble {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: transform 0.2s ease;
+  background: radial-gradient(circle, white, rgba(255, 255, 255, 0.5));
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Different color gradients for bubbles */
+.bubble.red {
+  background: radial-gradient(circle, white, rgba(255, 0, 0, 0.7));
+}
+
+.bubble.green {
+  background: radial-gradient(circle, white, rgba(0, 255, 0, 0.7));
+}
+
+.bubble.blue {
+  background: radial-gradient(circle, white, rgba(0, 0, 255, 0.7));
+}
+
+.bubble.yellow {
+  background: radial-gradient(circle, white, rgba(255, 255, 0, 0.7));
+}
+
+.bubble.purple {
+  background: radial-gradient(circle, white, rgba(128, 0, 128, 0.7));
+}
+
+/* Bubble hover effect */
+.bubble:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+}

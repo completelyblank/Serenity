@@ -13,6 +13,7 @@ import Quiz_Game from './pages/quiz_game.jsx'
 import MoodLoggingForm from './pages/log.jsx';
 //import ProfilePage from './pages/profile.jsx';
 import './index.css'
+import BubblesGame from './pages/bubbles.jsx';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -23,7 +24,7 @@ const AppRoutes = () => {
       <Route path="/jumper" element={<Jumper_Game />} />
       <Route path="/quiz" element={<Quiz_Game />} />
       <Route path="/memory" element={<Memory_Game />} />
-      
+      <Route path="/bubbles" element={<BubblesGame />} />
     </Routes>
   );
 };
