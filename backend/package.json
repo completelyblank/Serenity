@@ -1,11 +1,11 @@
 {
-  "name": "backend",
+  "name": "index",
   "version": "1.0.0",
   "description": "",
-  "main": "backend.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --watch backend.js"
+    "start": "node --watch index.js"
   },
   "keywords": [],
   "author": "",

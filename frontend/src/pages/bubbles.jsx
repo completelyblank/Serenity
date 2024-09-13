@@ -83,31 +83,33 @@ const BubblesGame = () => {
   };
 
   return (
-    <div className="game-container">
+    <div className='bubble-game'>
+      <div className="game-container">
         <div class="header-container">
-      <div className="header">
-    <h1>Bubble Pop Game</h1>
-        <div className="score-lives">
-          <p>Score: {score}</p>
-          <p>Lives: {lives}</p>
+          <div className="header">
+            <h1>Bubble Pop Game</h1>
+            <div className="score-lives">
+              <p>Score: {score}</p>
+              <p>Lives: {lives}</p>
+            </div>
+          </div>
+          <button onClick={handleStart} className="start-btn">
+            {gameOver ? 'Restart Game' : 'Start Game'}
+          </button>
+          <button onClick={handlePause} className="pause-btn">
+            {isPaused ? 'Resume' : 'Pause'}
+          </button>
         </div>
+        <div className="canvas" ref={canvasRef}>
+          {bubbles.map((bubble) => (
+            <div
+              key={bubble.id}
+              className={`bubble ${bubble.color}`}
+              style={{ left: `${bubble.positionX}px`, bottom: `${bubble.positionY}px` }}
+              onClick={() => popBubble(bubble.id, bubble.points)}
+            ></div>
+          ))}
         </div>
-        <button onClick={handleStart} className="start-btn">
-          {gameOver ? 'Restart Game' : 'Start Game'}
-        </button>
-        <button onClick={handlePause} className="pause-btn">
-          {isPaused ? 'Resume' : 'Pause'}
-        </button>
-      </div>
-      <div className="canvas" ref={canvasRef}>
-        {bubbles.map((bubble) => (
-          <div
-            key={bubble.id}
-            className={`bubble ${bubble.color}`}
-            style={{ left: `${bubble.positionX}px`, bottom: `${bubble.positionY}px` }}
-            onClick={() => popBubble(bubble.id, bubble.points)}
-          ></div>
-        ))}
       </div>
     </div>
   );

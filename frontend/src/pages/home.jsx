@@ -23,16 +23,16 @@ const Home = () => {
   ];
 
   useEffect(() => {
+    let spinnerTimeout;
     const fetchData = async () => {
       try {
         const spinnerTimeout = setTimeout(() => {
           setShowSpinner(false);
         }, 1000);
 
-        const response = await axios.get('http://localhost:3000/');
+        const response = await axios.get('http://localhost:3000/login');
         const data = response.data;
         setNum(data.num);
-        console.log(response);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to fetch data. Please try again later.');

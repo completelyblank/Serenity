@@ -1,5 +1,5 @@
 /* Body with background image */
-body {
+.bubble-game {
   background: url('bubbles.png') no-repeat center center fixed;
   background-size: cover;
   font-family: sans-serif;
