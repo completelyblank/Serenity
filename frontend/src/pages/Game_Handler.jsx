@@ -66,12 +66,12 @@ const GameHandler = () => {
         {/* Title Section with Background Image */}
         <motion.div
           className="flex flex-col items-center justify-center bg-cover bg-center z-10"
-          style={{ backgroundImage: `url(${seaPic})`, height: '70vh' }}
+          style={{  height: '60vh' }}
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-opacity-75">
+          <div className="flex flex-col items-center justify-center">
             <Sparkle
               color="#00bfa5"
               count={20}
@@ -83,12 +83,12 @@ const GameHandler = () => {
               maxSize={20}
               newSparkleOnFadeOut={true}
             />
-            <h1 className="text-6xl mb-9 mt-5 font-CoolVetica" style={{ fontSize: '6.3em', letterSpacing: '3px', color: '#00bfa5' }}>
+            <h1 className="text-6xl mb-5 font-CoolVetica" style={{ fontSize: '6.3em', letterSpacing: '3px', color: '#00bfa5', marginTop: '20%' }}>
               Mini Games
             </h1>
             <p
-              className="text-lg font-bold text-white font-PoppinsBold"
-              style={{ fontSize: '2em', textAlign: 'center', paddingLeft: '20%', paddingRight: '20%' }}
+              className="font-bold text-white font-PoppinsBold"
+              style={{ fontSize: '2em', textAlign: 'center'}}
             >
               Revitalize Your Mind with Fun Mini Games!
             </p>
@@ -104,7 +104,7 @@ const GameHandler = () => {
           transition={{ duration: 1.5 }}
         >
           <section
-            className="mb-8 text-center flex flex-col justify-center items-center"
+            className="text-center flex flex-col justify-center items-center"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', borderRadius: '20px', padding: '3%' }}
           >
             <h1 className="font-CoolVetica" style={{ fontSize: '4em', letterSpacing: '3px', color: '#00bfa5', marginTop: '5%', marginBottom: '5%' }}>
@@ -112,7 +112,7 @@ const GameHandler = () => {
             </h1>
 
             {/* Image Carousel */}
-            <div className="flex justify-center items-center mt-5">
+            <div className="flex justify-center items-center ">
               <motion.div
                 className="relative"
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -122,7 +122,7 @@ const GameHandler = () => {
                 <img
                   src={games[currentGameIndex]}
                   alt="Game"
-                  className="w-96 h-96 object-cover"
+                  className="w-80 h-80 object-cover"
                   style={{ borderRadius: '10px' }}
                 />
               </motion.div>
@@ -133,7 +133,8 @@ const GameHandler = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 transition={{ duration: 0.3 }}
-                className="bg-neon-blue text-white font-bold py-3 px-5 rounded-lg shadow-lg"
+                className="bg-neon-blue text-white font-PoppinsBold py-3 px-5 rounded-lg shadow-lg"
+                style={{fontSize: '3em'}}
                 onClick={prevGame}
               >
                 {'<'}
@@ -142,7 +143,8 @@ const GameHandler = () => {
               <motion.button
                 whileHover={{ scale: 1.1, backgroundColor: '#00bfa5' }}
                 transition={{ duration: 0.3 }}
-                className="bg-neon-blue text-white font-bold py-4 px-8 rounded-lg shadow-lg"
+                className="bg-neon-blue text-white font-PoppinsBold py-4 px-8 rounded-lg shadow-lg"
+                style={{fontSize: '2em'}}
                 onClick={() => console.log('Play Game')}
               >
                 Play Game
@@ -151,7 +153,8 @@ const GameHandler = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 transition={{ duration: 0.3 }}
-                className="bg-neon-blue text-white font-bold py-3 px-5 rounded-lg shadow-lg"
+                className="bg-neon-blue font-PoppinsBold text-white font-bold py-3 px-5 rounded-lg shadow-lg"
+                style={{fontSize: '3em'}}
                 onClick={nextGame}
               >
                 {'>'}
