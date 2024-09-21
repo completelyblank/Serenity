@@ -1,3 +1,5 @@
+![image](https://github.com/user-attachments/assets/a2cfd81c-0713-4a79-8e22-6dab5fff1bbc)
+
 # Serenity – Mental Wellness Journal
 
 **Serenity** is an innovative web-based platform that combines the power of blockchain and mental wellness. Users can log their moods securely, earn **Mood Tokens**, and use those tokens to unlock various features like mindfulness exercises, community interaction, and profile customization.
