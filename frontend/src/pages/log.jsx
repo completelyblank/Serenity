@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navbar.jsx'; 
 import axios from 'axios';
 import Spinner from '../components/spinner.jsx';
-import bookImg from '/book.png'
+import bookImg from '/book2.png'
 
 const MoodLoggingForm = () => {
   const [mood, setMood] = useState('');
@@ -21,7 +21,7 @@ const MoodLoggingForm = () => {
   ];
 
   const imagesToLoad = [
-    'grass.png', // Background image
+    'sky.jpg', // Background image
     'book.png',  // Book image
     'Dream Token.png', // Token image
     ...emotions.map(emotion => emotion.image) // Emotions images
@@ -104,7 +104,7 @@ const MoodLoggingForm = () => {
       <Navbar />
       <div className="fixed top-0 left-0 right-0 bottom-0 p-20 overflow-y-auto"
         style={{
-          backgroundImage: 'url("grass.png")',
+          backgroundImage: 'url("lights.jpg")',
           backgroundPosition: "center",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",

@@ -57,6 +57,7 @@ router.post('/', async (req, res) => {
 
   let connection;
   let status;
+  let user;
   try {
     connection = await connectToDatabase();
     
@@ -64,9 +65,11 @@ router.post('/', async (req, res) => {
       status = await addUser(connection, username, password, firstName, lastName, gender, age);
     } else {
       status = await findUser(connection, username, password);
+      if(status === 1) {
+        user = await fetchUsers(connection, username);
+      }
     }
-
-    res.json({ status });
+    res.json({ status, user });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });

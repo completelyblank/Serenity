@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import Spinner from '../components/spinner';
@@ -13,6 +13,8 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(true);
   const [error, setError] = useState(null);
+
+  const location = useLocation();
 
   const sentences = [
     "Serenity uses blockchain to create a secure, decentralized mood tracking platform",

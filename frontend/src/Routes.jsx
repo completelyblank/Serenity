@@ -17,7 +17,7 @@ import './index.css';
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/login" element={<Home />} />
+      <Route path="/dashboard" element={<Home />} />
       <Route path="/analysis" element={<Analysis />} />
       <Route path="/form" element={<MoodLoggingForm />} />
       <Route path="/" element={<LoginPage />} />
@@ -27,9 +27,7 @@ const AppRoutes = () => {
       <Route path="/bubbles" element={<BubblesGame />} />
       <Route path="/breathe" element={<BreathingExercise />} />
       <Route path="/games" element={<GameHandler />} />
-      {/* Dynamic route for user profile */}
-      <Route path="/profile/:user_id" element={<ProfilePage />} />
-      <Route path="/profile" element={<ProfilePage />} /> {/* Fallback for missing user_id */}
+      <Route path="/profile" element={<ProfilePage />} /> 
     </Routes>
   );
 };

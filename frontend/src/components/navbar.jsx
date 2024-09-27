@@ -1,44 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const location = useLocation(); // Get current route
-  const [activeLink, setActiveLink] = useState(null); // Track which link is active
+  const navigate = useNavigate(); // Programmatic navigation
   const [hoveredLink, setHoveredLink] = useState(null); // Track which link is hovered
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false); // State to control profile menu visibility
 
-  // On component mount, set the active link based on the current URL or from localStorage
-  useEffect(() => {
-    const savedActiveLink = localStorage.getItem('activeLink');
-    const currentPath = location.pathname;
-
-    if (savedActiveLink) {
-      setActiveLink(savedActiveLink);
-    } else {
-      // Set active link based on current route
-      if (currentPath.includes('dashboard')) setActiveLink('Dashboard');
-      if (currentPath.includes('analysis')) setActiveLink('Analysis');
-      if (currentPath.includes('form')) setActiveLink('Mood Form');
-      if (currentPath.includes('games')) setActiveLink('Games');
-      if (currentPath.includes('profile')) setActiveLink('Profile');
-    }
-  }, [location.pathname]); // Run this effect on page load or route change
-
-  const handleLinkClick = (linkName) => {
-    setActiveLink(linkName);
-    localStorage.setItem('activeLink', linkName); // Store active link in localStorage
+  // Automatically highlight the link that matches the current path
+  const getLinkStyle = (linkName, path) => {
+    const isActive = location.pathname === path;
+    
+    return {
+      color: isActive
+        ? '#ffffff' // Active link color
+        : hoveredLink === linkName
+        ? '#a0f5d4' // Hover color
+        : '#7fddb9', // Default link color
+      textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)',
+      transition: 'color 0.3s ease',
+      fontSize: '1.1em',
+    };
   };
 
-  const getLinkStyle = (linkName) => ({
-    color: activeLink === linkName ? '#ffffff' : hoveredLink === linkName ? '#a0f5d4' : '#7fddb9', // Different colors for active, hover, and normal states
-    textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)',
-    transition: 'color 0.3s ease',
-    fontSize: '1.1em',
-  });
-
+  // Toggle profile menu visibility
   const toggleProfileMenu = () => {
-    const newActiveLink = activeLink === 'Profile' ? null : 'Profile';
-    setActiveLink(newActiveLink);
-    localStorage.setItem('activeLink', newActiveLink); // Persist profile state
+    setIsProfileMenuOpen(!isProfileMenuOpen);
+  };
+
+  // Handle "View Profile" click inside the profile dropdown
+  const handleViewProfile = () => {
+    setIsProfileMenuOpen(false); // Close the dropdown
+    navigate('/profile'); // Navigate to the profile page
   };
 
   return (
@@ -66,9 +59,8 @@ const Navbar = () => {
       <div className="flex space-x-5 mr-5">
         {/* Nav links with hover and active state */}
         <Link
-          to="/login"
-          style={getLinkStyle('Dashboard')}
-          onClick={() => handleLinkClick('Dashboard')}
+          to="/dashboard"
+          style={getLinkStyle('Dashboard', '/dashboard')}
           onMouseEnter={() => setHoveredLink('Dashboard')}
           onMouseLeave={() => setHoveredLink(null)}
         >
@@ -76,8 +68,7 @@ const Navbar = () => {
         </Link>
         <Link
           to="/analysis"
-          style={getLinkStyle('Analysis')}
-          onClick={() => handleLinkClick('Analysis')}
+          style={getLinkStyle('Analysis', '/analysis')}
           onMouseEnter={() => setHoveredLink('Analysis')}
           onMouseLeave={() => setHoveredLink(null)}
         >
@@ -85,8 +76,7 @@ const Navbar = () => {
         </Link>
         <Link
           to="/form"
-          style={getLinkStyle('Mood Form')}
-          onClick={() => handleLinkClick('Mood Form')}
+          style={getLinkStyle('Mood Form', '/form')}
           onMouseEnter={() => setHoveredLink('Mood Form')}
           onMouseLeave={() => setHoveredLink(null)}
         >
@@ -94,8 +84,7 @@ const Navbar = () => {
         </Link>
         <Link
           to="/games"
-          style={getLinkStyle('Games')}
-          onClick={() => handleLinkClick('Games')}
+          style={getLinkStyle('Games', '/games')}
           onMouseEnter={() => setHoveredLink('Games')}
           onMouseLeave={() => setHoveredLink(null)}
         >
@@ -108,12 +97,13 @@ const Navbar = () => {
             onClick={toggleProfileMenu}
             onMouseEnter={() => setHoveredLink('Profile')}
             onMouseLeave={() => setHoveredLink(null)}
-            style={getLinkStyle('Profile')}
+            style={getLinkStyle('Profile', '/profile')}
           >
             Profile
           </button>
 
-          {activeLink === 'Profile' && (
+          {/* Toggle the dropdown based on state */}
+          {isProfileMenuOpen && (
             <div
               className="absolute right-0 w-48 bg-white shadow-lg rounded-md flex flex-col"
               style={{
@@ -135,13 +125,13 @@ const Navbar = () => {
                 }}
               ></div>
               <img src='../../src/assets/avatar.png' alt='Profile' className="w-3/4 pt-4" />
-              <Link
-                to="/profile"
+              <button
+                onClick={handleViewProfile} // Handle click to navigate to profile
                 className="block px-4 py-2 pt-5"
                 style={{ color: '#7fddb9', fontSize: '1.1em' }}
               >
                 View Profile
-              </Link>
+              </button>
               <hr className="w-3/4" style={{ border: '1px solid #5f8d87' }} />
               <Link
                 to="/"

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import Typewriter from 'typewriter-effect';
 import Sparkle from 'react-sparkle';
+import { useUserContext } from '../../src/context/userContext';
 
 import showPasswordImg from '../assets/eye.png';
 import hidePasswordImg from '../assets/eye-slash.png';
@@ -24,6 +25,7 @@ const LoginPage = () => {
   const [gender, setGender] = useState('');
   const [age, setAge] = useState('');
   const [isError, setIsError] = useState(false);
+  const { setUserData } = useUserContext(); 
 
   const navigate = useNavigate();
 
@@ -84,7 +86,9 @@ const LoginPage = () => {
       const response = await axios.post('http://localhost:3000/', { username: username, password, isSignup });
 
       if (response.data.status === 1) {
-        navigate('/login');
+        const { FIRST_NAME, LAST_NAME, GENDER, AGE } = response.data.user;
+        setUserData({ username, firstName: FIRST_NAME, lastName: LAST_NAME, gender: GENDER, age: AGE });
+        navigate('/dashboard');
       } else {
         setLoginError(true);
       }
