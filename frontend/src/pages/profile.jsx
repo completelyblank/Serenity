@@ -1,15 +1,62 @@
-/*import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Sparkle from 'react-sparkle';
-import D3Chart from 'frontend/src/components/D3Chart.jsx';
+import D3Chart from '../components/D3Chart.jsx'; // Assuming you have a D3Chart component
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+
+// API calls for dreams, song, analysis, patterns, and user preferences
+const getDreams = async (userId, token) => {
+  const response = await axios.get(`/user/${userId}/dreams`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+const getSpotifySong = async (userId, token) => {
+  const response = await axios.get(`/user/${userId}/song`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+const getDreamAnalysis = async (userId, token) => {
+  const response = await axios.get(`/user/${userId}/analysis`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+const getDreamPatterns = async (userId, token) => {
+  const response = await axios.get(`/user/${userId}/patterns`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+const getUserPreferences = async (userId, token) => {
+  const response = await axios.get(`/user/${userId}/preferences`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+const saveUserPreferences = async (userId, preferences, token) => {
+  await axios.post(`/user/${userId}/preferences`, preferences, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
 
 const ProfilePage = () => {
-  const user = useSelector((state) => state.user); // Assuming user state is stored in Redux
+  const { userId } = useParams(); // Get userId from the URL
+  const token = useSelector((state) => state.auth.token); // Assuming token is stored in Redux
+  const user = useSelector((state) => state.auth.user); // Assuming user data is stored in Redux
+
   const [dreams, setDreams] = useState([]);
   const [song, setSong] = useState(null);
   const [analysis, setAnalysis] = useState({});
   const [patterns, setPatterns] = useState([]);
-  
+
   const [backgroundImage, setBackgroundImage] = useState('profile_background.jpg');
   const [backgroundColor, setBackgroundColor] = useState('rgba(0, 0, 0, 0.7)');
   const [headerColor, setHeaderColor] = useState('#FFD700');
@@ -17,51 +64,57 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const userDreams = await getDreams(user.id);
-      setDreams(userDreams);
+      try {
+        if (userId && token) {
+          const userDreams = await getDreams(userId, token);
+          setDreams(userDreams);
 
-      const songData = await getSpotifySong(user.id);
-      setSong(songData);
+          const songData = await getSpotifySong(userId, token);
+          setSong(songData);
 
-      const analysisData = await getDreamAnalysis(user.id);
-      setAnalysis(analysisData);
+          const analysisData = await getDreamAnalysis(userId, token);
+          setAnalysis(analysisData);
 
-      const patternsData = await getDreamPatterns(user.id);
-      setPatterns(patternsData);
+          const patternsData = await getDreamPatterns(userId, token);
+          setPatterns(patternsData);
 
-      // Fetch user customization preferences
-      const preferences = await getUserPreferences(user.id);
-      setBackgroundImage(preferences.backgroundImage || 'profile_background.jpg');
-      setBackgroundColor(preferences.backgroundColor || 'rgba(0, 0, 0, 0.7)');
-      setHeaderColor(preferences.headerColor || '#FFD700');
-      setGraphColor(preferences.graphColor || '#00FF00');
+          const preferences = await getUserPreferences(userId, token);
+          setBackgroundImage(preferences.backgroundImage || 'profile_background.jpg');
+          setBackgroundColor(preferences.backgroundColor || 'rgba(0, 0, 0, 0.7)');
+          setHeaderColor(preferences.headerColor || '#FFD700');
+          setGraphColor(preferences.graphColor || '#00FF00');
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
     };
 
     fetchData();
-  }, [user.id]);
+  }, [userId, token]);
 
+  // Handlers for changing user preferences
   const handleBackgroundImageChange = (e) => {
     const image = e.target.value;
     setBackgroundImage(image);
-    saveUserPreferences(user.id, { backgroundImage: image });
+    saveUserPreferences(userId, { backgroundImage: image }, token);
   };
 
   const handleBackgroundColorChange = (e) => {
     const color = e.target.value;
     setBackgroundColor(color);
-    saveUserPreferences(user.id, { backgroundColor: color });
+    saveUserPreferences(userId, { backgroundColor: color }, token);
   };
 
   const handleHeaderColorChange = (e) => {
     const color = e.target.value;
     setHeaderColor(color);
-    saveUserPreferences(user.id, { headerColor: color });
+    saveUserPreferences(userId, { headerColor: color }, token);
   };
 
   const handleGraphColorChange = (e) => {
     const color = e.target.value;
     setGraphColor(color);
-    saveUserPreferences(user.id, { graphColor: color });
+    saveUserPreferences(userId, { graphColor: color }, token);
   };
 
   return (
@@ -73,107 +126,61 @@ const ProfilePage = () => {
           backgroundColor: backgroundColor,
         }}
       >
-        <div className="w-full max-w-4xl p-8 bg-opacity-50 text-white rounded-lg shadow-2xl backdrop-filter backdrop-blur-md"
+        <div 
+          className="w-full max-w-4xl p-8 bg-opacity-50 text-white rounded-lg shadow-2xl backdrop-filter backdrop-blur-md"
           style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.37)' }}
         >
           <h1 
             className="text-6xl font-bold mb-8 text-center animate-pulse"
             style={{ color: headerColor, textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)' }}
           >
-            {user.name}'s Profile
+            {user?.name || 'User'}'s Profile
           </h1>
 
-          <div className="mb-10">
-            <h2 className="text-4xl font-semibold mb-4" style={{ color: headerColor }}>Customize Profile</h2>
-            <div className="bg-gray-800 bg-opacity-50 p-6 rounded-lg shadow-lg backdrop-filter backdrop-blur-sm">
-              <label className="block mb-4 text-lg">
-                Background Image URL:
-                <input
-                  type="text"
-                  className="w-full mt-2 p-3 rounded-lg bg-gray-700 bg-opacity-60 text-white"
-                  placeholder="Enter image URL..."
-                  value={backgroundImage}
-                  onChange={handleBackgroundImageChange}
-                />
-              </label>
-
-              <label className="block mb-4 text-lg">
-                Background Color:
-                <input
-                  type="color"
-                  className="w-full mt-2 p-3 rounded-lg"
-                  value={backgroundColor}
-                  onChange={handleBackgroundColorChange}
-                />
-              </label>
-
-              <label className="block mb-4 text-lg">
-                Header Color:
-                <input
-                  type="color"
-                  className="w-full mt-2 p-3 rounded-lg"
-                  value={headerColor}
-                  onChange={handleHeaderColorChange}
-                />
-              </label>
-
-              <label className="block text-lg">
-                Graph Color:
-                <input
-                  type="color"
-                  className="w-full mt-2 p-3 rounded-lg"
-                  value={graphColor}
-                  onChange={handleGraphColorChange}
-                />
-              </label>
+          {/* Customization Form */}
+          <div className="space-y-4">
+            <div>
+              <label>Background Image URL: </label>
+              <input type="text" value={backgroundImage} onChange={handleBackgroundImageChange} className="input" />
+            </div>
+            <div>
+              <label>Background Color: </label>
+              <input type="color" value={backgroundColor} onChange={handleBackgroundColorChange} className="input" />
+            </div>
+            <div>
+              <label>Header Color: </label>
+              <input type="color" value={headerColor} onChange={handleHeaderColorChange} className="input" />
+            </div>
+            <div>
+              <label>Graph Color: </label>
+              <input type="color" value={graphColor} onChange={handleGraphColorChange} className="input" />
             </div>
           </div>
 
-          <h2 className="text-4xl font-semibold mb-8 text-center" style={{ color: headerColor }}>Dreams</h2>
-          <ul className="mb-12 text-lg">
-            {dreams.map((dream, index) => (
-              <li key={index} className="mb-6">
-                <div className="bg-gray-800 bg-opacity-60 p-6 rounded-lg shadow-lg backdrop-filter backdrop-blur-sm">
-                  {dream.text}
-                </div>
-              </li>
-            ))}
-          </ul>
+          {/* Displaying Dreams, Song, Analysis, and Patterns */}
+          <div className="mt-8">
+            <h2 className="text-3xl mb-4" style={{ color: headerColor }}>Dreams</h2>
+            <ul>
+              {dreams.map((dream, index) => (
+                <li key={index} className="mb-2">
+                  {dream.description}
+                </li>
+              ))}
+            </ul>
 
-          {song && (
-            <div className="mb-12">
-              <h2 className="text-4xl font-semibold mb-8 text-center" style={{ color: headerColor }}>Spotify Song Recommendation</h2>
-              <div className="bg-gray-800 bg-opacity-60 p-6 rounded-lg shadow-lg backdrop-filter backdrop-blur-sm">
-                <p className="text-lg">{song.name} by {song.artist}</p>
-                <iframe
-                  src={`https://open.spotify.com/embed/track/${song.id}`}
-                  width="100%"
-                  height="80"
-                  frameBorder="0"
-                  allow="encrypted-media"
-                  className="rounded-lg mt-4"
-                ></iframe>
-              </div>
-            </div>
-          )}
+            <h2 className="text-3xl mt-8" style={{ color: headerColor }}>Spotify Song</h2>
+            {song ? (
+              <p>Song most alike you: {song.name} by {song.artist}</p>
+            ) : (
+              <p>No song found</p>
+            )}
 
-          <div className="mb-12">
-            <h2 className="text-4xl font-semibold mb-8 text-center" style={{ color: headerColor }}>Dream Analysis</h2>
-            <div className="bg-gray-800 bg-opacity-60 p-6 rounded-lg shadow-lg backdrop-filter backdrop-blur-sm">
-              <p className="text-lg">{analysis.summary}</p>
-              <p className="text-lg mt-4">Sentiment: {analysis.sentiment}</p>
-            </div>
+            <h2 className="text-3xl mt-8" style={{ color: headerColor }}>Dream Analysis</h2>
+            <p>{analysis.summary || 'No analysis available'}</p>
+
+            <h2 className="text-3xl mt-8" style={{ color: headerColor }}>Dream Patterns</h2>
+            <D3Chart data={patterns} color={graphColor} />
           </div>
-
-          <div className="mb-12">
-            <h2 className="text-4xl font-semibold mb-8 text-center" style={{ color: headerColor }}>Dream Patterns</h2>
-            <div className="bg-gray-800 bg-opacity-60 p-6 rounded-lg shadow-lg backdrop-filter backdrop-blur-sm">
-              <D3Chart data={patterns} color={graphColor} />
-            </div>
-          </div>
-
-          {/* Add more sections as needed */
-          /*
         </div>
       </div>
     </Sparkle>
@@ -181,4 +188,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-*/
