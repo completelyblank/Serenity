@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
@@ -10,7 +10,7 @@ const Navbar = () => {
   // Automatically highlight the link that matches the current path
   const getLinkStyle = (linkName, path) => {
     const isActive = location.pathname === path;
-    
+
     return {
       color: isActive
         ? '#ffffff' // Active link color
@@ -38,10 +38,11 @@ const Navbar = () => {
     <nav
       className="flex items-center justify-between bg-gray-900 p-5 font-PoppinsBold"
       style={{
-        position: 'sticky',
+        position: 'fixed', // Change to fixed
         top: 0,
         zIndex: 50,
         opacity: 0.85,
+        width: '100%', // Ensure it stretches across the screen
         backgroundColor: '#16423C',
       }}
     >
@@ -113,7 +114,7 @@ const Navbar = () => {
                 color: '#7fddb9',
                 marginTop: '60%',
                 alignItems: 'center',
-                marginRight: '-30%'
+                marginRight: '-30%',
               }}
             >
               {/* Arrow pointing up */}

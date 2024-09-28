@@ -1,37 +1,111 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Navbar from '../components/navbar';
 import { useUserContext } from '../../src/context/userContext';
 import ReactToPrint from 'react-to-print';
+import html2canvas from 'html2canvas';
+
+// Define themes
+const themes = {
+  theme1: {
+    name: "Serenity Original",
+    backgroundColor: '#16423C',
+    textColor: '#b2dfdb',
+    borderColor: '#072420',
+  },
+  theme2: {
+    name: "Ocean Breeze",
+    backgroundColor: '#5385e4',
+    textColor: '#FFFFFF',
+    borderColor: '#145ee7',
+  },
+  theme3: {
+    name: "Midnight Depths",
+    backgroundColor: '#00246B',
+    textColor: '#CADCFC',
+    borderColor: '#02163d',
+  },
+  theme4: {
+    name: "Forest Whisper",
+    backgroundColor: '#2C5F2D',
+    textColor: '#97BC62',
+    borderColor: '#1d501e',
+  },
+  theme5: {
+    name: "Crimson Blossom",
+    backgroundColor: '#CC313D',
+    textColor: '#F7C5CC',
+    borderColor: '#a7101c',
+  },
+  theme6: {
+    name: "Emerald Serenity",
+    backgroundColor: '#31473A',
+    textColor: '#EDF4F2',
+    borderColor: '#173824',
+  },
+  theme7: {
+    name: "Lavender Dreams",
+    backgroundColor: '#735DA5',
+    textColor: '#D3C5E5',
+    borderColor: '#48386e',
+  },
+  theme8: {
+    name: "Sunset Glow",
+    backgroundColor: '#304c77',
+    textColor: '#ecf02b',
+    borderColor: '#082450',
+  }
+};
 
 const ProfilePage = () => {
   const { userData } = useUserContext();
   const componentRef = useRef();
 
-  // State for the background color
-  const [bgColor, setBgColor] = useState('#16423C');
+  const downloadProfileJPG = async () => {
+    const element = componentRef.current;
+    if (element) {
+      const canvas = await html2canvas(element, { useCORS: true });
+      const dataURL = canvas.toDataURL('image/jpeg');
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = 'profile.jpg';
+      link.click();
+    }
+  };
+
+  // State for the current theme
+  const [currentTheme, setCurrentTheme] = useState(themes.theme1);
+  const [randomQuote, setRandomQuote] = useState('');
+  const [selectedTheme, setSelectedTheme] = useState('theme1'); // Track selected theme
 
   // Random daily quote
   const quotes = [
-    "Keep pushing forward.",
+    "A quotation is the repetition of a sentence, phrase, or passage from speech or text that someone has said or written",
     "Believe in yourself.",
     "Every day is a new beginning."
   ];
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
-  // Handler for changing background color
-  const handleColorChange = (e) => {
-    setBgColor(e.target.value);
+  // Handler for changing theme
+  const handleThemeChange = (event) => {
+    const theme = event.target.value;
+    setCurrentTheme(themes[theme]);
+    setSelectedTheme(theme); // Update selected theme
   };
+
+  useEffect(() => {
+    // Select a random quote when the component mounts
+    setRandomQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+  }, []);
 
   return (
     <div
-      className="h-screen overflow-y-auto relative"
+      className="h-screen overflow-y-auto overflow-x-hidden relative"
       style={{
         backgroundColor: '#c1e4e7',
         backgroundImage: 'url("sky.jpg")',
         backgroundPosition: 'center',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
+        height: '220vh',
       }}
     >
       <Navbar />
@@ -39,113 +113,198 @@ const ProfilePage = () => {
       {/* Main Profile Box */}
       <div
         ref={componentRef}
-        className="flex items-center justify-center p-8"
+        className="flex items-center justify-center"
         style={{
-          backgroundColor: bgColor,
-          opacity: 0.85,
+          width: '90%',
+          height: '80%',
+          backgroundColor: currentTheme.backgroundColor,
           position: 'absolute',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '90%',
-          height: '80%',
           boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)',
           borderRadius: '8px',
+          opacity: 0.95
         }}
       >
         {/* Left Profile Info */}
-        <div className="w-1/3 bg-[#16423C] flex flex-col items-center justify-center p-8 border-r-4 border-[#01201c]">
+        <div
+          style={{
+            width: '30%',
+            height: '100%',
+            backgroundColor: currentTheme.backgroundColor,
+            borderRight: `4px solid ${currentTheme.borderColor}`, // Change border color to custom border color
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            borderRadius: '8px',
+            borderTopRightRadius: '0px',
+            borderBottomRightRadius: '0px',
+          }}
+        >
           {/* Avatar */}
           <div
-            className="w-32 h-32 rounded-full bg-cover bg-center mb-6"
-            style={{ backgroundImage: `url("../src/assets/avatar.png")` }}
-          ></div>
+            style={{
+              width: '66%',
+              height: '20%',
+              border: `6px solid ${currentTheme.borderColor}`,
+              backgroundImage: userData.gender == 'F' ? 'url("../src/assets/girlAvatar.jpg")' : 'url("../src/assets/boyAvatar.jpg")',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              borderRadius: '50%',
+              marginTop: '20%',
+            }}
+          />
 
           {/* User Info */}
-          <p className="text-2xl text-teal-200 mb-2 font-Poppins">
+          <p className="text-lg mb-4 mt-8 font-PoppinsBold"
+            style={{
+              fontSize: '1.5em',
+              paddingTop: '1%',
+              paddingBottom: '1%',
+              color: currentTheme.textColor,
+            }}
+          >
             {userData.firstName} {userData.lastName}
           </p>
-          <p className="text-lg text-teal-200 font-Poppins">Age: {userData.age}</p>
+          <p className="text-lg mb-4 font-PoppinsBold"
+            style={{
+              fontSize: '1.5em',
+              paddingBottom: '1%',
+              color: currentTheme.textColor,
+            }}
+          >
+            Age: {userData.age}
+          </p>
 
-          {/* Color Picker */}
-          <div className="mt-6">
-            <label className="text-teal-200 mb-2">Change Background Color:</label>
-            <input
-              type="color"
-              value={bgColor}
-              onChange={handleColorChange}
-              className="w-10 h-10 cursor-pointer mt-2"
-            />
+          {/* Theme Selector Dropdown */}
+          <div className="mb-4 flex flex-col items-center"> {/* Added flex and center alignment */}
+            <label className="text-lg font-PoppinsBold" style={{ color: currentTheme.textColor }}>Select Theme</label>
+            <select
+              value={selectedTheme}
+              onChange={handleThemeChange}
+              className="mt-2 p-2 pr-3 pl-3 rounded border"
+              style={{
+                backgroundColor: currentTheme.textColor,
+                color: currentTheme.backgroundColor,
+                borderColor: currentTheme.textColor,
+                textAlign: 'center',
+                fontFamily: 'PoppinsBold',
+                fontSize: '1.1em',
+                borderRadius: '20px'
+              }}
+            >
+              {Object.keys(themes).map((themeKey) => (
+                <option key={themeKey} value={themeKey}>
+                  {themes[themeKey].name}  {/* Display theme name */}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Buttons for Changing Password and Deleting Account */}
-          <div className="mt-8 flex flex-col gap-4">
-            <button className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600">
+          {/* Daily Motivation */}
+          <div style={{ textAlign: 'center', marginBottom: '-100%', marginTop: '15%' }}>
+            <h3 className="text-xl mb-2" style={{ fontFamily: 'PoppinsBold', color: currentTheme.textColor }}>
+              Daily Motivation
+            </h3>
+            <div
+              style={{ 
+                borderRadius: '8px',
+                padding: '20px', 
+                display: 'inline-block',
+                maxWidth: '80%', 
+                margin: '0 auto', 
+                marginTop: '5%',
+                backgroundColor: currentTheme.borderColor 
+              }}
+            >
+              <p
+                className='italic'
+                style={{
+                  fontFamily: 'PoppinsBold',
+                  color: currentTheme.textColor,
+                  fontSize: '1.3em',
+                  textAlign: 'center',
+                }}
+              >
+                "{randomQuote}"
+              </p>
+            </div>
+          </div>
+
+
+          {/* Buttons for Changing Password, Deleting Account, and Downloading Profile */}
+          <div className="absolute mt-8 flex flex-col gap-4" style={{ marginTop: '77%' }}>
+            <button className="px-4 py-2 bg-yellow-500 text-white font-PoppinsBold rounded-lg shadow-md hover:bg-yellow-600">
               Change Password
             </button>
-            <button className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600">
+            <button className="px-4 py-2 bg-red-500 text-white font-PoppinsBold rounded-lg shadow-md hover:bg-red-600">
               Delete Account
+            </button>
+            <button
+              onClick={downloadProfileJPG}
+              className="px-4 py-2 bg-green-500 text-white font-PoppinsBold rounded-lg shadow-md hover:bg-red-600"
+            >
+              Download Profile JPG
             </button>
           </div>
         </div>
 
         {/* Right Content Section */}
-        <div className="w-2/3 flex flex-col justify-start items-start p-8 text-teal-200 overflow-y-auto">
-          <h2 className="text-4xl font-CoolVetica mb-4">Your Profile</h2>
+        <div
+          style={{
+            width: '70%',
+            height: '100%',
+            backgroundColor: currentTheme.backgroundColor, // Use theme's background color
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            borderRadius: '8px',
+            borderTopLeftRadius: '0px',
+            borderBottomLeftRadius: '0px',
+          }}
+        >
+          <h2 className="font-CoolVetica" style={{ color: currentTheme.textColor, fontSize: '4em', textAlign: 'center', marginTop: '-15%' }}>Your Profile</h2>
 
           {/* Activity Trends */}
-          <h3 className="text-xl font-semibold mb-4">Activity Trends</h3>
-          <div className="w-full h-48 bg-gray-100 rounded-md mb-6 flex items-center justify-center">
-            <p className="text-gray-500">Activity chart coming soon...</p>
-          </div>
+          <div className="p-8">
+            <h3 className="text-xl mb-4" style={{ fontFamily: 'PoppinsBold', color: currentTheme.textColor }}>Activity Trends</h3>
+            <div className="w-full h-48 rounded-md mb-6 flex items-center justify-center" style={{backgroundColor: currentTheme.borderColor}}>
+              <p className="text-gray-500">Activity chart coming soon...</p>
+            </div>
 
-          {/* Spotify Widgets */}
-          <h3 className="text-xl font-semibold mb-4">Personalized Song</h3>
-          <div className="mb-6 w-full transition-transform transform hover:scale-105">
-            {/* Spotify Song */}
-            {/* Uncomment and replace userData.spotifyTrackId when ready */}
-            {/* 
-            <iframe
-              src={`https://open.spotify.com/embed/track/${userData.spotifyTrackId}`}
-              width="100%"
-              height="80"
-              allow="encrypted-media"
-              title="Spotify Song"
-              className="rounded-lg shadow-md"
-            ></iframe>
-            */}
-          </div>
+            {/* Spotify Widgets */}
+            <br></br><br></br><h3 className="text-xl mb-4" style={{ fontFamily: 'PoppinsBold', color: currentTheme.textColor }}>Personalized Song</h3>
+            <div className="mb-6 w-full transition-transform transform hover:scale-105">
+              {/* Spotify Song */}
+              {/* Uncomment and replace userData.spotifyTrackId when ready */}
+              {/* 
+              <iframe
+                src={`https://open.spotify.com/embed/track/${userData.spotifyTrackId}`}
+                width="100%"
+                height="80"
+                allow="encrypted-media"
+                title="Spotify Song"
+                className="rounded-lg shadow-md"
+              ></iframe>
+              */}
+            </div>
 
-          <h3 className="text-xl font-semibold mb-4">Your Spotify Playlist</h3>
-          <div className="mb-6 w-full transition-transform transform hover:scale-105">
-            <iframe
-              src={`https://open.spotify.com/embed/playlist/${userData.spotifyPlaylistId}`}
-              width="100%"
-              height="380"
-              allow="encrypted-media"
-              title="Spotify Playlist"
-              className="rounded-lg shadow-md"
-            ></iframe>
+            <h3 className="text-xl mb-4" style={{ fontFamily: 'PoppinsBold', textAlign: 'center', color: currentTheme.textColor }}>Your Spotify Playlist</h3>
+            <div className="mb-6 w-full transition-transform transform hover:scale-105">
+              <iframe
+                src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M"
+                width="100%"
+                height="380"
+                allow="encrypted-media"
+                title="Spotify Playlist"
+                className="rounded-lg shadow-md"
+              ></iframe>
+            </div>
           </div>
-
-          {/* Daily Motivation */}
-          <h3 className="text-xl font-semibold mb-4">Daily Motivation</h3>
-          <p className="text-lg italic bg-gray-100/50 p-4 rounded-lg shadow-md">
-            {randomQuote}
-          </p>
         </div>
-      </div>
-
-      {/* PDF Print Button */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <ReactToPrint
-          trigger={() => (
-            <button className="px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg shadow-lg transition-transform transform hover:scale-105">
-              Print Profile
-            </button>
-          )}
-          content={() => componentRef.current}
-        />
       </div>
     </div>
   );

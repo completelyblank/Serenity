@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "d3": "^7.9.0",
+    "html2canvas": "^1.4.1",
     "react": "^18.3.1",
+    "react-component-export-image": "^1.0.6",
     "react-dom": "^18.3.1",
     "react-redux": "^9.1.2",
     "react-sparkle": "^2.0.0",
+    "react-to-print": "^2.15.1",
     "topojson": "^3.0.2",
     "typewriter-effect": "^2.21.0"
   },
