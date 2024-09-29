@@ -5,6 +5,8 @@ import { useUserContext } from '../../src/context/userContext';
 import ReactToPrint from 'react-to-print';
 import html2canvas from 'html2canvas';
 import axios from 'axios';
+import GenerateMP3 from '../components/mp3Generator';
+
 
 // Define themes
 const themes = {
@@ -284,22 +286,22 @@ const ProfilePage = () => {
             </div>
           )}
 
-          {/* Buttons */}
+         {/* Buttons */}
           <div className="mt-8 w-full flex flex-col gap-4" style={{ marginTop: 'auto' }}>
-            <button className="px-4 py-2 bg-yellow-500 text-white font-PoppinsBold rounded-lg shadow-md hover:bg-yellow-600">
+            <button className="px-6 py-3 bg-gradient-to-r from-yellow-700 to-yellow-900 text-white font-PoppinsBold rounded-lg shadow-lg hover:from-yellow-500 hover:to-yellow-700 transition duration-300 ease-in-out transform hover:scale-105">
               Change Password
             </button>
-            <button className="px-4 py-2 bg-red-500 text-white font-PoppinsBold rounded-lg shadow-md hover:bg-red-600">
+            <button className="px-6 py-3 bg-gradient-to-r from-red-700 to-red-900 text-white font-PoppinsBold rounded-lg shadow-lg hover:from-red-500 hover:to-red-700 transition duration-300 ease-in-out transform hover:scale-105">
               Delete Account
             </button>
             <button
               onClick={downloadProfileJPG}
-              className="px-4 py-2 bg-green-500 text-white font-PoppinsBold rounded-lg shadow-md hover:bg-green-600"
+              className="px-6 py-3 bg-gradient-to-r from-green-700 to-green-900 text-white font-PoppinsBold rounded-lg shadow-lg hover:from-green-500 hover:to-green-700 transition duration-300 ease-in-out transform hover:scale-105"
             >
               Download Profile JPG
             </button>
           </div>
-        </div>
+          </div>
 
         {/* Right Content Section */}
         <div className="w-full lg:w-2/3 p-6 lg:p-12 flex flex-col justify-center text-center"
@@ -319,6 +321,9 @@ const ProfilePage = () => {
               <p className="text-gray-500">Activity chart coming soon...</p>
             </div>
           </div>
+
+           {/* Mp3 Generate */}  
+            <GenerateMP3 />
 
           {/* Spotify Widgets */}
           <div className="mt-12">
