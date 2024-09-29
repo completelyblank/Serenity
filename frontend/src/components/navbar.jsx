@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useUserContext } from '../../src/context/userContext';
 
 const Navbar = () => {
+  const { userData } = useUserContext();
   const location = useLocation(); // Get current route
   const navigate = useNavigate(); // Programmatic navigation
   const [hoveredLink, setHoveredLink] = useState(null); // Track which link is hovered
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false); // State to control profile menu visibility
+  let imageNum = userData.userID % 10;
 
   // Automatically highlight the link that matches the current path
   const getLinkStyle = (linkName, path) => {
@@ -15,8 +18,8 @@ const Navbar = () => {
       color: isActive
         ? '#ffffff' // Active link color
         : hoveredLink === linkName
-        ? '#a0f5d4' // Hover color
-        : '#7fddb9', // Default link color
+          ? '#a0f5d4' // Hover color
+          : '#7fddb9', // Default link color
       textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)',
       transition: 'color 0.3s ease',
       fontSize: '1.1em',
@@ -125,11 +128,20 @@ const Navbar = () => {
                   transform: 'translateX(50%)',
                 }}
               ></div>
-              <img src='../../src/assets/avatar.png' alt='Profile' className="w-3/4 pt-4" />
+              <img
+                src={userData.gender === 'F'
+                  ? `girls/${imageNum}.jpg`
+                  :  `boys/${imageNum}.jpg`}
+                alt="Profile"
+                className="w-3/4 pt-4"
+                style={{borderRadius: '50%'}}
+              />              
+              <p className='pb-2' style={{ color: '#7fddb9', fontSize: '1.1em', textAlign: 'center', marginTop: '5%' }}>{userData.firstName}</p>
+              <hr className="w-3/4" style={{ border: '1px solid #5f8d87' }} />
               <button
                 onClick={handleViewProfile} // Handle click to navigate to profile
-                className="block px-4 py-2 pt-5"
-                style={{ color: '#7fddb9', fontSize: '1.1em' }}
+                className="block px-4 py-2 pt-2"
+                style={{ color: '#7fddb9', fontSize: '1.1em'}}
               >
                 View Profile
               </button>

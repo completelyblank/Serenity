@@ -82,7 +82,7 @@ const Home = () => {
       {/* Title Section with Background Image */}
       <motion.div
         className="flex flex-col items-center justify-center h-64 bg-cover bg-center relative z-10"
-        style={{ backgroundImage: `url("serene.jpg")`, height: '60vh' }}
+        style={{ backgroundImage: `url("serene.jpg")`, height: '70vh' }}
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
@@ -99,7 +99,7 @@ const Home = () => {
             maxSize={20}
             newSparkleOnFadeOut={true}
           />
-          <h1 className="text-6xl mb-9 font-CoolVetica" style={{ fontSize: '6.3em', letterSpacing: '3px', color: '#004d40' }}>Serenity</h1>
+          <h1 className="text-6xl mb-9 mt-12 font-CoolVetica" style={{ fontSize: '6.3em', letterSpacing: '3px', color: '#004d40' }}>Serenity</h1>
           <p className="text-lg font-bold mt-5 text-black animate-pulse font-PoppinsBold" style={{ fontSize: '1.5em', wordWrap: 'break-word', textAlign: 'center', color: '#004d40', paddingLeft: '20%', paddingRight: '20%' }}>{sentences[sentenceIndex]}</p>
         </div>
       </motion.div>
