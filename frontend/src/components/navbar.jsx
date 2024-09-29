@@ -128,20 +128,18 @@ const Navbar = () => {
                   transform: 'translateX(50%)',
                 }}
               ></div>
-              <img
-                src={userData.gender === 'F'
-                  ? `girls/${imageNum}.jpg`
-                  :  `boys/${imageNum}.jpg`}
-                alt="Profile"
-                className="w-3/4 pt-4"
-                style={{borderRadius: '50%'}}
-              />              
+              <div
+                className="w-16 h-16 lg:w-32 lg:h-32 rounded-full bg-center bg-cover mb-2 mt-4"
+                style={{
+                  backgroundImage: userData.gender === 'F' ? `url(girls/${imageNum}.jpg)` : `url(boys/${imageNum}.jpg)`,
+                }}
+              />
               <p className='pb-2' style={{ color: '#7fddb9', fontSize: '1.1em', textAlign: 'center', marginTop: '5%' }}>{userData.firstName}</p>
               <hr className="w-3/4" style={{ border: '1px solid #5f8d87' }} />
               <button
                 onClick={handleViewProfile} // Handle click to navigate to profile
                 className="block px-4 py-2 pt-2"
-                style={{ color: '#7fddb9', fontSize: '1.1em'}}
+                style={{ color: '#7fddb9', fontSize: '1.1em' }}
               >
                 View Profile
               </button>
