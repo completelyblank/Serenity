@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Navbar from '../components/navbar';
+import Envelope from '../components/envelope';
 import { useUserContext } from '../../src/context/userContext';
 import ReactToPrint from 'react-to-print';
 import html2canvas from 'html2canvas';
@@ -81,6 +82,9 @@ const ProfilePage = () => {
   const [randomQuote, setRandomQuote] = useState('');
   const [selectedTheme, setSelectedTheme] = useState(`theme${userData.theme}`); // Track selected theme
   const [quote, setQuote] = useState("");
+  const [author, setAuthor] = useState("");
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
+  const [isTokenPopupOpen, setIsTokenPopupOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,6 +92,7 @@ const ProfilePage = () => {
         const response = await axios.get('http://localhost:3000/profile');
         const data = response.data;
         setQuote(data.QUOTE);
+        setAuthor(data.AUTHOR);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to fetch quote. Please try again later.');
@@ -105,10 +110,27 @@ const ProfilePage = () => {
     try {
       const themeNumber = parseInt(theme.replace(/\D/g, ''), 10);
       const response = await axios.post('http://localhost:3000/profile', { username: userData.username, theme: themeNumber });
-      setUserData({ username: userData.username, firstName: userData.firstName, lastName: userData.lastName, gender: userData.gender, age: userData.age, theme: themeNumber });
+      setUserData({ userID: userData.userID, username: userData.username, firstName: userData.firstName, lastName: userData.lastName, gender: userData.gender, age: userData.age, theme: themeNumber });
+      console.log(userData.userID);
     } catch (error) {
       console.log("error changing themes");
     }
+  };
+
+  // Toggle popup visibility for the envelope
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
+  };
+
+  // Toggle token usage confirmation popup visibility
+  const toggleTokenPopup = () => {
+    setIsTokenPopupOpen(!isTokenPopupOpen);
+  };
+
+  // Handle using the token
+  const handleUseToken = () => {
+    toggleTokenPopup(); // Close token popup
+    togglePopup(); // Open the envelope popup
   };
 
   return (
@@ -186,6 +208,81 @@ const ProfilePage = () => {
               ))}
             </select>
           </div>
+
+          {/* Quotes Jar */}
+          <div
+            className="w-24 h-24 lg:w-56 lg:h-56 bg-center bg-contain bg-no-repeat mb-6 transition-transform duration-300 transform hover:scale-105 cursor-pointer hover:brightness-75"
+            style={{
+              backgroundImage: "url('jar.png')",
+            }}
+            onClick={toggleTokenPopup} // Toggle token popup on click
+          />
+
+          {/* Token Usage Confirmation Popup */}
+          {isTokenPopupOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 font-PoppinsBold">
+              <div
+                className="relative p-4 rounded-lg shadow-lg flex flex-col items-center justify-center"
+                style={{
+                  width: '60%',
+                  height: '60%',
+                  backgroundColor: currentTheme.borderColor,
+                  borderWidth: '10px',  // Border thickness
+                  borderStyle: 'solid',
+                  borderImage: "url('border.png') 100 round",
+                }}
+              >
+                {/* Token Count Display */}
+                <div className="absolute top-4 right-4 text-lg font-PoppinsBold" style={{ color: currentTheme.textColor }}>
+                  Token Count: {userData.token}
+                </div>
+                <p className="text-lg font-PoppinsBold" style={{ color: currentTheme.textColor }}>
+                  Do you want to use a token to open the envelope?
+                </p>
+                <div className="flex space-x-4 mt-4">
+                  <button
+                    className="text-xl py-2"
+                    style={{ backgroundColor: currentTheme.backgroundColor, color: currentTheme.textColor, borderRadius: '20px', width: '150px' }}
+                    onClick={handleUseToken} // Use the token
+                  >
+                    Yes
+                  </button>
+                  <button
+                    className="text-xl px-9 py-2"
+                    style={{ backgroundColor: currentTheme.backgroundColor, color: currentTheme.textColor, borderRadius: '20px', width: '150px' }}
+                    onClick={toggleTokenPopup} // Close token popup
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Existing Popup for Envelope */}
+          {isPopupOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+              <div
+                className="relative p-4 rounded-lg shadow-lg flex flex-col items-center justify-center"
+                style={{
+                  width: '60%',
+                  height: '60%',
+                  backgroundColor: currentTheme.borderColor,
+                  borderWidth: '10px', // Border thickness
+                  borderStyle: 'solid',
+                  borderImage: "url('border.png') 100 round",
+                }}
+              >
+                <Envelope togglePopup={togglePopup} />
+                <button
+                  className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
+                  onClick={togglePopup}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Buttons */}
           <div className="mt-8 w-full flex flex-col gap-4" style={{ marginTop: 'auto' }}>

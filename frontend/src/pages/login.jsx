@@ -86,8 +86,8 @@ const LoginPage = () => {
       const response = await axios.post('http://localhost:3000/', { username: username, password, isSignup });
 
       if (response.data.status === 1) {
-        const { USER_ID, FIRST_NAME, LAST_NAME, GENDER, AGE, THEME } = response.data.user;
-        setUserData({ userID: USER_ID, username, firstName: FIRST_NAME, lastName: LAST_NAME, gender: GENDER, age: AGE, theme: THEME });
+        const { USER_ID, FIRST_NAME, LAST_NAME, GENDER, AGE, TOKEN_COUNT, THEME } = response.data.user;
+        setUserData({ userID: USER_ID, username, firstName: FIRST_NAME, lastName: LAST_NAME, gender: GENDER, age: AGE, theme: THEME, token: TOKEN_COUNT });
         navigate('/dashboard');
       } else {
         setLoginError(true);
