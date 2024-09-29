@@ -8,12 +8,78 @@ async function fetchUsers(connection, username) {
       [username],
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
-    
+
     // Return the first user if exists, otherwise null
     return result.rows.length > 0 ? result.rows[0] : null;
   } catch (err) {
     console.error('Error fetching users:', err);
     throw err;
+  }
+}
+
+async function fetchQuote(connection) {
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM quotes`,
+      [],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    const randomIndex = Math.floor(Math.random() * 200);
+    return result.rows[randomIndex];
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    throw err;
+  }
+}
+
+async function changeTheme(connection, theme, username) {
+  try {
+    const result = await connection.execute(
+      `UPDATE users SET theme=:theme WHERE username = :username`,
+      [theme, username],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT, autoCommit: true }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    throw err;
+  }
+}
+
+async function addQuotes(connection, quotes) {
+  try {
+    if (!quotes || quotes.length === 0) {
+      throw new Error('No quotes provided');
+    }
+
+    for (let i = 0; i < quotes.length; i++) {
+      const { category, quote, author } = quotes[i];
+
+      // Check if the quote already exists
+      const existingQuoteResult = await connection.execute(
+        `SELECT COUNT(*) AS count FROM quotes WHERE quote = :quote AND author = :author`,
+        [quote, author],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+
+      // If the quote already exists, skip to the next iteration
+      if (existingQuoteResult.rows[0].COUNT > 0) {
+        console.log(`Skipping duplicate quote: "${quote}" by ${author}`);
+        continue; // Skip this quote
+      }
+
+      const quoteid = i + 1; // Use the current index for quoteID
+      await connection.execute(
+        `INSERT INTO quotes (quoteID, category, quote, author) VALUES (:quoteid, :category, :quote, :author)`,
+        [quoteid, category, quote, author],
+        { autoCommit: true } // Commit the transaction
+      );
+    }
+    return 1; // Indicate success
+  } catch (err) {
+    console.error('Error adding quotes:', err);
+    throw err; // Rethrow the error to handle it at a higher level
   }
 }
 
@@ -95,5 +161,8 @@ module.exports = {
   fetchNumUsers,
   fetchTokens,
   addUser,
-  findUser
+  findUser,
+  changeTheme,
+  addQuotes,
+  fetchQuote
 };
