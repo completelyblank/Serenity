@@ -100,6 +100,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1000);
+    setUserData({});
     return () => clearTimeout(timer);
   }, []);
 

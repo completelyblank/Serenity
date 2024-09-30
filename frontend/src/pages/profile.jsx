@@ -6,7 +6,7 @@ import ReactToPrint from 'react-to-print';
 import html2canvas from 'html2canvas';
 import axios from 'axios';
 import GenerateMP3 from '../components/mp3Generator';
-
+import { useNavigate } from 'react-router-dom';
 
 // Define themes
 const themes = {
@@ -64,6 +64,17 @@ const ProfilePage = () => {
   const { userData } = useUserContext();
   const { setUserData } = useUserContext();
   const componentRef = useRef();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!userData || Object.keys(userData).length === 0) {
+      navigate('/'); 
+    }
+  }, [userData, navigate]);
+
+  if (!userData || Object.keys(userData).length === 0) {
+    return null; 
+  }
 
   const downloadProfileJPG = async () => {
     const element = componentRef.current;

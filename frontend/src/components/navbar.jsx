@@ -95,6 +95,15 @@ const Navbar = () => {
           Games
         </Link>
 
+        <Link
+          to="/community"
+          style={getLinkStyle('Community', '/community')}
+          onMouseEnter={() => setHoveredLink('Community')}
+          onMouseLeave={() => setHoveredLink(null)}
+        >
+          Community
+        </Link>
+
         {/* Profile button with dropdown */}
         <div className="relative">
           <button
@@ -131,7 +140,7 @@ const Navbar = () => {
               <div
                 className="w-16 h-16 lg:w-32 lg:h-32 rounded-full bg-center bg-cover mb-2 mt-4"
                 style={{
-                  backgroundImage: userData.gender === 'F' ? `url(girls/${imageNum}.jpg)` : `url(boys/${imageNum}.jpg)`,
+                  backgroundImage: `url(${!userData || !userData.gender ? 'unknown.jpg' : userData.gender === 'F' ? `girls/${imageNum}.jpg` : `boys/${imageNum}.jpg`})`,
                 }}
               />
               <p className='pb-2' style={{ color: '#7fddb9', fontSize: '1.1em', textAlign: 'center', marginTop: '5%' }}>{userData.firstName}</p>
