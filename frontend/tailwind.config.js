@@ -1,9 +1,12 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  
+  darkMode: 'class', // Enable dark mode via a class
+  
   theme: {
     extend: {
       fontFamily: {
@@ -16,5 +19,10 @@ export default {
       },
     },
   },
+  
+  variants: {
+    extend: {},
+  },
+  
   plugins: [],
-}
+};
