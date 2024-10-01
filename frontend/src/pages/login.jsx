@@ -105,7 +105,7 @@ const LoginPage = () => {
   }, []);
 
   return (
-    <div className="h-screen overflow-y-auto overflow-y-hidden relative" style={{ backgroundImage: `url("serene_login.png")` }}>
+    <div className="h-screen overflow-y-auto overflow-y-hidden relative" style={{ backgroundImage: `url("serene_login.jpg")` }}>
       <div className="flex w-full">
         {/* Left Side */}
         <div className="w-full flex flex-col text-center justify-center" style={{ alignItems: 'center' }}>

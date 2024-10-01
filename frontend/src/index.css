@@ -16,6 +16,12 @@ body {
 }
 
 @font-face {
+  font-family: "DirtyHeadline";   /*Can be any text*/
+  src: local("DirtyHeadline"),
+    url("./fonts/Dirty_Headline.ttf") format("truetype");
+}
+
+@font-face {
   font-family: "KgTen";   /*Can be any text*/
   src: local("KgTen"),
     url("./fonts/KgTen.ttf") format("truetype");

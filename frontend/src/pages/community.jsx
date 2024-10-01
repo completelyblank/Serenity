@@ -23,7 +23,6 @@ const Community = () => {
         fetchData();
     }, []);
 
-
     if (loading || showSpinner) {
         return (
             <div className="h-screen overflow-y-auto" style={{ backgroundColor: '#b2dfdb' }}>
@@ -34,14 +33,40 @@ const Community = () => {
     }
 
     return (
-        <div className="h-screen overflow-y-auto overflow-x-hidden relative" style={{ backgroundColor: '#c1e4e7' }}>
+        <div
+            className="h-screen overflow-y-auto relative bg-cover bg-center"
+            style={{
+                backgroundColor: '#c1e4e7',
+                backgroundImage: 'url("mountains.jpg")',
+            }}
+        >
             <Navbar />
             <div className="flex justify-center items-center h-screen">
-                <a href="/community/blog" className="bg-blue-500 text-white p-6 rounded-lg shadow-md hover:bg-blue-600 transition duration-300 mx-4">
-                    <h2 className="text-xl font-semibold">Blog</h2>
+                <a
+                    href="/blog"
+                    className="w-1/3 h-1/2 bg-blue-500 text-white p-6 rounded-lg shadow-md hover:bg-blue-600 transition duration-300 mx-16 mt-16 flex justify-center items-center"
+                >
+                    <h2 
+                        className="font-PoppinsBold"
+                        style={{
+                            fontSize: '1.5em'
+                        }}
+                    >
+                        Blog
+                    </h2>
                 </a>
-                <a href="/community/chatroom" className="bg-green-500 text-white p-6 rounded-lg shadow-md hover:bg-green-600 transition duration-300 mx-4">
-                    <h2 className="text-xl font-semibold">Chat Room</h2>
+                <a
+                    href="/chatroom"
+                    className="w-1/3 h-1/2 bg-green-500 text-white p-6 rounded-lg shadow-md hover:bg-green-600 transition duration-300 mx-16 mt-16 flex justify-center items-center"
+                >
+                    <h2 
+                        className="font-PoppinsBold"
+                        style={{
+                            fontSize: '1.5em'
+                        }}
+                    >
+                        Chat Room
+                    </h2>
                 </a>
             </div>
         </div>

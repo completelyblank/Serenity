@@ -11,7 +11,8 @@ export default {
         'Poppins': ['Poppins', 'sans-serif'],
         'PoppinsBold': ['PoppinsBold', 'sans-serif'],
         'CoolVetica': ['CoolVetica', 'sans-serif'],
-        'KgTen': ['KgTen', 'sans-serif']
+        'KgTen': ['KgTen', 'sans-serif'],
+        'DirtyHeadline': ['DirtyHeadline', 'sans-serif']
       },
     },
   },

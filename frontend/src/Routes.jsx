@@ -31,8 +31,8 @@ const AppRoutes = () => {
       <Route path="/breathe" element={<BreathingExercise />} />
       <Route path="/games" element={<GameHandler />} />
       <Route path="/profile" element={<ProfilePage />} /> 
-      <Route path="/community/chatroom" element={<ChatRoom />} />
-      <Route path="/community/blog" element={<Blog />} /> 
+      <Route path="/chatroom" element={<ChatRoom />} />
+      <Route path="/blog" element={<Blog />} /> 
       <Route path="/community" element={<Community />} /> 
     </Routes>
   );

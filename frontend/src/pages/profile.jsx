@@ -57,8 +57,39 @@ const themes = {
     backgroundColor: '#304c77',
     textColor: '#ecf02b',
     borderColor: '#082450',
+  },
+  theme9: {
+    name: "Dreamy Horizon",
+    backgroundColor: '#E5E2F4',
+    textColor: '#8B80F9',
+    borderColor: '#ADA8F9',
+  },
+  theme10: {
+    name: "LED Glow",
+    backgroundColor: '#0D0D0D',
+    textColor: '#00FF41',
+    borderColor: '#005C1F',
+  },
+  theme11: {
+    name: "Neon Pulse",
+    backgroundColor: '#1B1B2F',
+    textColor: '#FF2975',
+    borderColor: '#A41E5E',
+  },
+  theme12: {
+    name: "Sunny Delight",
+    backgroundColor: '#FFD700',
+    textColor: '#FFFFFF',
+    borderColor: '#FFA500',
+  },
+  theme13: {
+    name: "Midnight Velvet",
+    backgroundColor: '#0F0E17',
+    textColor: '#A7A9BE',
+    borderColor: '#1C1B29',
   }
 };
+
 
 const ProfilePage = () => {
   const { userData } = useUserContext();
@@ -163,7 +194,7 @@ const ProfilePage = () => {
         style={{
           backgroundColor: currentTheme.backgroundColor,
           opacity: 0.95,
-          marginTop: '10%',
+          marginTop: '5%',
           minHeight: '100vh',
           marginBottom: '5%',
         }}
