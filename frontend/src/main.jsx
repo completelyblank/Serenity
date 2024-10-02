@@ -3,15 +3,18 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import './index.css';
 import AppRoutes from './Routes';
-import { UserProvider } from '../src/context/userContext'; // Import the UserProvider
+import { UserProvider } from '../src/context/userContext';
+import { SnackbarProvider } from 'notistack';
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <UserProvider> {/* Wrap your AppRoutes with UserProvider */}
-        <AppRoutes />
+      <UserProvider> 
+        <SnackbarProvider>
+          <AppRoutes />
+        </SnackbarProvider>
       </UserProvider>
     </Router>
-  </React.StrictMode>,
+  </React.StrictMode >,
   document.getElementById('root')
 );

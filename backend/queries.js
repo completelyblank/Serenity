@@ -47,6 +47,22 @@ async function changeTheme(connection, theme, username) {
   }
 }
 
+async function changePassword(connection, username, password) {
+  console.log(password);
+  try {
+    const result = await connection.execute(
+      `UPDATE users SET password=:password WHERE username = :username`,
+      [password, username],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT, autoCommit: true }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error changing password:', err);
+    throw err;
+  }
+}
+
 async function addQuotes(connection, quotes) {
   try {
     if (!quotes || quotes.length === 0) {
@@ -164,5 +180,6 @@ module.exports = {
   findUser,
   changeTheme,
   addQuotes,
-  fetchQuote
+  fetchQuote,
+  changePassword
 };

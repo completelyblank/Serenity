@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote } = require('./queries'); 
+const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword } = require('./queries'); 
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -81,7 +81,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.post('/profile', async (req, res) => {
+router.post('/profile/theme', async (req, res) => {
   const { username, theme } = req.body;
 
   let connection;
@@ -94,6 +94,30 @@ router.post('/profile', async (req, res) => {
   } catch (err) {
     console.error('Error changing theme:', err);
     res.status(500).json({ error: 'Failed to change theme' });
+  } finally {
+    if (connection) {
+      try {
+        // Close connection
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.post('/profile/password', async (req, res) => {
+  const { username, password } = req.body;
+
+  let connection;
+  let status;
+
+  try {
+    connection = await connectToDatabase();
+    status = await changePassword(connection, username, password);
+    res.json({ status });
+  } catch (err) {
+    console.error('Error changing password:', err);
+    res.status(500).json({ error: 'Failed to change password' });
   } finally {
     if (connection) {
       try {

@@ -104,7 +104,7 @@ const MoodLoggingForm = () => {
       <Navbar />
       <div className="fixed top-0 left-0 right-0 bottom-0 p-20 overflow-y-auto"
         style={{
-          backgroundImage: 'url("lights.jpg")',
+          backgroundImage: 'url("aurora.jpg")',
           backgroundPosition: "center",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",

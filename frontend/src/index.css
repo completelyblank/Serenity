@@ -101,3 +101,10 @@ body {
                0 0 25px rgba(5, 255, 201, 0.243),
 }
 
+.custom-classname.react-toggle--checked .react-toggle-track {
+  background-color: #160114;
+}
+
+.custom-classname.react-toggle--unchecked .react-toggle-track {
+  background-color: #ffffff;
+}

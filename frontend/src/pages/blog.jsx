@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import Spinner from '../components/spinner';
+import Toggle from 'react-toggle';
+import "react-toggle/style.css";
+import { FaSun, FaMoon } from 'react-icons/fa';
 
 const Blog = () => {
   const [categories] = useState(['General', 'Advice', 'Questions', 'Discussion']);
@@ -10,7 +13,7 @@ const Blog = () => {
   const [newPost, setNewPost] = useState('');
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
   const [selectedThread, setSelectedThread] = useState(null);
 
@@ -56,7 +59,7 @@ const Blog = () => {
       <div
         className="h-screen overflow-hidden relative"
         style={{
-          backgroundImage: darkMode ? 'url("lightss.jpg")' : 'url("lightss.jpg")',
+          backgroundImage: darkMode ? 'url("lights.jpg")' : 'url("lights.jpg")',
           backgroundPosition: 'center',
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
@@ -102,7 +105,7 @@ const Blog = () => {
 
             {/* Dropdown for Categories */}
             <select
-              className="w-full p-2 text-center rounded border font-PoppinsBold hover: cursor-pointer"
+              className="w-full p-2 text-center rounded border font-Poppins hover: cursor-pointer"
               style={{
                 backgroundColor: '#416461',
                 color: 'wheat',
@@ -129,26 +132,123 @@ const Blog = () => {
               }}>
               Chats
             </h2>
-
+            <table
+              style={{
+                backgroundColor: '#416461',
+                fontFamily: 'Poppins',
+                width: '100%',
+                borderCollapse: 'collapse',
+                textAlign: 'center',
+                height: '30%',
+                color: 'white',
+                borderRadius: '2%'
+              }}
+            >
+              <tbody>
+                <tr>
+                  <td style={{ padding: '8px', height: '30px', verticalAlign: 'middle', borderBottom: '2px solid #1f2c2b' }}>
+                    <Link
+                      to="/chat1"
+                      style={{
+                        textDecoration: 'none',
+                        color: 'white',
+                        display: 'block',
+                        height: '100%',
+                        lineHeight: '30px',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4e4c')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    >
+                      The Listening Lounge
+                    </Link>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '8px', height: '30px', verticalAlign: 'middle', borderBottom: '2px solid #1f2c2b' }}>
+                    <Link
+                      to="/chat2"
+                      style={{
+                        textDecoration: 'none',
+                        color: 'white',
+                        display: 'block',
+                        height: '100%',
+                        lineHeight: '30px',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4e4c')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    >
+                      Sunny Side Up
+                    </Link>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '8px', height: '30px', verticalAlign: 'middle', borderBottom: '2px solid #1f2c2b' }}>
+                    <Link
+                      to="/chat3"
+                      style={{
+                        textDecoration: 'none',
+                        color: 'white',
+                        display: 'block',
+                        height: '100%',
+                        lineHeight: '30px',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4e4c')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    >
+                      Achievement Arena
+                    </Link>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '8px', height: '30px', verticalAlign: 'middle' }}>
+                    <Link
+                      to="/chat4"
+                      style={{
+                        textDecoration: 'none',
+                        color: 'white',
+                        display: 'block',
+                        height: '100%',
+                        lineHeight: '30px',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4e4c')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    >
+                      Compassion Corner
+                    </Link>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
             <div className="flex-grow"></div>
 
             {/* Dark Mode Toggle */}
-            <div className="flex justify-start p-4 mt-auto">
+            <div className="flex justify-start p-4 mt-auto mb-9 pb-9">
               <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={darkMode}
+                <Toggle
+                  className='custom-classname'
+                  id="dark-mode-toggle"
+                  defaultChecked={darkMode}
                   onChange={() => setDarkMode(!darkMode)}
+                  icons={{
+                    unchecked: (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                        <FaSun style={{ color: 'orange' }} />
+                      </div>
+                    ),
+                    checked: (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                        <FaMoon style={{ color: 'white' }} />
+                      </div>
+                    ),
+                  }}
                 />
-                <div
-                  className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-700 peer-checked:bg-gray-900 peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-400"
-                  style={{ marginBottom: '70%' }}
+                <label
+                  htmlFor="dark-mode-toggle"
+                  className="font-PoppinsBold ml-2 text-black-900 dark:text-gray-200"
+                  style={{ fontSize: '1.1em' }}
                 >
-                </div>
-                <span className="ml-3 text-sm font-medium text-gray-300 dark:text-gray-300">
                   {darkMode ? 'Dark Mode' : 'Light Mode'}
-                </span>
+                </label>
               </label>
             </div>
           </div>
@@ -210,8 +310,8 @@ const Blog = () => {
                     style={{ maxHeight: '100px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', wordWrap: 'break-word' }}
                     onClick={() => togglePopup(thread)}
                   >
-                    <h3 className="text-lg font-Poppins mb-2" style={{ fontSize: '1.1m', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{thread.title}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>Category: {thread.category}</p>
+                    <h3 className="text-lg font-Poppins mb-2" style={{ fontSize: '1.1m', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#70bdb7' }}>{thread.title}</h3>
+                    <p className="text-sm dark:text-gray-500">{thread.category}</p>
                   </div>
                 ))
               )}
@@ -219,45 +319,6 @@ const Blog = () => {
           </div>
         </div>
       </div>
-      {/* Popup Modal */}
-      {isPopupOpen && selectedThread && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div
-            className="relative p-8 rounded-lg shadow-lg bg-white dark:bg-gray-800"
-            style={{
-              width: '60%',
-              height: '60%',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-start',
-              alignItems: 'center',
-            }}
-          >
-            <h3 className="font-DirtyHeadline mb-10"
-              style={{
-                fontSize: '2em',
-                textAlign: 'center',
-                letterSpacing: '2px',
-                color: '#74bdb7',
-                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
-              }}>
-                Replies
-            </h3>
-            <h3 className="font-PoppinsBold text-xl dark:text-gray-200">
-              {selectedThread?.title}
-            </h3>
-
-            {/* Popup Button */}
-            <button
-              className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
-              onClick={togglePopup}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 };

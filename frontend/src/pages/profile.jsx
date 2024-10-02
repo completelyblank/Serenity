@@ -8,6 +8,8 @@ import axios from 'axios';
 import GenerateMP3 from '../components/mp3Generator';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../components/spinner';
+import ReactiveButton from 'reactive-button';
+import { useSnackbar } from "notistack";
 
 // Define themes
 const themes = {
@@ -95,17 +97,27 @@ const themes = {
 const ProfilePage = () => {
   const { userData } = useUserContext();
   const { setUserData } = useUserContext();
+  const [state, setState] = useState('idle');
   const componentRef = useRef();
   const navigate = useNavigate();
 
+  const onClickHandler = () => {
+    setState('loading');
+
+    // send an HTTP request
+    setTimeout(() => {
+      setState('success');
+    }, 2000);
+  };
+
   useEffect(() => {
     if (!userData || Object.keys(userData).length === 0) {
-      navigate('/'); 
+      navigate('/');
     }
   }, [userData, navigate]);
 
   if (!userData || Object.keys(userData).length === 0) {
-    return null; 
+    return null;
   }
 
   const downloadProfileJPG = async () => {
@@ -130,8 +142,16 @@ const ProfilePage = () => {
   const [author, setAuthor] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
   const [isTokenPopupOpen, setIsTokenPopupOpen] = useState(false);
+  const [passwordPopup, setPasswordPopup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(true);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [notMatch, setNotMatch] = useState(false);
+  const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -156,11 +176,57 @@ const ProfilePage = () => {
     setSelectedTheme(theme); // Update selected theme
     try {
       const themeNumber = parseInt(theme.replace(/\D/g, ''), 10);
-      const response = await axios.post('http://localhost:3000/profile', { username: userData.username, theme: themeNumber });
+      const response = await axios.post('http://localhost:3000/profile/theme', { username: userData.username, theme: themeNumber });
       setUserData({ userID: userData.userID, username: userData.username, firstName: userData.firstName, lastName: userData.lastName, gender: userData.gender, age: userData.age, theme: themeNumber });
       console.log(userData.userID);
     } catch (error) {
       console.log("error changing themes");
+    }
+  };
+
+  const togglePasswordPopup = () => {
+    setPasswordPopup(!passwordPopup);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setNotMatch(false);
+    setPasswordChangeSuccess(false);
+  };
+
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) {
+      setNotMatch(true);
+      setErrorMessage("Passwords do not match."); // Set error message
+      return; // Early return if passwords don't match
+    } else {
+      setNotMatch(false);
+      setErrorMessage(""); // Clear error message if passwords match
+    }
+
+    if (currentPassword !== userData.password) {
+      console.log(userData.password);
+      setErrorMessage("Incorrect password.");
+      return;
+    }
+
+    try {
+      // Assuming your API accepts a POST request for password change
+      const response = await axios.post('http://localhost:3000/profile/password', {
+        username: userData.username,
+        password: newPassword,
+      });
+
+      if (response.data.status === 1) {
+        setPasswordChangeSuccess(true);
+        enqueueSnackbar('Password Changed Successfully', { variant: 'success', autoHideDuration: 2000 });
+        togglePasswordPopup();
+      } else {
+        console.error('Password change failed:', response.data.message);
+        setErrorMessage('Failed To Change Password'); // Set error message if the API fails
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      setErrorMessage('Error changing password.'); // Set error message for network errors
     }
   };
 
@@ -354,11 +420,15 @@ const ProfilePage = () => {
             </div>
           )}
 
-         {/* Buttons */}
+          {/* Buttons */}
           <div className="mt-8 w-full flex flex-col gap-4" style={{ marginTop: 'auto' }}>
-            <button className="px-6 py-3 bg-gradient-to-r from-yellow-700 to-yellow-900 text-white font-PoppinsBold rounded-lg shadow-lg hover:from-yellow-500 hover:to-yellow-700 transition duration-300 ease-in-out transform hover:scale-105">
+            <button
+              className="px-6 py-3 bg-gradient-to-r from-yellow-700 to-yellow-900 text-white font-PoppinsBold rounded-lg shadow-lg hover:from-yellow-500 hover:to-yellow-700 transition duration-300 ease-in-out transform hover:scale-105"
+              onClick={setPasswordPopup}
+            >
               Change Password
             </button>
+
             <button className="px-6 py-3 bg-gradient-to-r from-red-700 to-red-900 text-white font-PoppinsBold rounded-lg shadow-lg hover:from-red-500 hover:to-red-700 transition duration-300 ease-in-out transform hover:scale-105">
               Delete Account
             </button>
@@ -369,7 +439,76 @@ const ProfilePage = () => {
               Download Profile JPG
             </button>
           </div>
-          </div>
+          {passwordPopup && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 font-PoppinsBold">
+              <div className="relative p-4 rounded-lg shadow-lg flex flex-col items-center justify-center"
+                style={{
+                  width: '60%',
+                  height: '60%',
+                  backgroundColor: currentTheme.borderColor,
+                  borderWidth: '10px', // Border thickness
+                  borderStyle: 'solid',
+                  borderImage: "url('border.png') 100 round",
+                }}>
+                <h2 className="text-2xl font-bold mb-4" style={{ color: currentTheme.textColor }}>
+                  Change Password
+                </h2>
+                <input
+                  type="password"
+                  placeholder="Current Password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="my-2 p-2 rounded border w-3/4"
+                />
+                <input
+                  type="password"
+                  placeholder="New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="my-2 p-2 rounded border w-3/4"
+                />
+                <input
+                  type="password"
+                  placeholder="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="my-2 p-2 rounded border w-3/4"
+                />
+                {errorMessage && (
+                  <p className="text-red-500">{errorMessage}</p> // Display error message
+                )}
+
+                {passwordChangeSuccess && (
+                  <p className="text-green-500">Password changed successfully!</p>
+                )}
+                <div className="flex space-x-4 mt-4">
+                  <button
+                    className="text-xl py-2 px-4"
+                    style={{
+                      backgroundColor: currentTheme.backgroundColor,
+                      color: currentTheme.textColor,
+                      borderRadius: '20px',
+                    }}
+                    onClick={handlePasswordChange}
+                  >
+                    Submit
+                  </button>
+                  <button
+                    className="text-xl py-2 px-4"
+                    style={{
+                      backgroundColor: currentTheme.backgroundColor,
+                      color: currentTheme.textColor,
+                      borderRadius: '20px',
+                    }}
+                    onClick={togglePasswordPopup}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Right Content Section */}
         <div className="w-full lg:w-2/3 p-6 lg:p-12 flex flex-col justify-center text-center"
@@ -390,8 +529,8 @@ const ProfilePage = () => {
             </div>
           </div>
 
-           {/* Mp3 Generate */}  
-            <GenerateMP3 />
+          {/* Mp3 Generate */}
+          <GenerateMP3 />
 
           {/* Spotify Widgets */}
           <div className="mt-12">
