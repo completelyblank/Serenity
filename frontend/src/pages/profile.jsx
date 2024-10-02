@@ -7,6 +7,7 @@ import html2canvas from 'html2canvas';
 import axios from 'axios';
 import GenerateMP3 from '../components/mp3Generator';
 import { useNavigate } from 'react-router-dom';
+import Spinner from '../components/spinner';
 
 // Define themes
 const themes = {
@@ -129,6 +130,8 @@ const ProfilePage = () => {
   const [author, setAuthor] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
   const [isTokenPopupOpen, setIsTokenPopupOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showSpinner, setShowSpinner] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -176,6 +179,29 @@ const ProfilePage = () => {
     toggleTokenPopup(); // Close token popup
     togglePopup(); // Open the envelope popup
   };
+
+  useEffect(() => {
+    const spinnerTimeout = setTimeout(() => {
+      setShowSpinner(false);
+    }, 1000);
+
+    setLoading(false);
+    return () => clearTimeout(spinnerTimeout);
+  }, []);
+
+  if (loading || showSpinner) {
+    return (
+      <div
+        className="h-screen overflow-hidden"
+        style={{
+          backgroundColor: '#b2dfdb'
+        }}
+      >
+        <Navbar />
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div

@@ -95,9 +95,9 @@ const Navbar = () => {
         </Link>
 
         <Link
-          to="/community"
-          style={getLinkStyle('Community', '/community')}
-          onMouseEnter={() => setHoveredLink('Community')}
+          to="/blog"
+          style={getLinkStyle('Blog', '/blog')}
+          onMouseEnter={() => setHoveredLink('Blog')}
           onMouseLeave={() => setHoveredLink(null)}
         >
           Community

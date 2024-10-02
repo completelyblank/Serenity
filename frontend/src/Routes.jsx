@@ -15,7 +15,6 @@ import GameHandler from './pages/Game_Handler.jsx';
 import './index.css';
 import ChatRoom from './pages/chatRoom.jsx';
 import Blog from './pages/blog.jsx';
-import Community from './pages/community.jsx';
 
 const AppRoutes = () => {
   return (
@@ -33,7 +32,6 @@ const AppRoutes = () => {
       <Route path="/profile" element={<ProfilePage />} /> 
       <Route path="/chatroom" element={<ChatRoom />} />
       <Route path="/blog" element={<Blog />} /> 
-      <Route path="/community" element={<Community />} /> 
     </Routes>
   );
 };

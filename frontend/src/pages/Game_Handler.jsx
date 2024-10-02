@@ -53,7 +53,7 @@
 
     if (loading || showSpinner) {
       return (
-        <div className="h-screen overflow-y-auto" style={{ backgroundColor: '#001f24' }}>
+        <div className="h-screen overflow-y-auto" style={{ backgroundColor: '#b2dfdb' }}>
           <Navbar />
           <Spinner />
         </div>

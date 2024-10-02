@@ -11,6 +11,13 @@ const Blog = () => {
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
+  const [selectedThread, setSelectedThread] = useState(null);
+
+  const togglePopup = (thread) => {
+    setSelectedThread(thread); // Set the clicked thread
+    setIsPopupOpen(!isPopupOpen); // Toggle popup
+  };
 
   const handleNewPostSubmit = (e) => {
     e.preventDefault();
@@ -35,10 +42,7 @@ const Blog = () => {
       <div
         className="h-screen overflow-hidden"
         style={{
-          backgroundImage: 'url("lights.jpg")',
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
+          backgroundColor: '#b2dfdb'
         }}
       >
         <Navbar />
@@ -52,7 +56,7 @@ const Blog = () => {
       <div
         className="h-screen overflow-hidden relative"
         style={{
-          backgroundImage: darkMode ? 'url("lights.jpg")' : 'url("lights.jpg")',
+          backgroundImage: darkMode ? 'url("lightss.jpg")' : 'url("lightss.jpg")',
           backgroundPosition: 'center',
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
@@ -60,43 +64,55 @@ const Blog = () => {
       >
         <Navbar />
 
-        {/* Dark Mode Toggle */}
-        <div className="flex justify-end p-4">
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input 
-              type="checkbox" 
-              className="sr-only peer" 
-              checked={darkMode} 
-              onChange={() => setDarkMode(!darkMode)} 
-            />
-            <div className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-700 peer-checked:bg-gray-900 peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-400"></div>
-            <span className="ml-3 text-sm font-medium text-gray-300 dark:text-gray-300">
-              {darkMode ? 'Dark Mode' : 'Light Mode'}
-            </span>
-          </label>
-        </div>
-
         <div className="flex h-full">
           {/* Left Part */}
-          <div className="md:w-1/4 w-full backdrop-blur-md bg-white/10 dark:bg-gray-900/70 p-4 flex flex-col fixed h-full rounded-lg shadow-lg">
-            <h2 className="font-DirtyHeadline text-3xl text-center text-teal-200 dark:text-teal-400 text-shadow-lg">
+          <div className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 flex flex-col fixed h-full shadow-lg">
+            <h2
+              className="font-DirtyHeadline"
+              style={{
+                fontSize: '3.1em',
+                textAlign: 'center',
+                color: '#74bdb7',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+              }}
+            >
               The Zen Board
             </h2>
-            <h2 className="font-DirtyHeadline mb-10 text-center text-xl text-teal-100 dark:text-teal-300">
+            <h2
+              className="font-DirtyHeadline mb-10"
+              style={{
+                fontSize: '1.5em',
+                textAlign: 'center',
+                color: '#74bdb7',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+              }}
+            >
               Share, Reflect, Unwind
             </h2>
 
-            <h2 className="font-DirtyHeadline mb-2 text-center text-lg text-teal-100 dark:text-teal-300">
+            <h2 className="mb-2 font-DirtyHeadline"
+              style={{
+                color: '#74bdb7',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+                fontSize: '1.7em',
+                textAlign: 'center'
+              }}>
               Browse Threads
             </h2>
 
             {/* Dropdown for Categories */}
             <select
-              className="w-full p-2 text-center rounded border bg-white/30 dark:bg-gray-800/70 text-black dark:text-teal-700"
+              className="w-full p-2 text-center rounded border font-PoppinsBold hover: cursor-pointer"
+              style={{
+                backgroundColor: '#416461',
+                color: 'wheat',
+                borderColor: '#1f2c2b',
+                textAlign: 'center'
+              }}
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
-              <option value="">All Categories</option>
+              <option value="">All Categories</option> {/* Option to show all categories */}
               {categories.map((category) => (
                 <option key={category} value={category}>
                   {category}
@@ -104,19 +120,42 @@ const Blog = () => {
               ))}
             </select>
 
-            {/* Exit Button */}
-            <Link
-              to="/community"
-              className="mt-auto bg-red-500 hover:bg-red-400 text-white dark:bg-red-700 dark:hover:bg-red-500 px-6 py-3 rounded-lg text-center shadow-md"
-              style={{ marginLeft: '10%', width: '80%' }}
-            >
-              Exit Blog
-            </Link>
+            <h2 className="mb-2 mt-5 font-DirtyHeadline"
+              style={{
+                color: '#74bdb7',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+                fontSize: '1.7em',
+                textAlign: 'center'
+              }}>
+              Chats
+            </h2>
+
+            <div className="flex-grow"></div>
+
+            {/* Dark Mode Toggle */}
+            <div className="flex justify-start p-4 mt-auto">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={darkMode}
+                  onChange={() => setDarkMode(!darkMode)}
+                />
+                <div
+                  className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-700 peer-checked:bg-gray-900 peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-400"
+                  style={{ marginBottom: '70%' }}
+                >
+                </div>
+                <span className="ml-3 text-sm font-medium text-gray-300 dark:text-gray-300">
+                  {darkMode ? 'Dark Mode' : 'Light Mode'}
+                </span>
+              </label>
+            </div>
           </div>
 
           {/* Right Part */}
           <div
-            className="md:w-3/4 w-full backdrop-blur-md bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg"
+            className="md:w-3/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden"
             style={{
               borderRadius: '20px',
               height: '86.5vh',
@@ -131,17 +170,26 @@ const Blog = () => {
           >
             {/* Post Input Box */}
             <div className="bg-white/20 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
-              <h3 className="text-xl font-bold mb-2 text-white dark:text-gray-200">Create a New Post</h3>
+              <h2 className="mb-2 font-DirtyHeadline"
+                style={{
+                  color: '#74bdb7',
+                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+                  fontSize: '1.7em',
+                  textAlign: 'left'
+                }}>
+                Create a New Post
+              </h2>
               <form onSubmit={handleNewPostSubmit}>
                 <textarea
-                  className="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600 dark:text-gray-200"
+                  className="font-Poppins w-full p-2 pl-4 pr-4 rounded border dark:bg-gray-900 dark:border-gray-600 dark:text-gray-200"
                   placeholder="Share your thoughts..."
                   value={newPost}
                   onChange={(e) => setNewPost(e.target.value)}
                   style={{ resize: 'none', height: '100px' }}
                 />
                 <button
-                  className="mt-4 px-9 py-2 bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 dark:from-gray-700 dark:to-teal-400 dark:hover:from-gray-900 dark:hover:to-teal-300 text-white dark:text-gray-200 rounded transition duration-200 transform hover:scale-105 shadow-lg"
+                  className="font-PoppinsBold mt-4 px-9 py-2 bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 dark:from-gray-700 dark:to-teal-400 dark:hover:from-gray-900 dark:hover:to-teal-300 text-white dark:text-gray-200 rounded transition duration-200 transform hover:scale-105 shadow-lg"
+                  style={{ fontSize: '1.1em', marginLeft: '88%' }}
                   type="submit"
                 >
                   Post
@@ -149,19 +197,21 @@ const Blog = () => {
               </form>
             </div>
 
-            {/* Display Posts */}
+            {/* Display Threads */}
             <div>
-              <h2 className="text-xl font-bold mb-4 text-teal-400 dark:text-teal-300">Recent Posts</h2>
+              <h2 className="mb-2 font-DirtyHeadline" style={{ color: '#74bdb7', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)', fontSize: '1.7em', textAlign: 'left' }}>Recent Posts</h2>
               {threads.length === 0 ? (
-                <p className="text-gray-200 dark:text-gray-400">No posts yet.</p>
+                <p className="font-Poppins text-gray-200 dark:text-gray-400" style={{ fontSize: '1.1em' }}>No posts yet.</p>
               ) : (
                 threads.map((thread) => (
                   <div
                     key={thread.id}
-                    className="p-4 backdrop-blur-md bg-white/10 dark:bg-gray-800/50 dark:text-gray-300 rounded-lg mb-4 shadow-lg"
+                    className="p-4 backdrop-blur-md bg-white/10 dark:bg-gray-800/50 dark:text-gray-300 rounded-lg mb-4 shadow-lg hover:cursor-pointer"
+                    style={{ maxHeight: '100px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', wordWrap: 'break-word' }}
+                    onClick={() => togglePopup(thread)}
                   >
-                    <h3 className="text-lg">{thread.title}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Category: {thread.category}</p>
+                    <h3 className="text-lg font-Poppins mb-2" style={{ fontSize: '1.1m', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{thread.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>Category: {thread.category}</p>
                   </div>
                 ))
               )}
@@ -169,6 +219,45 @@ const Blog = () => {
           </div>
         </div>
       </div>
+      {/* Popup Modal */}
+      {isPopupOpen && selectedThread && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div
+            className="relative p-8 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+            style={{
+              width: '60%',
+              height: '60%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+            }}
+          >
+            <h3 className="font-DirtyHeadline mb-10"
+              style={{
+                fontSize: '2em',
+                textAlign: 'center',
+                letterSpacing: '2px',
+                color: '#74bdb7',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+              }}>
+                Replies
+            </h3>
+            <h3 className="font-PoppinsBold text-xl dark:text-gray-200">
+              {selectedThread?.title}
+            </h3>
+
+            {/* Popup Button */}
+            <button
+              className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
+              onClick={togglePopup}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
