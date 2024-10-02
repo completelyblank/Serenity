@@ -177,8 +177,7 @@ const ProfilePage = () => {
     try {
       const themeNumber = parseInt(theme.replace(/\D/g, ''), 10);
       const response = await axios.post('http://localhost:3000/profile/theme', { username: userData.username, theme: themeNumber });
-      setUserData({ userID: userData.userID, username: userData.username, firstName: userData.firstName, lastName: userData.lastName, gender: userData.gender, age: userData.age, theme: themeNumber });
-      console.log(userData.userID);
+      setUserData({ userID: userData.userID, username: userData.username, password: userData.password, firstName: userData.firstName, lastName: userData.lastName, gender: userData.gender, age: userData.age, theme: themeNumber });
     } catch (error) {
       console.log("error changing themes");
     }
@@ -196,39 +195,44 @@ const ProfilePage = () => {
   const handlePasswordChange = async () => {
     if (newPassword !== confirmPassword) {
       setNotMatch(true);
-      setErrorMessage("Passwords do not match."); // Set error message
-      return; // Early return if passwords don't match
+      setErrorMessage("Passwords do not match.");
+      return;
     } else {
       setNotMatch(false);
-      setErrorMessage(""); // Clear error message if passwords match
+      setErrorMessage("");
     }
-
+  
     if (currentPassword !== userData.password) {
-      console.log(userData.password);
       setErrorMessage("Incorrect password.");
       return;
     }
-
+  
     try {
-      // Assuming your API accepts a POST request for password change
       const response = await axios.post('http://localhost:3000/profile/password', {
         username: userData.username,
         password: newPassword,
       });
-
+  
       if (response.data.status === 1) {
         setPasswordChangeSuccess(true);
         enqueueSnackbar('Password Changed Successfully', { variant: 'success', autoHideDuration: 2000 });
+  
+        // Update the password in userData and log the new password
+        setUserData({
+          ...userData,
+          password: newPassword
+        });
+  
+        console.log("Updated password:", newPassword); // Log new password
+  
         togglePasswordPopup();
       } else {
-        console.error('Password change failed:', response.data.message);
-        setErrorMessage('Failed To Change Password'); // Set error message if the API fails
+        setErrorMessage('Failed To Change Password');
       }
     } catch (error) {
-      console.error('Error changing password:', error);
-      setErrorMessage('Error changing password.'); // Set error message for network errors
+      setErrorMessage('Error changing password.');
     }
-  };
+  };  
 
   // Toggle popup visibility for the envelope
   const togglePopup = () => {
