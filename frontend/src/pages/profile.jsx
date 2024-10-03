@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import Spinner from '../components/spinner';
 import ReactiveButton from 'reactive-button';
 import { useSnackbar } from "notistack";
+import showPasswordImg from '../assets/eye.png';
+import hidePasswordImg from '../assets/eye-slash.png';
 
 // Define themes
 const themes = {
@@ -143,6 +145,7 @@ const ProfilePage = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
   const [isTokenPopupOpen, setIsTokenPopupOpen] = useState(false);
   const [passwordPopup, setPasswordPopup] = useState(false);
+  const [deletionPopup, setDeletionPopup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(true);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -150,8 +153,12 @@ const ProfilePage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [notMatch, setNotMatch] = useState(false);
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -190,6 +197,47 @@ const ProfilePage = () => {
     setConfirmPassword("");
     setNotMatch(false);
     setPasswordChangeSuccess(false);
+    setErrorMessage("");
+    setShowCurrentPassword(false);
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
+  };
+
+  const toggleDelete = () => {
+    setDeletionPopup(!deletionPopup);
+    setConfirmPassword("");
+    setErrorMessage("");
+    setShowConfirmPassword(false);
+  };
+
+  const handleDelete = async () => {
+    if (confirmPassword !== userData.password) {
+      setNotMatch(true);
+      setErrorMessage("Incorrect Password");
+      return;
+    } else {
+      setNotMatch(false);
+      setErrorMessage("");
+    }
+    try {
+      const response = await axios.post('http://localhost:3000/profile/delete', {
+        username: userData.username
+      });
+      if (response.data.status === 1) {
+        setDeleteSuccess(true);
+        enqueueSnackbar('Account Deleted Successfully', { variant: 'success', autoHideDuration: 1000 });
+
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+
+        toggleDelete();
+      } else {
+        setErrorMessage('Failed To Delete Account');
+      }
+    } catch (error) {
+      setErrorMessage('Error deleting account.');
+    }
   };
 
   const handlePasswordChange = async () => {
@@ -201,30 +249,30 @@ const ProfilePage = () => {
       setNotMatch(false);
       setErrorMessage("");
     }
-  
+
     if (currentPassword !== userData.password) {
       setErrorMessage("Incorrect password.");
       return;
     }
-  
+
     try {
       const response = await axios.post('http://localhost:3000/profile/password', {
         username: userData.username,
         password: newPassword,
       });
-  
+
       if (response.data.status === 1) {
         setPasswordChangeSuccess(true);
-        enqueueSnackbar('Password Changed Successfully', { variant: 'success', autoHideDuration: 2000 });
-  
+        enqueueSnackbar('Password Changed Successfully', { variant: 'success', autoHideDuration: 1000 });
+
         // Update the password in userData and log the new password
         setUserData({
           ...userData,
           password: newPassword
         });
-  
+
         console.log("Updated password:", newPassword); // Log new password
-  
+
         togglePasswordPopup();
       } else {
         setErrorMessage('Failed To Change Password');
@@ -232,7 +280,7 @@ const ProfilePage = () => {
     } catch (error) {
       setErrorMessage('Error changing password.');
     }
-  };  
+  };
 
   // Toggle popup visibility for the envelope
   const togglePopup = () => {
@@ -408,7 +456,7 @@ const ProfilePage = () => {
                   width: '60%',
                   height: '60%',
                   backgroundColor: currentTheme.borderColor,
-                  borderWidth: '10px', // Border thickness
+                  borderWidth: '10px', 
                   borderStyle: 'solid',
                   borderImage: "url('border.png') 100 round",
                 }}
@@ -433,7 +481,10 @@ const ProfilePage = () => {
               Change Password
             </button>
 
-            <button className="px-6 py-3 bg-gradient-to-r from-red-700 to-red-900 text-white font-PoppinsBold rounded-lg shadow-lg hover:from-red-500 hover:to-red-700 transition duration-300 ease-in-out transform hover:scale-105">
+            <button 
+              className="px-6 py-3 bg-gradient-to-r from-red-700 to-red-900 text-white font-PoppinsBold rounded-lg shadow-lg hover:from-red-500 hover:to-red-700 transition duration-300 ease-in-out transform hover:scale-105"
+              onClick={setDeletionPopup}
+            >
               Delete Account
             </button>
             <button
@@ -457,27 +508,54 @@ const ProfilePage = () => {
                 <h2 className="text-2xl font-bold mb-4" style={{ color: currentTheme.textColor }}>
                   Change Password
                 </h2>
+                <div className="relative w-3/4">
                 <input
-                  type="password"
+                  type={showCurrentPassword ? 'text' : 'password'}
                   placeholder="Current Password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="my-2 p-2 rounded border w-3/4"
+                  className="my-2 p-2 rounded border w-full"
                 />
+                <img
+                      src={showCurrentPassword ? hidePasswordImg : showPasswordImg}
+                      alt={showCurrentPassword ? 'Hide password' : 'Show password'}
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-4 cursor-pointer"
+                      style={{ width: '24px', height: '24px' }}
+                />
+                </div>
+                <div className="relative w-3/4">
                 <input
-                  type="password"
+                  type={showNewPassword ? 'text' : 'password'}
                   placeholder="New Password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="my-2 p-2 rounded border w-3/4"
+                  className="my-2 p-2 rounded border w-full"
                 />
+                <img
+                      src={showNewPassword ? hidePasswordImg : showPasswordImg}
+                      alt={showNewPassword ? 'Hide password' : 'Show password'}
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-4 cursor-pointer"
+                      style={{ width: '24px', height: '24px' }}
+                />
+                </div>
+                <div className="relative w-3/4">
                 <input
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Confirm New Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="my-2 p-2 rounded border w-3/4"
+                  className="my-2 p-2 rounded border w-full"
                 />
+                <img
+                      src={showConfirmPassword ? hidePasswordImg : showPasswordImg}
+                      alt={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-4 cursor-pointer"
+                      style={{ width: '24px', height: '24px' }}
+                />
+                </div>
                 {errorMessage && (
                   <p className="text-red-500">{errorMessage}</p> // Display error message
                 )}
@@ -495,7 +573,7 @@ const ProfilePage = () => {
                     }}
                     onClick={handlePasswordChange}
                   >
-                    Submit
+                    Change Password
                   </button>
                   <button
                     className="text-xl py-2 px-4"
@@ -512,6 +590,71 @@ const ProfilePage = () => {
               </div>
             </div>
           )}
+          {deletionPopup && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 font-PoppinsBold">
+              <div className="relative p-4 rounded-lg shadow-lg flex flex-col items-center justify-center"
+                style={{
+                  width: '60%',
+                  height: '60%',
+                  backgroundColor: currentTheme.borderColor,
+                  borderWidth: '10px', // Border thickness
+                  borderStyle: 'solid',
+                  borderImage: "url('border.png') 100 round",
+                }}>
+                <h2 className="text-2xl font-bold mb-4" style={{ color: currentTheme.textColor }}>
+                  Confirm Deletion
+                </h2>
+                <div className="relative w-3/4">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Confirm Current Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="my-2 p-2 rounded border w-full"
+                />
+                <img
+                      src={showConfirmPassword ? hidePasswordImg : showPasswordImg}
+                      alt={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-4 cursor-pointer"
+                      style={{ width: '24px', height: '24px' }}
+                />
+                </div>
+                {errorMessage && (
+                  <p className="text-red-500">{errorMessage}</p>
+                )}
+
+                {deleteSuccess && (
+                  <p className="text-green-500">Account deleted successfully!</p>
+                )}
+                <div className="flex space-x-4 mt-4">
+                  <button
+                    className="text-xl py-2 px-4"
+                    style={{
+                      backgroundColor: currentTheme.backgroundColor,
+                      color: currentTheme.textColor,
+                      borderRadius: '20px',
+                    }}
+                    onClick={handleDelete}
+                  >
+                    Delete Account
+                  </button>
+                  <button
+                    className="text-xl py-2 px-4"
+                    style={{
+                      backgroundColor: currentTheme.backgroundColor,
+                      color: currentTheme.textColor,
+                      borderRadius: '20px',
+                    }}
+                    onClick={toggleDelete}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* Right Content Section */}

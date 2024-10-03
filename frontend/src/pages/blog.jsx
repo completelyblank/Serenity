@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import Spinner from '../components/spinner';
 import Toggle from 'react-toggle';
+import ChatList from '../components/chatlist';
 import "react-toggle/style.css";
 import { FaSun, FaMoon } from 'react-icons/fa';
 
@@ -132,93 +133,7 @@ const Blog = () => {
               }}>
               Chats
             </h2>
-            <table
-              style={{
-                backgroundColor: '#416461',
-                fontFamily: 'Poppins',
-                width: '100%',
-                borderCollapse: 'collapse',
-                textAlign: 'center',
-                height: '30%',
-                color: 'white',
-                borderRadius: '2%'
-              }}
-            >
-              <tbody>
-                <tr>
-                  <td style={{ padding: '8px', height: '30px', verticalAlign: 'middle', borderBottom: '2px solid #1f2c2b' }}>
-                    <Link
-                      to="/chat1"
-                      style={{
-                        textDecoration: 'none',
-                        color: 'white',
-                        display: 'block',
-                        height: '100%',
-                        lineHeight: '30px',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4e4c')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                    >
-                      The Listening Lounge
-                    </Link>
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '8px', height: '30px', verticalAlign: 'middle', borderBottom: '2px solid #1f2c2b' }}>
-                    <Link
-                      to="/chat2"
-                      style={{
-                        textDecoration: 'none',
-                        color: 'white',
-                        display: 'block',
-                        height: '100%',
-                        lineHeight: '30px',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4e4c')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                    >
-                      Sunny Side Up
-                    </Link>
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '8px', height: '30px', verticalAlign: 'middle', borderBottom: '2px solid #1f2c2b' }}>
-                    <Link
-                      to="/chat3"
-                      style={{
-                        textDecoration: 'none',
-                        color: 'white',
-                        display: 'block',
-                        height: '100%',
-                        lineHeight: '30px',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4e4c')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                    >
-                      Achievement Arena
-                    </Link>
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '8px', height: '30px', verticalAlign: 'middle' }}>
-                    <Link
-                      to="/chat4"
-                      style={{
-                        textDecoration: 'none',
-                        color: 'white',
-                        display: 'block',
-                        height: '100%',
-                        lineHeight: '30px',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a4e4c')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                    >
-                      Compassion Corner
-                    </Link>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <ChatList />
             <div className="flex-grow"></div>
 
             {/* Dark Mode Toggle */}

@@ -63,6 +63,21 @@ async function changePassword(connection, username, password) {
   }
 }
 
+async function deleteAccount(connection, username) {
+  try {
+    const result = await connection.execute(
+      `DELETE FROM users WHERE username = :username`,
+      [username],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT, autoCommit: true }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error deleting account:', err);
+    throw err;
+  }
+}
+
 async function addQuotes(connection, quotes) {
   try {
     if (!quotes || quotes.length === 0) {
@@ -181,5 +196,6 @@ module.exports = {
   changeTheme,
   addQuotes,
   fetchQuote,
-  changePassword
+  changePassword,
+  deleteAccount,
 };

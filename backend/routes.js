@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword } = require('./queries'); 
+const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount } = require('./queries'); 
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -118,6 +118,30 @@ router.post('/profile/password', async (req, res) => {
   } catch (err) {
     console.error('Error changing password:', err);
     res.status(500).json({ error: 'Failed to change password' });
+  } finally {
+    if (connection) {
+      try {
+        // Close connection
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.post('/profile/delete', async (req, res) => {
+  const { username } = req.body;
+
+  let connection;
+  let status;
+
+  try {
+    connection = await connectToDatabase();
+    status = await deleteAccount(connection, username);
+    res.json({ status });
+  } catch (err) {
+    console.error('Error deleting account:', err);
+    res.status(500).json({ error: 'Failed to delete account' });
   } finally {
     if (connection) {
       try {
