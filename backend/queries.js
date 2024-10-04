@@ -17,6 +17,79 @@ async function fetchUsers(connection, username) {
   }
 }
 
+async function setActive(connection, userID, active, chatID) {
+  try {
+    const result = await connection.execute(
+      `UPDATE members SET is_active = :active WHERE user_id=:userID AND chat_room_id = :chatID`,
+      [active, userID, chatID],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result;
+  } catch (err) {
+    console.error('Error fetching members:', err);
+    throw err;
+  }
+}
+
+async function getMessages(connection, chatID) {
+  try {
+    const result = await connection.execute(
+      `SELECT u.gender, u.user_id, u.first_name, u.last_name, m.message_content, c.chat_room_id, TO_CHAR(m.sent_date, 'DD Mon YYYY') AS sent_date, TO_CHAR(m.sent_date, 'HH:MI AM') AS sent_time
+      FROM users u JOIN messages m ON u.user_id = m.user_id
+      JOIN chat_rooms c ON c.chat_room_id = m.chat_room_id
+      WHERE c.chat_room_id = :chatID
+      ORDER BY m.message_id`,
+      [chatID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching members:', err);
+    throw err;
+  }
+}
+
+async function addMessage(connection, chatID, userID, messageContent) {
+  try {
+    const result = await connection.execute(
+      `INSERT INTO messages(chat_room_id, user_id, message_content)
+      VALUES(:chatID, :userID, :content)`,
+      [chatID, userID, messageContent],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    if(result.rows) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } catch (err) {
+    console.error('Error adding message:', err);
+    throw err;
+  }
+}
+
+async function fetchMembers(connection, chatID) {
+  try {
+    const result = await connection.execute(
+      `SELECT u.first_name, u.last_name, u.user_id, u.gender, m.is_active
+      FROM members m 
+      JOIN users u
+      ON u.user_id = m.user_id
+      WHERE chat_room_id = :chat_id`,
+      [chatID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching members:', err);
+    throw err;
+  }
+}
+
 async function fetchQuote(connection) {
   try {
     const result = await connection.execute(
@@ -198,4 +271,8 @@ module.exports = {
   fetchQuote,
   changePassword,
   deleteAccount,
+  fetchMembers,
+  setActive,
+  getMessages,
+  addMessage
 };

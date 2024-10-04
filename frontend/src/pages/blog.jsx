@@ -234,6 +234,43 @@ const Blog = () => {
           </div>
         </div>
       </div>
+      {/* Popup Modal */}
+      {isPopupOpen && selectedThread && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div
+            className="relative p-8 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+            style={{
+              width: '60%',
+              height: '60%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+            }}
+          >
+            <h3 className="font-DirtyHeadline mb-10"
+              style={{
+                fontSize: '2em',
+                textAlign: 'center',
+                letterSpacing: '2px',
+                color: '#74bdb7',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+              }}>
+                Replies
+            </h3>
+            <h3 className="font-PoppinsBold text-xl dark:text-gray-200">
+              {selectedThread?.title}
+            </h3>
+            {/* Popup Button */}
+            <button
+              className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
+              onClick={togglePopup}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

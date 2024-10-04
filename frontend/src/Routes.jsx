@@ -13,8 +13,8 @@ import BubblesGame from './pages/bubbles.jsx';
 import BreathingExercise from './pages/breather.jsx';
 import GameHandler from './pages/Game_Handler.jsx';
 import './index.css';
-import ChatRoom from './pages/chatRoom.jsx';
 import Blog from './pages/blog.jsx';
+import ChatRoom from './pages/chatRoom.jsx';
 
 const AppRoutes = () => {
   return (
@@ -30,8 +30,8 @@ const AppRoutes = () => {
       <Route path="/breathe" element={<BreathingExercise />} />
       <Route path="/games" element={<GameHandler />} />
       <Route path="/profile" element={<ProfilePage />} /> 
-      <Route path="/chatroom" element={<ChatRoom />} />
       <Route path="/blog" element={<Blog />} /> 
+      <Route path="/chatroom/:id" element={<ChatRoom />} />
     </Routes>
   );
 };

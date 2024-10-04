@@ -42,7 +42,7 @@ const ChatList = () => {
                             onMouseLeave={() => setHoveredChat(null)}
                         >
                             <Link
-                                to={`/chat${chat.id}`}
+                                to={`/chatroom/${chat.id}`}
                                 style={{
                                     textDecoration: 'none',
                                     color: 'white',

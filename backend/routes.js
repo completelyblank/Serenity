@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount } = require('./queries'); 
+const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -34,6 +34,89 @@ router.get('/form', async (req, res) => {
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
+  } finally {
+    if (connection) {
+      try {
+        // Close connection
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.get('/chatroom/:chatID', async (req, res) => {
+  const chatID = req.params.chatID;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const members = await fetchMembers(connection, chatID);
+    const messages = await getMessages(connection, chatID);
+    res.json({ members, messages });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Failed to fetch data' });
+  } finally {
+    if (connection) {
+      try {
+        // Close connection
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.post('/chatroom/:chatID/message', async (req, res) => {
+  const chatID = req.params.chatID;
+  const { userID, messageContent } = req.body;
+  let connection;
+
+  try {
+    connection = await connectToDatabase();
+    
+    // Get the current time and date
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateString = now.toISOString(); // Format date as ISO string
+
+    // Add the message to the database
+    const status = await addMessage(connection, chatID, userID, messageContent, time, dateString);
+
+    // Prepare the response object to return to the client
+    const responseMessage = {
+      USER_ID: userID,
+      MESSAGE_CONTENT: messageContent,
+      SENT_TIME: time,
+      SENT_DATE: dateString,
+    };
+
+    res.json(responseMessage);
+  } catch (err) {
+    console.error('Error updating data:', err);
+    res.status(500).json({ error: 'Failed to update data' });
+  } finally {
+    if (connection) {
+      try {
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+
+router.post('/chatroom/:chatID', async (req, res) => {
+  const chatID = req.params.chatID;
+  const { userID, active } = req.body;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const status = await setActive(connection, userID, active, chatID);
+    res.json({ status });
+  } catch (err) {
+    console.error('Error updating data:', err);
+    res.status(500).json({ error: 'Failed to update data' });
   } finally {
     if (connection) {
       try {
@@ -162,11 +245,11 @@ router.get('/profile', async (req, res) => {
   try {
     connection = await connectToDatabase();
     status = await fetchQuote(connection);
-    res.json({ 
-      QUOTEID: status.QUOTEID, 
-      QUOTE: status.QUOTE, 
-      CATEGORY: status.CATEGORY, 
-      AUTHOR: status.AUTHOR 
+    res.json({
+      QUOTEID: status.QUOTEID,
+      QUOTE: status.QUOTE,
+      CATEGORY: status.CATEGORY,
+      AUTHOR: status.AUTHOR
     });
   } catch (err) {
     console.error('Error fetching quote:', err);
@@ -183,7 +266,7 @@ router.get('/profile', async (req, res) => {
 });
 
 router.get('/api/quotes', async (req, res) => {
-  const totalQuotesToFetch = 200; 
+  const totalQuotesToFetch = 200;
   const allQuotes = [];
   let status;
   let connection;
@@ -196,7 +279,7 @@ router.get('/api/quotes', async (req, res) => {
       if (response.data && response.data.length > 0) {
         allQuotes.push(response.data[0]);
       } else {
-        break; 
+        break;
       }
     }
     connection = await connectToDatabase();
