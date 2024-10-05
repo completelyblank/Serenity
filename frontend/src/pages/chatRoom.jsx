@@ -157,9 +157,9 @@ const ChatRoom = () => {
         <div className={'dark'}>
             <div className="h-screen overflow-hidden relative">
                 <Navbar />
-                <div className="flex h-full overflow-y-hidden">
+                <div className="flex h-full">
                     {/* Left Part */}
-                    <div className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 flex flex-col fixed overflow-y-hidden shadow-lg">
+                    <div className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 flex flex-col fixed h-full shadow-lg overflow-y-scroll">
                         <h2 className="font-DirtyHeadline" style={{
                             fontSize: '3.1em',
                             textAlign: 'center',
