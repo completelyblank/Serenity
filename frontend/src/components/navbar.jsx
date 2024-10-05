@@ -41,7 +41,7 @@ const Navbar = () => {
     <nav
       className="flex items-center justify-between bg-gray-900 p-5 font-PoppinsBold"
       style={{
-        position: 'sticky', // Change to fixed
+        position: 'sticky', 
         top: 0,
         zIndex: 50,
         width: '100%', // Ensure it stretches across the screen

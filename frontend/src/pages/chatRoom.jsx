@@ -24,7 +24,7 @@ const ChatRoom = () => {
             const response = await axios.get(`http://localhost:3000/chatroom/${id}`);
             setMembers(response.data.members);
             const newMessages = await axios.get(`http://localhost:3000/chatroom/${id}`);
-            if(newMessages != messages) {
+            if (newMessages != messages) {
                 setMessages(messages.data.messages);
             }
         }, 2000);
@@ -93,35 +93,35 @@ const ChatRoom = () => {
     }, [messages]); // Runs whenever messages change
 
     const handleSendMessage = async (e) => {
-        e.preventDefault(); 
-        
+        e.preventDefault();
+
         if (newMessage.trim()) {
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const newMsg = {
-                member: `${userData.FIRST_NAME} ${userData.LAST_NAME}`, 
-                USER_ID: userData.userID, 
+                member: `${userData.FIRST_NAME} ${userData.LAST_NAME}`,
+                USER_ID: userData.userID,
                 MESSAGE_CONTENT: newMessage,
                 SENT_TIME: time,
             };
-    
+
             try {
-                const response = await axios.post(`http://localhost:3000/chatroom/${id}/message`, {userID: userData.userID, messageContent: newMessage}); 
+                const response = await axios.post(`http://localhost:3000/chatroom/${id}/message`, { userID: userData.userID, messageContent: newMessage });
                 const message = response.data;
-    
+
                 // Ensure message contains valid data before updating state
                 if (message && message.USER_ID && message.MESSAGE_CONTENT) {
-                    setMessages((prevMessages) => [...prevMessages, message]); 
+                    setMessages((prevMessages) => [...prevMessages, message]);
                 } else {
                     console.error('Received invalid message:', message);
                 }
-    
-                setNewMessage(''); 
+
+                setNewMessage('');
             } catch (error) {
                 console.error('Error sending message:', error);
             }
         }
-    };      
-    
+    };
+
 
     // Function to format the date as readable
     const formatDate = (dateString) => {
@@ -157,18 +157,19 @@ const ChatRoom = () => {
         <div className={'dark'}>
             <div className="h-screen overflow-hidden relative">
                 <Navbar />
-                <div className="flex h-full">
+                <div className="flex">
                     {/* Left Part */}
-                    <div className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 flex flex-col fixed h-full shadow-lg overflow-y-scroll">
+                    <div style={{maxHeight: '100vh'}} className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden">
                         <h2 className="font-DirtyHeadline" style={{
                             fontSize: '3.1em',
                             textAlign: 'center',
                             color: '#74bdb7',
                             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
                         }}>
+                            <br />
                             The Zen Board
                         </h2>
-                        <h2 className="font-DirtyHeadline mb-2" style={{
+                        <h2 className="font-DirtyHeadline mb-10" style={{
                             fontSize: '1.5em',
                             textAlign: 'center',
                             color: '#74bdb7',
@@ -186,7 +187,7 @@ const ChatRoom = () => {
                             {titles[id - 1]}
                         </h2>
 
-                        <h2 className="mb-2 mt-2 font-DirtyHeadline" style={{
+                        <h2 className="mb-2 mt-5 font-DirtyHeadline" style={{
                             color: '#74bdb7',
                             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
                             fontSize: '1.7em',
@@ -194,18 +195,18 @@ const ChatRoom = () => {
                         }}>
                             Members in the Room
                         </h2>
+<div style={{ paddingBottom: '100px'}}>
                         {/* Scrollable Members Table */}
-                        <div className="flex-grow overflow-y-scroll max-h-screen mt-5">
-                            <table className="w-full text-left" 
-                                style={{
-                                    backgroundColor: '#416461',
-                                    fontFamily: 'Poppins',
-                                    borderCollapse: 'collapse',
-                                    textAlign: 'center',
-                                    color: 'white',
-                                    borderRadius: '2%',
-                                    position: 'relative',
-                                }}>
+                        <div className="flex-grow overflow-y-auto max-h-60 mt-5">
+                            <table className="w-full text-left" style={{
+                                backgroundColor: '#416461',
+                                fontFamily: 'Poppins',
+                                borderCollapse: 'collapse',
+                                textAlign: 'center',
+                                color: 'white',
+                                borderRadius: '2%',
+                                position: 'relative',
+                            }}>
                                 <tbody>
                                     {members.map((member, index) => (
                                         <tr key={index}>
@@ -234,12 +235,9 @@ const ChatRoom = () => {
                                                             width: '12px',
                                                             height: '12px',
                                                             marginRight: '10px',
-                                                            boxShadow: member.IS_ACTIVE ? '0 0 10px rgba(30, 255, 0, 0.8), 0 0 20px rgba(30, 255, 0, 0.6)' : '0 0 10px rgba(240, 76, 76, 0.8), 0 0 20px rgba(240, 76, 76, 0.6)',
-                                                            transition: 'box-shadow 0.3s ease',
                                                         }}
-                                                        title={member.IS_ACTIVE ? "Active" : "Inactive"}
+                                                        title="Active"
                                                     ></div>
-
                                                 </div>
                                             </td>
                                         </tr>
@@ -247,21 +245,22 @@ const ChatRoom = () => {
                                 </tbody>
                             </table>
                         </div>
+                        </div>
                         <div className="flex-grow"></div>
                     </div>
 
                     {/* Right Part */}
                     <div
-                        className="fixed md:w-3/4 backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden flex flex-col"
+                        className="md:w-3/4 w-max-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden"
                         style={{
                             borderRadius: '20px',
                             height: '86.5vh',
                             width: '73.5%',
-                            marginLeft: '25.8%',
-                            marginTop: '10px',
+                            marginLeft: '10px',
+                            marginTop: '5.8%',
                             marginRight: '10px',
                             marginBottom: '10px',
-                            padding: '20px',
+                            padding: '0px',
                             boxSizing: 'border-box',
                             backgroundImage: `url("/chatBack${id}.jpg")`,
                             backgroundPosition: 'center',
@@ -271,7 +270,7 @@ const ChatRoom = () => {
                         }}
                     >
                         {/* Header Div */}
-                        <div className="fixed top-0 left-0 right-0 p-4 bg-gray-700 bg-opacity-60 flex items-center h-12">
+                        <div className="sticky top-0 left-0 right-0 p-4 bg-gray-700 bg-opacity-60 flex items-center h-12">
                             {/* Back Button */}
                             <button
                                 onClick={() => {
@@ -288,8 +287,9 @@ const ChatRoom = () => {
                             </h2>
                         </div>
 
+
                         {/* Message Box */}
-                        <div className="mt-16 font-Poppins flex-grow overflow-y-auto" style={{ fontSize: '1em' }}>
+                        <div className="mr-5 ml-5 mt-8 font-Poppins flex-grow overflow-y-auto" style={{ fontSize: '1em' }}>
                             {messages.map((message, index) => {
                                 const previousMessage = messages[index - 1];
                                 const showDate =
@@ -312,9 +312,9 @@ const ChatRoom = () => {
                                             {message.USER_ID === userData.userID ? (
                                                 <div className="flex items-center justify-end" style={{ maxWidth: '45%', wordBreak: 'break-word' }}>
                                                     <div className={`font-Poppins rounded-lg p-2 pl-4 pr-4 bg-blue-300 text-black`}>
-                                                    <p style={{fontSize: '0.9em', fontFamily: 'PoppinsBold'}}>{userData.firstName} {userData.lastName}</p>
+                                                        <p style={{ fontSize: '0.9em', fontFamily: 'PoppinsBold' }}>{userData.firstName} {userData.lastName}</p>
                                                         <p>{message.MESSAGE_CONTENT}</p>
-                                                        <p className="font-PoppinsBold text-xs text-gray-800 text-right mt-2">{message.SENT_TIME}</p>
+                                                        <p className="font-PoppinsBold text-xs text-gray-800 text-right mt-1">{message.SENT_TIME}</p>
                                                     </div>
                                                     {/* User's profile image on the right */}
                                                     <img
@@ -343,9 +343,9 @@ const ChatRoom = () => {
                                                     </div>
                                                     <div className={`font-Poppins rounded-lg p-2 pl-4 pr-4 bg-gray-300 text-black`}>
                                                         <p className="font-Poppins">{message.member}</p>
-                                                        <p style={{fontSize: '0.9em', fontFamily: 'PoppinsBold'}}>{message.FIRST_NAME} {message.LAST_NAME}</p>
+                                                        <p style={{ fontSize: '0.9em', fontFamily: 'PoppinsBold' }}>{message.FIRST_NAME} {message.LAST_NAME}</p>
                                                         <p>{message.MESSAGE_CONTENT}</p>
-                                                        <p className="font-PoppinsBold text-xs text-gray-800">{message.SENT_TIME}</p>
+                                                        <p className="font-PoppinsBold text-xs text-gray-800 mt-1">{message.SENT_TIME}</p>
                                                     </div>
                                                 </div>
                                             )}
@@ -357,22 +357,26 @@ const ChatRoom = () => {
                         </div>
 
                         {/* Message Input */}
-                        <form onSubmit={handleSendMessage} className="flex mt-4">
+                        {/* Message Input Box */}
+                        <div 
+                            className="sticky bottom-0 left-0 right-0 p-4 bg-gray-800 bg-opacity-60 flex items-center justify-between"
+                            style={{borderRadius: '20px'}}
+                        >
                             <input
                                 type="text"
-                                placeholder="Type your message here..."
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
-                                className="flex-grow p-2 rounded-l-lg border border-teal-700 bg-black text-teal-200"
-                                style={{ marginRight: '10px' }}
+                                className="font-Poppins flex-grow rounded-lg p-2 text-black pl-4"
+                                placeholder="Type your message..."
+                                style={{ backgroundColor: 'white', borderRadius: '10px', marginRight: '10px' }}
                             />
-                            <button 
-                                type="submit" 
-                                className="bg-gradient-to-r from-blue-600 to-blue-900 text-white font-DirtyHeadline px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-xl"
+                            <button
+                                onClick={handleSendMessage}
+                                className="font-PoppinsBold text-white bg-blue-500 hover:bg-blue-400 px-8 py-2 rounded-lg"
                             >
                                 Send
                             </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>

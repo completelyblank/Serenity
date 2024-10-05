@@ -71,7 +71,7 @@ const Blog = () => {
 
         <div className="flex h-full">
           {/* Left Part */}
-          <div className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 flex flex-col fixed h-full shadow-lg overflow-y-scroll">
+          <div className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden">
             <h2
               className="font-DirtyHeadline"
               style={{
@@ -175,7 +175,7 @@ const Blog = () => {
             style={{
               borderRadius: '20px',
               height: '86.5vh',
-              marginLeft: '25.8%',
+              marginLeft: '10px',
               marginTop: '10px',
               marginRight: '10px',
               marginBottom: '10px',
