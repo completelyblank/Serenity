@@ -102,9 +102,30 @@ body {
 }
 
 .custom-classname.react-toggle--checked .react-toggle-track {
+  
   background-color: #160114;
 }
 
 .custom-classname.react-toggle--unchecked .react-toggle-track {
   background-color: #ffffff;
+}
+
+/*Scroll bar CSS*/
+
+::-webkit-scrollbar {
+  width: 10px; /* Adjust the width to your preference */
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2); /* Track background color (light transparent black) */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(56, 178, 172, 0.8); /* Teal color (dark mode aesthetic) */
+  border-radius: 10px; /* Rounded scrollbar edges */
+  border: 2px solid rgba(0, 0, 0, 0.3); /* Optional border for a sleek look */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(56, 178, 172, 1); /* Brighter teal on hover */
 }
