@@ -6,6 +6,7 @@ import Toggle from 'react-toggle';
 import ChatList from '../components/chatlist';
 import "react-toggle/style.css";
 import { FaSun, FaMoon } from 'react-icons/fa';
+import '../index.css';
 
 const Blog = () => {
   const [categories] = useState(['General', 'Advice', 'Questions', 'Discussion']);
@@ -70,7 +71,7 @@ const Blog = () => {
 
         <div className="flex h-full">
           {/* Left Part */}
-          <div className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 flex flex-col fixed h-full shadow-lg">
+          <div className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 flex flex-col fixed h-full shadow-lg overflow-y-scroll">
             <h2
               className="font-DirtyHeadline"
               style={{
@@ -124,7 +125,7 @@ const Blog = () => {
               ))}
             </select>
 
-            <h2 className="mb-2 mt-5 font-DirtyHeadline"
+            <h2 className="mb-2 mt-5 font-DirtyHeadline overflow-y-hidden"
               style={{
                 color: '#74bdb7',
                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
@@ -203,7 +204,8 @@ const Blog = () => {
                   style={{ resize: 'none', height: '100px' }}
                 />
                 <button
-                  className="font-PoppinsBold mt-4 px-9 py-2 bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 dark:from-gray-700 dark:to-teal-400 dark:hover:from-gray-900 dark:hover:to-teal-300 text-white dark:text-gray-200 rounded transition duration-200 transform hover:scale-105 shadow-lg"
+                  id='post_button'
+                  className="flex items-center justify-center p-2 text-lg font-semibold"
                   style={{ fontSize: '1.1em', marginLeft: '88%' }}
                   type="submit"
                 >
