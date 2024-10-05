@@ -4,9 +4,12 @@ import Spinner from '../components/spinner';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUserContext } from '../../src/context/userContext';
+import { FaTrashCan } from 'react-icons/fa6';
+import { useSnackbar } from "notistack";
 
 const ChatRoom = () => {
     const { id } = useParams();
+    const { enqueueSnackbar } = useSnackbar();
     const { userData } = useUserContext();
     const endOfMessagesRef = useRef(null);
     const navigate = useNavigate();
@@ -23,14 +26,15 @@ const ChatRoom = () => {
         const interval = setInterval(async () => {
             const response = await axios.get(`http://localhost:3000/chatroom/${id}`);
             setMembers(response.data.members);
-            const newMessages = await axios.get(`http://localhost:3000/chatroom/${id}`);
-            if (newMessages != messages) {
-                setMessages(messages.data.messages);
-            }
+            const newMessages = response.data.messages;
+            if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
+                console.log("setting");
+                setMessages(newMessages);
+            }        
         }, 2000);
 
         return () => clearInterval(interval);
-    }, [id]);
+    }, [id, messages]);
 
     useEffect(() => {
         let spinnerTimeout;
@@ -77,6 +81,7 @@ const ChatRoom = () => {
 
         updateStatus();
     }, [id]);
+    
 
     useEffect(() => {
         // Scroll to the bottom whenever loading changes
@@ -123,6 +128,19 @@ const ChatRoom = () => {
     };
 
 
+    const handleDeleteMessage = async (message) => {
+        try {
+            const response = await axios.post(`http://localhost:3000/chatroom/${id}/delete`, { messageID: message.MESSAGE_ID });
+            if (response.status === 200) {
+                setMessages((prevMessages) => prevMessages.filter(msg => msg.MESSAGE_ID !== message.MESSAGE_ID));
+                enqueueSnackbar('Message Deleted', { variant: 'success', autoHideDuration: 1000 });
+            } 
+        } catch (error) {
+            console.log("error deleting message");
+        }
+        
+    };
+
     // Function to format the date as readable
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -159,7 +177,7 @@ const ChatRoom = () => {
                 <Navbar />
                 <div className="flex">
                     {/* Left Part */}
-                    <div style={{maxHeight: '100vh'}} className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden">
+                    <div style={{ maxHeight: '100vh' }} className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden">
                         <h2 className="font-DirtyHeadline" style={{
                             fontSize: '3.1em',
                             textAlign: 'center',
@@ -195,56 +213,62 @@ const ChatRoom = () => {
                         }}>
                             Members in the Room
                         </h2>
-<div style={{ paddingBottom: '100px'}}>
-                        {/* Scrollable Members Table */}
-                        <div className="flex-grow overflow-y-auto max-h-60 mt-5">
-                            <table className="w-full text-left" style={{
-                                backgroundColor: '#416461',
-                                fontFamily: 'Poppins',
-                                borderCollapse: 'collapse',
-                                textAlign: 'center',
-                                color: 'white',
-                                borderRadius: '2%',
-                                position: 'relative',
-                            }}>
-                                <tbody>
-                                    {members.map((member, index) => (
-                                        <tr key={index}>
-                                            <td className="font-Poppins p-2" style={{ borderBottom: '2px solid #1f2c2b' }}>
-                                                <div className="flex items-center justify-between ml-2">
-                                                    {/* Member Name and Avatar */}
-                                                    <div className="flex items-center">
-                                                        <img
-                                                            src={(member.GENDER === 'F'
-                                                                ? `/girls/${member.USER_ID % 10}.jpg`
-                                                                : `/boys/${member.USER_ID % 10}.jpg`
-                                                            )
+                        <div style={{ paddingBottom: '100px' }}>
+                            {/* Scrollable Members Table */}
+                            <div className="flex-grow overflow-y-auto max-h-60 mt-5">
+                                <table className="w-full text-left" style={{
+                                    backgroundColor: '#416461',
+                                    fontFamily: 'Poppins',
+                                    borderCollapse: 'collapse',
+                                    textAlign: 'center',
+                                    color: 'white',
+                                    borderRadius: '2%',
+                                    position: 'relative',
+                                }}>
+                                    <tbody>
+                                        {members.map((member, index) => (
+                                            <tr key={index}>
+                                                <td className="font-Poppins p-2" style={{ borderBottom: '2px solid #1f2c2b' }}>
+                                                    <div className="flex items-center justify-between ml-2">
+                                                        {/* Member Name and Avatar */}
+                                                        <div className="flex items-center">
+                                                            <img
+                                                                src={(member.GENDER === 'F'
+                                                                    ? `/girls/${member.USER_ID % 10}.jpg`
+                                                                    : `/boys/${member.USER_ID % 10}.jpg`
+                                                                )
+                                                                }
+                                                                alt="Member"
+                                                                className="rounded-full"
+                                                                style={{ width: '30px', height: '30px', marginRight: '10px' }}
+                                                            />
+                                                            {member.USER_ID === userData.userID ? (
+                                                                <span>{member.FIRST_NAME} {member.LAST_NAME} (You)</span>
+                                                            ):
+                                                                <span>{member.FIRST_NAME} {member.LAST_NAME}</span>
                                                             }
-                                                            alt="Member"
-                                                            className="rounded-full"
-                                                            style={{ width: '30px', height: '30px', marginRight: '10px' }}
-                                                        />
-                                                        <span>{member.FIRST_NAME} {member.LAST_NAME}</span>
-                                                    </div>
+                                                        </div>
 
-                                                    {/* Green Circle to show Active Status */}
-                                                    <div
-                                                        className="rounded-full"
-                                                        style={{
-                                                            backgroundColor: member.IS_ACTIVE ? '#1eff00' : '#f04c4c',
-                                                            width: '12px',
-                                                            height: '12px',
-                                                            marginRight: '10px',
-                                                        }}
-                                                        title="Active"
-                                                    ></div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                                        {/* Green Circle to show Active Status */}
+                                                        <div
+                                                            className="rounded-full"
+                                                            style={{
+                                                                backgroundColor: member.IS_ACTIVE ? '#1eff00' : '#f04c4c',
+                                                                width: '12px',
+                                                                height: '12px',
+                                                                marginRight: '10px',
+                                                                boxShadow: member.IS_ACTIVE ? '0 0 10px rgba(30, 255, 0, 0.8), 0 0 20px rgba(30, 255, 0, 0.6)' : '0 0 10px rgba(240, 76, 76, 0.8), 0 0 20px rgba(240, 76, 76, 0.6)',
+                                                                transition: 'box-shadow 0.3s ease',
+                                                            }}
+                                                            title="Active"
+                                                        ></div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div className="flex-grow"></div>
                     </div>
@@ -312,7 +336,12 @@ const ChatRoom = () => {
                                             {message.USER_ID === userData.userID ? (
                                                 <div className="flex items-center justify-end" style={{ maxWidth: '45%', wordBreak: 'break-word' }}>
                                                     <div className={`font-Poppins rounded-lg p-2 pl-4 pr-4 bg-blue-300 text-black`}>
-                                                        <p style={{ fontSize: '0.9em', fontFamily: 'PoppinsBold' }}>{userData.firstName} {userData.lastName}</p>
+                                                        <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                                            <p style={{ fontSize: '0.9em', fontFamily: 'PoppinsBold', margin: 0 }}>{userData.firstName} {userData.lastName}</p>
+                                                            <button onClick={() => handleDeleteMessage(message)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                                                                <FaTrashCan className='pl-3 h-6 w-6' />
+                                                            </button>
+                                                        </span>
                                                         <p>{message.MESSAGE_CONTENT}</p>
                                                         <p className="font-PoppinsBold text-xs text-gray-800 text-right mt-1">{message.SENT_TIME}</p>
                                                     </div>
@@ -343,7 +372,7 @@ const ChatRoom = () => {
                                                     </div>
                                                     <div className={`font-Poppins rounded-lg p-2 pl-4 pr-4 bg-gray-300 text-black`}>
                                                         <p className="font-Poppins">{message.member}</p>
-                                                        <p style={{ fontSize: '0.9em', fontFamily: 'PoppinsBold' }}>{message.FIRST_NAME} {message.LAST_NAME}</p>
+                                                        <p style={{ fontSize: '0.9em', fontFamily: 'PoppinsBold', margin: 0 }}>{message.FIRST_NAME} {message.LAST_NAME}</p>
                                                         <p>{message.MESSAGE_CONTENT}</p>
                                                         <p className="font-PoppinsBold text-xs text-gray-800 mt-1">{message.SENT_TIME}</p>
                                                     </div>
@@ -358,9 +387,9 @@ const ChatRoom = () => {
 
                         {/* Message Input */}
                         {/* Message Input Box */}
-                        <div 
+                        <div
                             className="sticky bottom-0 left-0 right-0 p-4 bg-gray-800 bg-opacity-60 flex items-center justify-between"
-                            style={{borderRadius: '20px'}}
+                            style={{ borderRadius: '20px' }}
                         >
                             <input
                                 type="text"

@@ -35,7 +35,7 @@ async function setActive(connection, userID, active, chatID) {
 async function getMessages(connection, chatID) {
   try {
     const result = await connection.execute(
-      `SELECT u.gender, u.user_id, u.first_name, u.last_name, m.message_content, c.chat_room_id, TO_CHAR(m.sent_date, 'DD Mon YYYY') AS sent_date, TO_CHAR(m.sent_date, 'HH:MI AM') AS sent_time
+      `SELECT m.message_id, u.gender, u.user_id, u.first_name, u.last_name, m.message_content, c.chat_room_id, TO_CHAR(m.sent_date, 'DD Mon YYYY') AS sent_date, TO_CHAR(m.sent_date, 'HH:MI AM') AS sent_time
       FROM users u JOIN messages m ON u.user_id = m.user_id
       JOIN chat_rooms c ON c.chat_room_id = m.chat_room_id
       WHERE c.chat_room_id = :chatID
@@ -47,6 +47,40 @@ async function getMessages(connection, chatID) {
     return result.rows;
   } catch (err) {
     console.error('Error fetching members:', err);
+    throw err;
+  }
+}
+
+async function isMember(connection, userID, chatRoomID) {
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM members WHERE user_id = :userID AND chat_room_id = :chatRoomID`,
+      [userID, chatRoomID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    if (result.rows) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } catch (err) {
+    console.error('Error deleting message:', err);
+    throw err;
+  }
+}
+
+async function deleteMessage(connection, messageID) {
+  try {
+    const result = await connection.execute(
+      `DELETE FROM messages WHERE message_id = :msgID`,
+      [messageID],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error deleting message:', err);
     throw err;
   }
 }
@@ -274,5 +308,7 @@ module.exports = {
   fetchMembers,
   setActive,
   getMessages,
-  addMessage
+  addMessage,
+  deleteMessage,
+  isMember
 };

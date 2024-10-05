@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useUserContext } from '../../src/context/userContext';
+import axios from 'axios';
 
 const ChatList = () => {
     const [hoveredChat, setHoveredChat] = useState(null);
+    const { userData } = useUserContext();
 
     const chats = [
         { id: 1, name: 'The Listening Lounge', description: 'A place to talk and be heard' },
@@ -10,6 +13,19 @@ const ChatList = () => {
         { id: 3, name: 'Achievement Arena', description: 'Celebrate your wins!' },
         { id: 4, name: 'Compassion Corner', description: 'Discuss feelings with kindness' },
     ];
+
+    const checkMember = async (userID, chatRoomID) => {
+        try {
+            const response = await axios.get('http://localhost:3000/blog/checkMember', { params: { userID, chatRoomID } });
+            if (response.data.member === 1) {
+                console.log("Yes");
+            } else {
+                console.log("No");
+            }
+        } catch (error) { 
+            console.log("error checking member");
+        }
+    };
 
     return (
         <table
@@ -50,6 +66,7 @@ const ChatList = () => {
                                     height: '100%',
                                     lineHeight: '30px',
                                 }}
+                                onClick={() => checkMember(userData.userID, chat.id)} 
                             >
                                 {chat.name}
                             </Link>
@@ -67,10 +84,10 @@ const ChatList = () => {
                                         fontSize: '1em',
                                         width: '50%',
                                         height: '200%',
-                                        display: 'flex', 
-                                        justifyContent: 'center',   
-                                        alignItems: 'center',       
-                                        textAlign: 'center',         
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        textAlign: 'center',
                                         zIndex: 1000,
                                         fontFamily: 'Poppins'
                                     }}

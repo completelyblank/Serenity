@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage } = require('./queries');
+const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -95,6 +95,29 @@ router.post('/chatroom/:chatID/message', async (req, res) => {
   } catch (err) {
     console.error('Error updating data:', err);
     res.status(500).json({ error: 'Failed to update data' });
+  } finally {
+    if (connection) {
+      try {
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.post('/chatroom/:chatID/delete', async (req, res) => {
+  const { messageID } = req.body;
+  let connection;
+
+  try {
+    connection = await connectToDatabase();
+  
+    const status = await deleteMessage(connection, messageID);
+
+    res.json(status);
+  } catch (err) {
+    console.error('Error deleting data:', err);
+    res.status(500).json({ error: 'Failed to delete data' });
   } finally {
     if (connection) {
       try {
@@ -290,5 +313,25 @@ router.get('/api/quotes', async (req, res) => {
   }
 });
 
+router.get('/blog/checkMember', async (req, res) => {
+  const {userID, chatRoomID} = req.query;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const member = await isMember(connection, userID, chatRoomID);
+    res.json({ member });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Failed to fetch data' });
+  } finally {
+    if (connection) {
+      try {
+        // Close connection
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
 
 module.exports = router;

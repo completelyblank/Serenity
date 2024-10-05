@@ -33,6 +33,7 @@ const Blog = () => {
     }
   };
 
+
   useEffect(() => {
     const spinnerTimeout = setTimeout(() => {
       setShowSpinner(false);
