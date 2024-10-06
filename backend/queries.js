@@ -59,13 +59,13 @@ async function isMember(connection, userID, chatRoomID) {
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
-    if (result.rows) {
+    if (result.rows.length > 0) {
       return 1;
     } else {
       return 0;
     }
   } catch (err) {
-    console.error('Error deleting message:', err);
+    console.error('Error checking member:', err);
     throw err;
   }
 }

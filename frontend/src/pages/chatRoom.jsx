@@ -294,7 +294,7 @@ const ChatRoom = () => {
                         }}
                     >
                         {/* Header Div */}
-                        <div className="sticky top-0 left-0 right-0 p-4 bg-gray-700 bg-opacity-60 flex items-center h-12">
+                        <div className="sticky top-0 left-0 right-0 p-4 bg-gray-700 flex items-center h-12 z-10">
                             {/* Back Button */}
                             <button
                                 onClick={() => {
@@ -313,7 +313,7 @@ const ChatRoom = () => {
 
 
                         {/* Message Box */}
-                        <div className="mr-5 ml-5 mt-8 font-Poppins flex-grow overflow-y-auto" style={{ fontSize: '1em' }}>
+                        <div className="mr-5 ml-5 mt-8 font-Poppins flex-grow overflow-y-auto" style={{ fontSize: '1em', zIndex: 2 }}>
                             {messages.map((message, index) => {
                                 const previousMessage = messages[index - 1];
                                 const showDate =
@@ -388,7 +388,7 @@ const ChatRoom = () => {
                         {/* Message Input */}
                         {/* Message Input Box */}
                         <div
-                            className="sticky bottom-0 left-0 right-0 p-4 bg-gray-800 bg-opacity-60 flex items-center justify-between"
+                            className="sticky bottom-0 left-0 right-0 p-4 bg-gray-800 flex items-center justify-between"
                             style={{ borderRadius: '20px' }}
                         >
                             <input
