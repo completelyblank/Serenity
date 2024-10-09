@@ -88,7 +88,6 @@ const ChatRoom = () => {
         updateStatus();
     }, [id]);
 
-
     useEffect(() => {
         // Scroll to the bottom whenever loading changes
         if (!loading) {
@@ -133,7 +132,6 @@ const ChatRoom = () => {
         }
     };
 
-
     const handleDeleteMessage = async (message) => {
         try {
             const response = await axios.post(`http://localhost:3000/chatroom/${id}/delete`, { messageID: message.MESSAGE_ID });
@@ -144,7 +142,6 @@ const ChatRoom = () => {
         } catch (error) {
             console.log("error deleting message");
         }
-
     };
 
     // Function to format the date as readable
@@ -236,41 +233,8 @@ const ChatRoom = () => {
                                     <tbody>
                                         {members.map((member, index) => (
                                             <tr key={index}>
-                                                <td className="font-Poppins p-2" style={{ borderBottom: '2px solid #1f2c2b' }}>
-                                                    <div className="flex items-center justify-between ml-2">
-                                                        {/* Member Name and Avatar */}
-                                                        <div className="flex items-center">
-                                                            <img
-                                                                src={(member.GENDER === 'F'
-                                                                    ? `/girls/${member.USER_ID % 10}.jpg`
-                                                                    : `/boys/${member.USER_ID % 10}.jpg`
-                                                                )
-                                                                }
-                                                                alt="Member"
-                                                                className="rounded-full"
-                                                                style={{ width: '30px', height: '30px', marginRight: '10px' }}
-                                                            />
-                                                            {member.USER_ID === userData.userID ? (
-                                                                <span>{member.FIRST_NAME} {member.LAST_NAME} (You)</span>
-                                                            ) :
-                                                                <span>{member.FIRST_NAME} {member.LAST_NAME}</span>
-                                                            }
-                                                        </div>
-
-                                                        {/* Green Circle to show Active Status */}
-                                                        <div
-                                                            className="rounded-full"
-                                                            style={{
-                                                                backgroundColor: member.IS_ACTIVE ? '#1eff00' : '#f04c4c',
-                                                                width: '12px',
-                                                                height: '12px',
-                                                                marginRight: '10px',
-                                                                boxShadow: member.IS_ACTIVE ? '0 0 10px rgba(30, 255, 0, 0.8), 0 0 20px rgba(30, 255, 0, 0.6)' : '0 0 10px rgba(240, 76, 76, 0.8), 0 0 20px rgba(240, 76, 76, 0.6)',
-                                                                transition: 'box-shadow 0.3s ease',
-                                                            }}
-                                                            title="Active"
-                                                        ></div>
-                                                    </div>
+                                                <td className="font-Poppins p-2" style={{ borderBottom: '1px solid white' }}>
+                                                    {member.FIRST_NAME} {member.LAST_NAME}
                                                 </td>
                                             </tr>
                                         ))}
@@ -278,142 +242,49 @@ const ChatRoom = () => {
                                 </table>
                             </div>
                         </div>
-                        <div className="flex-grow"></div>
                     </div>
 
                     {/* Right Part */}
-                    <div
-                        className="md:w-3/4 w-max-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden"
-                        style={{
-                            borderRadius: '20px',
-                            height: '86.5vh',
-                            width: '73.5%',
-                            marginLeft: '10px',
-                            marginTop: '5.8%',
-                            marginRight: '10px',
-                            marginBottom: '10px',
-                            padding: '0px',
-                            boxSizing: 'border-box',
-                            backgroundImage: `url("/chatBack${id}.jpg")`,
-                            backgroundPosition: 'center',
-                            backgroundSize: 'cover',
-                            backgroundRepeat: 'no-repeat',
-                            opacity: '0.6',
-                        }}
-                    >
-                        {/* Header Div */}
-                        <div className="sticky top-0 left-0 right-0 p-4 bg-gray-700 flex items-center h-12">
-                            {/* Back Button */}
-                            <button
-                                onClick={() => {
-                                    handleStatusChange(); // Call your status change function
-                                    navigate(-1);        // Navigate back
-                                }}
-                                className="absolute font-PoppinsBold text-white bg-gray-600 hover:bg-gray-500 px-4 py-1 rounded-lg mr-4"
-                            >
-                                Back To Community
-                            </button>
-                            {/* Centered Title */}
-                            <h2 className="font-DirtyHeadline text-white mx-auto" style={{ letterSpacing: '2px', textAlign: 'center', fontSize: '1.5em' }}>
-                                {titles[id - 1]}
-                            </h2>
-                        </div>
-
-
-                        {/* Message Box */}
-                        <div className="mr-5 ml-5 mt-8 font-Poppins flex-grow overflow-y-auto" style={{ fontSize: '1em' }}>
+                    <div className="flex flex-col justify-between w-full md:w-3/4 p-6 bg-white dark:bg-gray-800">
+                        <div className="flex-grow overflow-y-auto mb-4">
                             {messages.map((message, index) => {
-                                const previousMessage = messages[index - 1];
-                                const showDate =
-                                    !previousMessage ||
-                                    new Date(previousMessage.SENT_DATE).toDateString() !== new Date(message.SENT_DATE).toDateString();
+                                const isUnread = new Date(message.SENT_TIME) > new Date(lastActive);
+                                const showUnreadLabel = index === 0 || (new Date(messages[index - 1].SENT_TIME) <= new Date(lastActive) && isUnread);
 
                                 return (
                                     <div key={index}>
-                                        {showDate && (
-                                            <div
-                                                className="font-PoppinsBold text-center text-black pt-1 pb-1"
-                                                style={{ backgroundColor: '#b4b3b3', width: '20%', margin: '0 auto', marginBottom: '3%', borderRadius: '10px', opacity: '0.7' }}
-                                            >
-                                                {formatDate(message.SENT_DATE)}
+                                        {showUnreadLabel && (
+                                            <div className="unread-label">
+                                                <strong>Unread Messages</strong>
                                             </div>
                                         )}
-
-                                        <div className={`flex mb-4 ${message.USER_ID === userData.userID ? 'justify-end' : 'justify-start'}`}>
-                                            {/* For messages sent by the user */}
-                                            {message.USER_ID === userData.userID ? (
-                                                <div className="flex items-center justify-end" style={{ maxWidth: '45%', wordBreak: 'break-word' }}>
-                                                    <div className={`font-Poppins rounded-lg p-2 pl-4 pr-4 bg-blue-300 text-black`}>
-                                                        <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                                            <p style={{ fontSize: '0.9em', fontFamily: 'PoppinsBold', margin: 0 }}>{userData.firstName} {userData.lastName}</p>
-                                                            <button onClick={() => handleDeleteMessage(message)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                                                                <FaTrashCan className='pl-3 h-6 w-6' />
-                                                            </button>
-                                                        </span>
-                                                        <p>{message.MESSAGE_CONTENT}</p>
-                                                        <p className="font-PoppinsBold text-xs text-gray-800 text-right mt-1">{message.SENT_TIME}</p>
-                                                    </div>
-                                                    {/* User's profile image on the right */}
-                                                    <img
-                                                        src={(userData.gender === 'F'
-                                                            ? `/girls/${userData.userID % 10}.jpg`
-                                                            : `/boys/${userData.userID % 10}.jpg`
-                                                        )}
-                                                        alt="User"
-                                                        className="rounded-full"
-                                                        style={{ width: '30px', height: '30px', marginLeft: '10px' }}
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center justify-start" style={{ maxWidth: '45%', wordBreak: 'break-word' }}>
-                                                    {/* Show avatar and name for other users */}
-                                                    <div className="flex-shrink-0">
-                                                        <img
-                                                            src={(message.GENDER === 'F'
-                                                                ? `/girls/${message.USER_ID % 10}.jpg`
-                                                                : `/boys/${message.USER_ID % 10}.jpg`
-                                                            )}
-                                                            alt="Member"
-                                                            className="rounded-full"
-                                                            style={{ width: '30px', height: '30px', marginRight: '10px' }}
-                                                        />
-                                                    </div>
-                                                    <div className={`font-Poppins rounded-lg p-2 pl-4 pr-4 bg-gray-300 text-black`}>
-                                                        <p className="font-Poppins">{message.member}</p>
-                                                        <p style={{ fontSize: '0.9em', fontFamily: 'PoppinsBold', margin: 0 }}>{message.FIRST_NAME} {message.LAST_NAME}</p>
-                                                        <p>{message.MESSAGE_CONTENT}</p>
-                                                        <p className="font-PoppinsBold text-xs text-gray-800 mt-1">{message.SENT_TIME}</p>
-                                                    </div>
-                                                </div>
+                                        <div className={`message ${isUnread ? 'unread' : ''}`}>
+                                            <p><strong>{message.member}:</strong> {message.MESSAGE_CONTENT}</p>
+                                            <small>{message.SENT_TIME}</small>
+                                            {message.USER_ID === userData.userID && (
+                                                <button onClick={() => handleDeleteMessage(message)} className="delete-button">
+                                                    <FaTrashCan />
+                                                </button>
                                             )}
                                         </div>
                                     </div>
                                 );
                             })}
-                            <div ref={endOfMessagesRef} />
+                            <div ref={endOfMessagesRef}></div>
                         </div>
 
-                        {/* Message Input */}
-                        {/* Message Input Box */}
-                        <div
-                            className="sticky bottom-0 left-0 right-0 p-4 bg-gray-800 bg-opacity-60 flex items-center justify-between"
-                            style={{ borderRadius: '20px' }}
-                        >
+                        <form onSubmit={handleSendMessage} className="flex">
                             <input
                                 type="text"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
-                                className="font-Poppins flex-grow rounded-lg p-2 text-black pl-4"
+                                className="flex-grow border border-gray-300 rounded-lg px-4 py-2 mr-2"
                                 placeholder="Type your message..."
-                                style={{ backgroundColor: 'white', borderRadius: '10px', marginRight: '10px' }}
                             />
-                            <button
-                                onClick={handleSendMessage}
-                                className="font-PoppinsBold text-white bg-blue-500 hover:bg-blue-400 px-8 py-2 rounded-lg"
-                            >
+                            <button type="submit" className="bg-blue-500 text-white px-4 rounded-lg">
                                 Send
                             </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
