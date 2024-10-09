@@ -16,6 +16,19 @@ body {
 }
 
 @font-face {
+  font-family: "BrokenConsole";   /*Can be any text*/
+  src: local("BrokenConsole"),
+    url("./fonts/BrokenConsole.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "UpHeaval";   /*Can be any text*/
+  src: local("UpHeav"),
+    url("./fonts/upheavtt.ttf") format("truetype");
+}
+
+
+@font-face {
   font-family: "DirtyHeadline";   /*Can be any text*/
   src: local("DirtyHeadline"),
     url("./fonts/Dirty_Headline.ttf") format("truetype");
@@ -149,7 +162,6 @@ body {
   
   transition: all 0.3s; /* Smooth transition */
   color: black; /* Text color for contrast */
-  padding: 10px 20px; /* Padding for the button */
   cursor: pointer; /* Pointer on hover */
   font-size: 1em; /* Font size */
   

@@ -15,7 +15,8 @@ module.exports = {
         'PoppinsBold': ['PoppinsBold', 'sans-serif'],
         'CoolVetica': ['CoolVetica', 'sans-serif'],
         'KgTen': ['KgTen', 'sans-serif'],
-        'DirtyHeadline': ['DirtyHeadline', 'sans-serif']
+        'DirtyHeadline': ['DirtyHeadline', 'sans-serif'],
+        'BrokenConsole': ['BrokenConsole', 'sans-serif']
       },
     },
   },

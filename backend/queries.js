@@ -25,6 +25,14 @@ async function setActive(connection, userID, active, chatID) {
       { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
+    if(active == 0) {
+        const timestamp = await connection.execute(
+        `UPDATE members SET last_active = CURRENT_TIMESTAMP WHERE user_id = :userID`,
+        [userID],
+        { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+    }
+
     return result;
   } catch (err) {
     console.error('Error fetching members:', err);
@@ -114,6 +122,24 @@ async function fetchMembers(connection, chatID) {
       ON u.user_id = m.user_id
       WHERE chat_room_id = :chat_id`,
       [chatID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching members:', err);
+    throw err;
+  }
+}
+
+async function fetchLastActive(connection, userID, chatID) {
+  try {
+    const result = await connection.execute(
+      `SELECT last_active 
+      FROM members M
+      WHERE M.user_id = :userID
+      AND M.chat_room_id = :chatID`,
+      [userID, chatID],
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
@@ -310,5 +336,6 @@ module.exports = {
   getMessages,
   addMessage,
   deleteMessage,
-  isMember
+  isMember,
+  fetchLastActive
 };

@@ -3,12 +3,22 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import Spinner from '../components/spinner';
 import Toggle from 'react-toggle';
-import ChatList from '../components/chatlist';
 import "react-toggle/style.css";
 import { FaSun, FaMoon } from 'react-icons/fa';
 import '../index.css';
+import { useUserContext } from '../../src/context/userContext';
+import axios from 'axios';
+
+const chats = [
+  { id: 1, name: 'The Listening Lounge', description: 'A place to talk and be heard' },
+  { id: 2, name: 'Sunny Side Up', description: 'Share positive vibes' },
+  { id: 3, name: 'Achievement Arena', description: 'Celebrate your wins!' },
+  { id: 4, name: 'Compassion Corner', description: 'Discuss feelings with kindness' },
+];
 
 const Blog = () => {
+  const { userData } = useUserContext();
+  const [chatID, setChatID] = useState("");
   const [categories] = useState(['General', 'Advice', 'Questions', 'Discussion']);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [threads, setThreads] = useState([]);
@@ -18,10 +28,35 @@ const Blog = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
   const [selectedThread, setSelectedThread] = useState(null);
+  const [hoveredChat, setHoveredChat] = useState(null);
+  const [isMember, setIsMember] = useState(null);
+  const [isMemberPopupOpen, setIsMemberPopupOpen] = useState(false);
 
   const togglePopup = (thread) => {
     setSelectedThread(thread); // Set the clicked thread
     setIsPopupOpen(!isPopupOpen); // Toggle popup
+  };
+
+  const toggleMemberPopup = () => {
+    if (!isMember) {
+      setIsMemberPopupOpen(!isMemberPopupOpen); // Toggle popup
+    }
+  };
+
+  const checkMember = async (userID, chatRoomID) => {
+    try {
+      const response = await axios.get('http://localhost:3000/blog/checkMember', { params: { userID, chatRoomID } });
+      setIsMember(response.data.member === 1);
+      if (response.data.member === 1) {
+        window.location.href = `/chatroom/${chatRoomID}`;
+        return true;
+      } else {
+        toggleMemberPopup();
+        return false;
+      }
+    } catch (error) {
+      console.log("Error checking member status:", error);
+    }
   };
 
   const handleNewPostSubmit = (e) => {
@@ -135,7 +170,83 @@ const Blog = () => {
               }}>
               Chats
             </h2>
-            <ChatList />
+            <table
+              style={{
+                backgroundColor: '#416461',
+                fontFamily: 'Poppins',
+                width: '100%',
+                borderCollapse: 'collapse',
+                textAlign: 'center',
+                height: '30%',
+                color: 'white',
+                borderRadius: '2%',
+                position: 'relative'
+              }}
+            >
+              <tbody>
+                {chats.map((chat) => (
+                  <tr key={chat.id}>
+                    <td
+                      style={{
+                        padding: '8px',
+                        height: '30px',
+                        verticalAlign: 'middle',
+                        borderBottom: '2px solid #1f2c2b',
+                        position: 'relative',
+                        backgroundColor: hoveredChat === chat.id ? '#2b3b38' : 'transparent', // Darker background on hover
+                        transition: 'background-color 0.3s ease', // Smooth transition
+                      }}
+                      onMouseEnter={() => setHoveredChat(chat.id)}
+                      onMouseLeave={() => setHoveredChat(null)}
+                    >
+                      <Link
+                        to={isMember ? `/chatroom/${chat.id}` : '/blog'}
+                        style={{
+                          textDecoration: 'none',
+                          color: 'white',
+                          display: 'block',
+                          height: '100%',
+                          lineHeight: '30px',
+                        }}
+                        onClick={() => {
+                          if (checkMember(userData.userID, chat.id) == false) {
+                            toggleMemberPopup();
+                            setChatID(chat.id);
+                          }
+                        }}
+                      >
+                        {chat.name}
+                      </Link>
+
+                      {/* Tooltip for the chat description */}
+                      {hoveredChat === chat.id && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: '40px',
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            color: 'white',
+                            padding: '8px',
+                            borderRadius: '5px',
+                            fontSize: '1em',
+                            width: '50%',
+                            height: '200%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            textAlign: 'center',
+                            zIndex: 1000,
+                            fontFamily: 'Poppins'
+                          }}
+                        >
+                          {chat.description}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             <div className="flex-grow"></div>
 
             {/* Dark Mode Toggle */}
@@ -206,8 +317,8 @@ const Blog = () => {
                 />
                 <button
                   id='post_button'
-                  className="flex items-center justify-center p-2 text-lg font-semibold"
-                  style={{ fontSize: '1.1em', marginLeft: '88%' }}
+                  className="font-PoppinsBold flex items-center justify-center p-1 mt-3 mb-3"
+                  style={{ fontSize: '1.2em', marginLeft: '83%', width: '16%' }}
                   type="submit"
                 >
                   Post
@@ -259,7 +370,7 @@ const Blog = () => {
                 color: '#74bdb7',
                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
               }}>
-                Replies
+              Replies
             </h3>
             <h3 className="font-PoppinsBold text-xl dark:text-gray-200">
               {selectedThread?.title}
@@ -268,6 +379,59 @@ const Blog = () => {
             <button
               className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
               onClick={togglePopup}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+      {isMember == false && isMemberPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div
+            className="relative p-8 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+            style={{
+              width: '60%',
+              height: '60%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+            }}
+          >
+            <h3 className="font-DirtyHeadline mb-10"
+              style={{
+                fontSize: '2em',
+                textAlign: 'center',
+                letterSpacing: '2px',
+                color: '#74bdb7',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+              }}>
+              You Don't Have Access
+            </h3>
+
+            <h3 className="font-DirtyHeadline mb-10"
+              style={{
+                fontSize: '2em',
+                textAlign: 'center',
+                letterSpacing: '2px',
+                color: '#74bdb7',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+              }}>
+                Request To Join {chats[chatID]}
+            </h3>
+
+            {/* Button to Send Join Request */}
+            <button
+                className="bg-blue-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-blue-600 mb-4"
+                onClick={() => sendJoinRequest(userData.userID, chat.id)} // Call the function to send a join request
+            >
+                Request to Join
+            </button>
+
+            {/* Popup Button */}
+            <button
+              className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
+              onClick={toggleMemberPopup}
             >
               Close
             </button>

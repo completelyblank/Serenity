@@ -14,23 +14,26 @@ const ChatRoom = () => {
     const endOfMessagesRef = useRef(null);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const [lastActive, setLastActive] = useState("");
     const [showSpinner, setShowSpinner] = useState(true);
     const [isActive, setIsActive] = useState(true);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [members, setMembers] = useState([]); // Create state for members
+    const [members, setMembers] = useState([]);
     const titles = ['The Listening Lounge', 'Sunny Side Up', 'Achievement Arena', 'Compassion Corner'];
     let imageNum = userData.userID % 10;
 
     useEffect(() => {
         const interval = setInterval(async () => {
-            const response = await axios.get(`http://localhost:3000/chatroom/${id}`);
-            setMembers(response.data.members);
+            const response = await axios.get(`http://localhost:3000/chatroom/${id}`, { params: { userID: userData.userID } });
+            const sortedMembers = response.data.members.sort((a, b) => (a.USER_ID === userData.userID ? -1 : b.USER_ID === userData.userID ? 1 : 0));
+            setMembers(sortedMembers);
+            setLastActive(response.data.lastActive);
             const newMessages = response.data.messages;
             if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
                 console.log("setting");
                 setMessages(newMessages);
-            }        
+            }
         }, 2000);
 
         return () => clearInterval(interval);
@@ -58,10 +61,13 @@ const ChatRoom = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/chatroom/${id}`);
+                const response = await axios.get(`http://localhost:3000/chatroom/${id}`, { params: { userID: userData.userID } });
                 const data = response.data;
+                const sortedMembers = data.members.sort((a, b) => (a.USER_ID === userData.userID ? -1 : b.USER_ID === userData.userID ? 1 : 0));
+                setMembers(sortedMembers);
                 setMembers(data.members);
                 setMessages(data.messages);
+                setLastActive(response.data.lastActive);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -81,7 +87,7 @@ const ChatRoom = () => {
 
         updateStatus();
     }, [id]);
-    
+
 
     useEffect(() => {
         // Scroll to the bottom whenever loading changes
@@ -134,11 +140,11 @@ const ChatRoom = () => {
             if (response.status === 200) {
                 setMessages((prevMessages) => prevMessages.filter(msg => msg.MESSAGE_ID !== message.MESSAGE_ID));
                 enqueueSnackbar('Message Deleted', { variant: 'success', autoHideDuration: 1000 });
-            } 
+            }
         } catch (error) {
             console.log("error deleting message");
         }
-        
+
     };
 
     // Function to format the date as readable
@@ -161,6 +167,8 @@ const ChatRoom = () => {
             handleStatusChange();
         };
     }, []);
+
+    const unreadMessages = messages.filter(message => new Date(message.SENT_TIME) > new Date(lastActive));
 
     if (loading || showSpinner) {
         return (
@@ -244,7 +252,7 @@ const ChatRoom = () => {
                                                             />
                                                             {member.USER_ID === userData.userID ? (
                                                                 <span>{member.FIRST_NAME} {member.LAST_NAME} (You)</span>
-                                                            ):
+                                                            ) :
                                                                 <span>{member.FIRST_NAME} {member.LAST_NAME}</span>
                                                             }
                                                         </div>
@@ -294,7 +302,7 @@ const ChatRoom = () => {
                         }}
                     >
                         {/* Header Div */}
-                        <div className="sticky top-0 left-0 right-0 p-4 bg-gray-700 flex items-center h-12 z-10">
+                        <div className="sticky top-0 left-0 right-0 p-4 bg-gray-700 flex items-center h-12">
                             {/* Back Button */}
                             <button
                                 onClick={() => {
@@ -313,7 +321,7 @@ const ChatRoom = () => {
 
 
                         {/* Message Box */}
-                        <div className="mr-5 ml-5 mt-8 font-Poppins flex-grow overflow-y-auto" style={{ fontSize: '1em', zIndex: 2 }}>
+                        <div className="mr-5 ml-5 mt-8 font-Poppins flex-grow overflow-y-auto" style={{ fontSize: '1em' }}>
                             {messages.map((message, index) => {
                                 const previousMessage = messages[index - 1];
                                 const showDate =
@@ -388,7 +396,7 @@ const ChatRoom = () => {
                         {/* Message Input */}
                         {/* Message Input Box */}
                         <div
-                            className="sticky bottom-0 left-0 right-0 p-4 bg-gray-800 flex items-center justify-between"
+                            className="sticky bottom-0 left-0 right-0 p-4 bg-gray-800 bg-opacity-60 flex items-center justify-between"
                             style={{ borderRadius: '20px' }}
                         >
                             <input

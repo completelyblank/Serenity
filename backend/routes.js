@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember } = require('./queries');
+const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -47,12 +47,14 @@ router.get('/form', async (req, res) => {
 
 router.get('/chatroom/:chatID', async (req, res) => {
   const chatID = req.params.chatID;
+  const userID = req.query.userID;
   let connection;
   try {
     connection = await connectToDatabase();
     const members = await fetchMembers(connection, chatID);
     const messages = await getMessages(connection, chatID);
-    res.json({ members, messages });
+    const lastActive = await fetchLastActive(connection, userID, chatID);
+    res.json({ members, messages, lastActive });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
