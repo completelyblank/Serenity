@@ -250,7 +250,7 @@ const Monitor = () => {
                                     <div key={index} className="text-center">
                                         <img
                                             src={emoji.src}
-                                            alt={`Emoji ${emoji.name}`}
+                                            alt={"Loading"}
                                             className="w-20 h-20 transition-transform duration-300 ease-in-out transform hover:filter hover:brightness-75"
                                             onClick={() => handleEmojiClick(emoji)}
                                             style={{
