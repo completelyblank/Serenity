@@ -59,6 +59,56 @@ async function getMessages(connection, chatID) {
   }
 }
 
+async function sendRequest(connection, userID, chatRoomID, sendORDelete) {
+  try {
+    if(sendORDelete == 1) {
+      const result = await connection.execute(
+        `INSERT INTO requests(user_id, chat_room_id) VALUES(:userID, :chatRoomID)`,
+        [userID, chatRoomID],
+        { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+      if(result.rows) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } else {
+      const result = await connection.execute(
+        `DELETE FROM requests WHERE user_id == :userID AND chat_room_id = :chatRoomID`,
+        [userID, chatRoomID],
+        { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+      if(result.rows) {
+        return 0;
+      } else {
+        return 1;
+      }
+    }
+  } catch (err) {
+    console.error('Error checking member:', err);
+    throw err;
+  }
+}
+
+async function checkRequest(connection, userID, chatRoomID) {
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM requests WHERE user_id = :userID AND chat_room_id = :chatRoomID`,
+      [userID, chatRoomID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    if (result.rows.length > 0) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } catch (err) {
+    console.error('Error checking request:', err);
+    throw err;
+  }
+}
+
 async function isMember(connection, userID, chatRoomID) {
   try {
     const result = await connection.execute(
@@ -337,5 +387,7 @@ module.exports = {
   addMessage,
   deleteMessage,
   isMember,
-  fetchLastActive
+  fetchLastActive,
+  sendRequest,
+  checkRequest
 };

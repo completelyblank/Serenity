@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive } = require('./queries');
+const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -321,10 +321,32 @@ router.get('/blog/checkMember', async (req, res) => {
   try {
     connection = await connectToDatabase();
     const member = await isMember(connection, userID, chatRoomID);
-    res.json({ member });
+    const requestCheck = await checkRequest(connection, userID, chatRoomID);
+    res.json({ member, requestCheck });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
+  } finally {
+    if (connection) {
+      try {
+        // Close connection
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.post('/blog/request', async (req, res) => {
+  const { userID, chatRoomID, checkStatus } = req.body;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const requestSend = await sendRequest(connection, userID, chatRoomID, checkStatus);
+    res.json({ requestSend });
+  } catch (err) {
+    console.error('Error updating data:', err);
+    res.status(500).json({ error: 'Failed to update data' });
   } finally {
     if (connection) {
       try {

@@ -8,6 +8,7 @@ import { FaSun, FaMoon } from 'react-icons/fa';
 import '../index.css';
 import { useUserContext } from '../../src/context/userContext';
 import axios from 'axios';
+import { useSnackbar } from "notistack";
 
 const chats = [
   { id: 1, name: 'The Listening Lounge', description: 'A place to talk and be heard' },
@@ -18,6 +19,7 @@ const chats = [
 
 const Blog = () => {
   const { userData } = useUserContext();
+  const { enqueueSnackbar } = useSnackbar();
   const [chatID, setChatID] = useState("");
   const [categories] = useState(['General', 'Advice', 'Questions', 'Discussion']);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -31,6 +33,7 @@ const Blog = () => {
   const [hoveredChat, setHoveredChat] = useState(null);
   const [isMember, setIsMember] = useState(null);
   const [isMemberPopupOpen, setIsMemberPopupOpen] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
 
   const togglePopup = (thread) => {
     setSelectedThread(thread); // Set the clicked thread
@@ -47,6 +50,7 @@ const Blog = () => {
     try {
       const response = await axios.get('http://localhost:3000/blog/checkMember', { params: { userID, chatRoomID } });
       setIsMember(response.data.member === 1);
+      setRequestSent(response.data.requestCheck == 1);
       if (response.data.member === 1) {
         window.location.href = `/chatroom/${chatRoomID}`;
         return true;
@@ -56,6 +60,20 @@ const Blog = () => {
       }
     } catch (error) {
       console.log("Error checking member status:", error);
+    }
+  };
+
+  const sendJoinRequest = async (userID, chatRoomID, checkStatus) => {
+    try {
+      const response = await axios.post('http://localhost:3000/blog/request', { userID, chatRoomID, checkStatus });
+      if(response.data.requestSend === 1) {
+        enqueueSnackbar('Request Sent Successfully', { variant: 'success', autoHideDuration: 1000 });
+      } else {
+        enqueueSnackbar('Request Deleted Successfully', { variant: 'success', autoHideDuration: 1000 });
+      }
+      toggleMemberPopup();
+    } catch (error) {
+      console.log("Error sending join request:", error);
     }
   };
 
@@ -209,9 +227,9 @@ const Blog = () => {
                           lineHeight: '30px',
                         }}
                         onClick={() => {
-                          if (checkMember(userData.userID, chat.id) == false) {
-                            toggleMemberPopup();
+                          if (checkMember(userData.userID, chat.id) != true) {
                             setChatID(chat.id);
+                            toggleMemberPopup();
                           }
                         }}
                       >
@@ -408,25 +426,39 @@ const Blog = () => {
               }}>
               You Don't Have Access
             </h3>
+            {chatID && (
+              <h3 className="font-DirtyHeadline mb-10"
+                style={{
+                  fontSize: '2em',
+                  textAlign: 'center',
+                  letterSpacing: '2px',
+                  color: '#74bdb7',
+                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+                }}>
 
-            <h3 className="font-DirtyHeadline mb-10"
-              style={{
-                fontSize: '2em',
-                textAlign: 'center',
-                letterSpacing: '2px',
-                color: '#74bdb7',
-                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
-              }}>
-                Request To Join {chats[chatID]}
-            </h3>
+                Request To Join {chats[chatID - 1].name}
+
+
+              </h3>
+            )}
 
             {/* Button to Send Join Request */}
-            <button
+            {requestSent == 1 && (
+              <button
                 className="bg-blue-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-blue-600 mb-4"
-                onClick={() => sendJoinRequest(userData.userID, chat.id)} // Call the function to send a join request
-            >
-                Request to Join
-            </button>
+                onClick={() => sendJoinRequest(userData.userID, chatID, 0)}
+              >
+                Cancel Request
+              </button>
+            )}
+            {requestSent == 0 && (
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-blue-600 mb-4"
+                onClick={() => sendJoinRequest(userData.userID, chatID, 1)}
+              >
+                Send Join Request
+              </button>
+            )}
 
             {/* Popup Button */}
             <button
