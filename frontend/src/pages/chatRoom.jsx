@@ -16,6 +16,7 @@ const ChatRoom = () => {
     const endOfMessagesRef = useRef(null);
     const navigate = useNavigate();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [isLeavePopupOpen, setIsLeavePopupOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [lastActive, setLastActive] = useState("");
     const [showSpinner, setShowSpinner] = useState(true);
@@ -29,7 +30,11 @@ const ChatRoom = () => {
     let imageNum = userData.userID % 10;
 
     const togglePopup = () => {
-        setIsPopupOpen(!isPopupOpen); // Toggle popup
+        setIsPopupOpen(!isPopupOpen);
+    };
+
+    const toggleLeavePopup = () => {
+        setIsLeavePopupOpen(!isLeavePopupOpen);
     };
 
     useEffect(() => {
@@ -164,7 +169,7 @@ const ChatRoom = () => {
 
     const handleLeaveChatroom = async () => {
         try {
-            if(adminID == userData.userID) {
+            if (adminID == userData.userID) {
                 const response = await axios.post(`http://localhost:3000/chatroom/${id}/leave`, { userID: userData.userID, admin: members[1].USER_ID });
             } else {
                 const response = await axios.post(`http://localhost:3000/chatroom/${id}/leave`, { userID: userData.userID, admin: 0 });
@@ -406,8 +411,7 @@ const ChatRoom = () => {
                             {/* Leave Chatroom Button */}
                             <button
                                 onClick={() => {
-                                    handleLeaveChatroom(); 
-                                    navigate(-1);
+                                    toggleLeavePopup();
                                 }}
                                 className="font-PoppinsBold text-white bg-red-600 hover:bg-red-500 px-4 py-1 rounded-lg ml-auto"
                             >
@@ -596,6 +600,61 @@ const ChatRoom = () => {
                         <button
                             className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
                             onClick={togglePopup}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {isLeavePopupOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto">
+                    <div
+                        className="relative p-8 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+                        style={{
+                            width: '45%',
+                            height: '40%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'flex-start',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <h3
+                            className="font-DirtyHeadline mb-10"
+                            style={{
+                                fontSize: '2em',
+                                textAlign: 'center',
+                                letterSpacing: '2px',
+                                color: '#74bdb7',
+                                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+                            }}
+                        >
+                            Are You Sure?
+                        </h3>
+
+                        <motion.button
+                            className="bg-red-700 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-800 flex items-center justify-center p-1 mt-2 pt-2 pb-2"
+                            style={{
+                                fontSize: '1.1em',
+                                width: '50%',
+                                borderRadius: '10px'
+                            }}
+                            whileTap={{ scale: 0.85 }}
+                            onClick={() => {
+                                handleLeaveChatroom();
+                                navigate(-1);
+                            }}
+                           
+                        >
+                            Leave Chat Room
+                        </motion.button>
+                        
+
+                        {/* Close Popup Button */}
+                        <button
+                            className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
+                            onClick={toggleLeavePopup}
                         >
                             Close
                         </button>

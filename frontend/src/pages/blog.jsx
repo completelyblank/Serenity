@@ -75,7 +75,6 @@ const Blog = () => {
       } else {
         enqueueSnackbar('Request Deleted Successfully', { variant: 'success', autoHideDuration: 1000 });
       }
-      toggleMemberPopup();
     } catch (error) {
       console.log("Error sending join request:", error);
     }
@@ -412,8 +411,8 @@ const Blog = () => {
           <div
             className="relative p-8 rounded-lg shadow-lg bg-white dark:bg-gray-800"
             style={{
-              width: '60%',
-              height: '60%',
+              width: '50%',
+              height: '50%',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'flex-start',
@@ -430,7 +429,11 @@ const Blog = () => {
               }}>
               You Don't Have Access
             </h3>
-            {chatID && (
+
+            {/* Button to Send Join Request */}
+            {requestSent == 1 && (
+              <>
+              {chatID && (
               <h3 className="font-DirtyHeadline mb-10"
                 style={{
                   fontSize: '2em',
@@ -439,29 +442,46 @@ const Blog = () => {
                   color: '#74bdb7',
                   textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
                 }}>
-
-                Request To Join {chats[chatID - 1].name}
-
-
+                Your Request Is Pending Approval
               </h3>
             )}
-
-            {/* Button to Send Join Request */}
-            {requestSent == 1 && (
               <button
-                className="bg-blue-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-blue-600 mb-4"
-                onClick={() => sendJoinRequest(userData.userID, chatID, 0)}
+                className="bg-red-500 text-white px-8 py-3 rounded font-PoppinsBold hover:bg-red-600 mb-4"
+                style={{fontSize: '1.1em'}}
+                onClick={() => {
+                  sendJoinRequest(userData.userID, chatID, 0);
+                  setRequestSent(0);
+                }}
               >
                 Cancel Request
               </button>
+              </>
             )}
             {requestSent == 0 && (
+              <>
+              {chatID && (
+              <h3 className="font-DirtyHeadline mb-10"
+                style={{
+                  fontSize: '2em',
+                  textAlign: 'center',
+                  letterSpacing: '2px',
+                  color: '#74bdb7',
+                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+                }}>
+                Request To Join {chats[chatID - 1].name}
+              </h3>
+            )}
               <button
-                className="bg-blue-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-blue-600 mb-4"
-                onClick={() => sendJoinRequest(userData.userID, chatID, 1)}
+                style={{fontSize: '1.1em'}}
+                className="bg-green-700 text-white px-8 py-3 rounded font-PoppinsBold hover:bg-green-900 mb-4"
+                onClick={() => {
+                  sendJoinRequest(userData.userID, chatID, 1);
+                  setRequestSent(1);
+                }}
               >
                 Send Join Request
               </button>
+              </>
             )}
 
             {/* Popup Button */}
