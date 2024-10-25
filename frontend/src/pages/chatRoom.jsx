@@ -1,33 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/navbar';
 import Spinner from '../components/spinner';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useUserContext } from '../../src/context/userContext';
 import { FaTrashCan } from 'react-icons/fa6';
 import { useSnackbar } from "notistack";
+import { motion } from 'framer-motion';
 
 const ChatRoom = () => {
     const { id } = useParams();
+    const location = useLocation();
     const { enqueueSnackbar } = useSnackbar();
     const { userData } = useUserContext();
     const endOfMessagesRef = useRef(null);
     const navigate = useNavigate();
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [lastActive, setLastActive] = useState("");
     const [showSpinner, setShowSpinner] = useState(true);
     const [isActive, setIsActive] = useState(true);
     const [messages, setMessages] = useState([]);
+    const [requests, setRequests] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [members, setMembers] = useState([]);
+    const [adminID, setAdminID] = useState(0);
     const titles = ['The Listening Lounge', 'Sunny Side Up', 'Achievement Arena', 'Compassion Corner'];
     let imageNum = userData.userID % 10;
+
+    const togglePopup = () => {
+        setIsPopupOpen(!isPopupOpen); // Toggle popup
+    };
 
     useEffect(() => {
         const interval = setInterval(async () => {
             const response = await axios.get(`http://localhost:3000/chatroom/${id}`, { params: { userID: userData.userID } });
             const sortedMembers = response.data.members.sort((a, b) => (a.USER_ID === userData.userID ? -1 : b.USER_ID === userData.userID ? 1 : 0));
             setMembers(sortedMembers);
+            setRequests(response.data.requests);
             setLastActive(response.data.lastActive);
             const newMessages = response.data.messages;
             if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
@@ -59,6 +69,11 @@ const ChatRoom = () => {
     }, []);
 
     useEffect(() => {
+        const { state } = location;
+        if (state !== null) {
+            const { admin_ID } = state;
+            setAdminID(admin_ID);
+        }
         const fetchData = async () => {
             try {
                 const response = await axios.get(`http://localhost:3000/chatroom/${id}`, { params: { userID: userData.userID } });
@@ -68,6 +83,7 @@ const ChatRoom = () => {
                 setMembers(data.members);
                 setMessages(data.messages);
                 setLastActive(response.data.lastActive);
+                setRequests(response.data.requests);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -144,7 +160,47 @@ const ChatRoom = () => {
         } catch (error) {
             console.log("error deleting message");
         }
+    };
 
+    const handleLeaveChatroom = async () => {
+        try {
+            if(adminID == userData.userID) {
+                const response = await axios.post(`http://localhost:3000/chatroom/${id}/leave`, { userID: userData.userID, admin: members[1].USER_ID });
+            } else {
+                const response = await axios.post(`http://localhost:3000/chatroom/${id}/leave`, { userID: userData.userID, admin: 0 });
+            }
+        } catch (error) {
+            console.log("error leaving chatroom");
+        }
+    };
+
+    const acceptRequest = async (request) => {
+        try {
+            const response = await axios.post(`http://localhost:3000/chatroom/${id}/acceptRequest`, { userID: request.USER_ID });
+            if (response.status === 200) {
+                setRequests((prevRequests) => prevRequests.filter(r => r.USER_ID !== request.USER_ID));
+                enqueueSnackbar('Request Accepted', { variant: 'success', autoHideDuration: 1000 });
+                const response = await axios.get(`http://localhost:3000/chatroom/${id}`, { params: { userID: userData.userID } });
+                const data = response.data;
+                const sortedMembers = data.members.sort((a, b) => (a.USER_ID === userData.userID ? -1 : b.USER_ID === userData.userID ? 1 : 0));
+                setMembers(sortedMembers);
+            }
+        } catch (error) {
+            console.log("error accepting request");
+        }
+
+    };
+
+    const deleteRequest = async (request) => {
+        try {
+            const response = await axios.post(`http://localhost:3000/chatroom/${id}/deleteRequest`, { userID: request.USER_ID });
+            if (response.status === 200) {
+                setRequests((prevRequests) => prevRequests.filter(r => r.USER_ID !== request.USER_ID));
+                enqueueSnackbar('Request Deleted', { variant: 'success', autoHideDuration: 1000 });
+            }
+        } catch (error) {
+            console.log("error deleting request");
+        }
     };
 
     // Function to format the date as readable
@@ -219,7 +275,7 @@ const ChatRoom = () => {
                             fontSize: '1.7em',
                             textAlign: 'center'
                         }}>
-                            Members in the Room
+                            Members in the Room ({members.length})
                         </h2>
                         <div style={{ paddingBottom: '100px' }}>
                             {/* Scrollable Members Table */}
@@ -277,6 +333,35 @@ const ChatRoom = () => {
                                     </tbody>
                                 </table>
                             </div>
+                            {adminID == userData.userID && (
+                                <>
+                                    <h2 className="mb-2 mt-9 font-DirtyHeadline" style={{
+                                        color: '#74bdb7',
+                                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+                                        fontSize: '1.7em',
+                                        textAlign: 'center'
+                                    }}>
+                                        Join Requests
+                                    </h2>
+                                    <motion.button
+                                        whileTap={{ scale: 0.85 }}
+                                        className="font-PoppinsBold flex items-center justify-center p-1 mt-7 pt-2 pb-2"
+                                        style={{
+                                            fontSize: '1.1em',
+                                            marginLeft: '17%',
+                                            width: '65%',
+                                            backgroundColor: '#74bdb7',
+                                            borderRadius: '10px'
+                                        }}
+                                        type="submit"
+                                        onClick={togglePopup}
+                                        onMouseEnter={(e) => e.target.style.backgroundColor = '#559992'}
+                                        onMouseLeave={(e) => e.target.style.backgroundColor = '#74bdb7'}
+                                    >
+                                        View Requests
+                                    </motion.button>
+                                </>
+                            )}
                         </div>
                         <div className="flex-grow"></div>
                     </div>
@@ -309,14 +394,25 @@ const ChatRoom = () => {
                                     handleStatusChange(); // Call your status change function
                                     navigate(-1);        // Navigate back
                                 }}
-                                className="absolute font-PoppinsBold text-white bg-gray-600 hover:bg-gray-500 px-4 py-1 rounded-lg mr-4"
+                                className="font-PoppinsBold text-white bg-gray-600 hover:bg-gray-500 px-4 py-1 rounded-lg mr-auto"
                             >
                                 Back To Community
                             </button>
-                            {/* Centered Title */}
-                            <h2 className="font-DirtyHeadline text-white mx-auto" style={{ letterSpacing: '2px', textAlign: 'center', fontSize: '1.5em' }}>
+                            {/* Title */}
+                            <h2 className="font-DirtyHeadline text-white" style={{ letterSpacing: '2px', textAlign: 'center', fontSize: '1.5em' }}>
                                 {titles[id - 1]}
                             </h2>
+
+                            {/* Leave Chatroom Button */}
+                            <button
+                                onClick={() => {
+                                    handleLeaveChatroom(); 
+                                    navigate(-1);
+                                }}
+                                className="font-PoppinsBold text-white bg-red-600 hover:bg-red-500 px-4 py-1 rounded-lg ml-auto"
+                            >
+                                Leave Chatroom
+                            </button>
                         </div>
 
 
@@ -417,6 +513,95 @@ const ChatRoom = () => {
                     </div>
                 </div>
             </div>
+            {isPopupOpen && adminID == userData.userID && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto">
+                    <div
+                        className="relative p-8 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+                        style={{
+                            width: '60%',
+                            height: '60%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'flex-start',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <h3
+                            className="font-DirtyHeadline mb-10"
+                            style={{
+                                fontSize: '2em',
+                                textAlign: 'center',
+                                letterSpacing: '2px',
+                                color: '#74bdb7',
+                                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
+                            }}
+                        >
+                            Join Requests ({requests.length})
+                        </h3>
+                        <div className="flex-grow overflow-y-auto max-h-60 mb-5 w-full">
+                            <table className="w-full">
+                                <tbody>
+                                    {requests.map((request, index) => (
+                                        <tr key={index}>
+                                            <td
+                                                className="font-Poppins p-2"
+                                                style={{ borderBottom: '2px solid #1f2c2b' }}
+                                            >
+                                                <div className="flex items-center justify-between w-full">
+                                                    {/* Left-aligned content */}
+                                                    <div className="flex items-center">
+                                                        <img
+                                                            src={
+                                                                request.GENDER === 'F'
+                                                                    ? `/girls/${request.USER_ID % 10}.jpg`
+                                                                    : `/boys/${request.USER_ID % 10}.jpg`
+                                                            }
+                                                            alt="Request"
+                                                            className="rounded-full"
+                                                            style={{ width: '50px', height: '50px', marginRight: '20px' }}
+                                                        />
+                                                        <div
+                                                            className="flex flex-col font-PoppinsBold"
+                                                            style={{ fontSize: '1em', color: '#74bdb7' }}
+                                                        >
+                                                            <h1>{request.FIRST_NAME} {request.LAST_NAME}</h1>
+                                                            <h1 style={{ fontFamily: 'Poppins', color: '#40918a' }}>@{request.USERNAME}</h1>
+                                                        </div>
+                                                    </div>
+                                                    {/* Right-aligned button */}
+                                                    <div className="font-PoppinsBold flex justify-end mr-5">
+                                                        <motion.button
+                                                            whileTap={{ scale: 0.85 }}
+                                                            onClick={() => acceptRequest(request)}
+                                                            className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600 mr-4"
+                                                        >
+                                                            Accept
+                                                        </motion.button>
+                                                        <motion.button
+                                                            whileTap={{ scale: 0.85 }}
+                                                            onClick={() => deleteRequest(request)}
+                                                            className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+                                                        >
+                                                            Decline
+                                                        </motion.button>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {/* Close Popup Button */}
+                        <button
+                            className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
+                            onClick={togglePopup}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

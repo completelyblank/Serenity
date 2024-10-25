@@ -9,6 +9,7 @@ import '../index.css';
 import { useUserContext } from '../../src/context/userContext';
 import axios from 'axios';
 import { useSnackbar } from "notistack";
+import { useNavigate } from 'react-router-dom';
 
 const chats = [
   { id: 1, name: 'The Listening Lounge', description: 'A place to talk and be heard' },
@@ -18,6 +19,7 @@ const chats = [
 ];
 
 const Blog = () => {
+  const navigate = useNavigate();
   const { userData } = useUserContext();
   const { enqueueSnackbar } = useSnackbar();
   const [chatID, setChatID] = useState("");
@@ -34,6 +36,7 @@ const Blog = () => {
   const [isMember, setIsMember] = useState(null);
   const [isMemberPopupOpen, setIsMemberPopupOpen] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
+  const [adminID, setAdminID] = useState(0);
 
   const togglePopup = (thread) => {
     setSelectedThread(thread); // Set the clicked thread
@@ -52,7 +55,8 @@ const Blog = () => {
       setIsMember(response.data.member === 1);
       setRequestSent(response.data.requestCheck == 1);
       if (response.data.member === 1) {
-        window.location.href = `/chatroom/${chatRoomID}`;
+        const admin_ID = response.data.ADMIN_ID;
+        navigate(`/chatroom/${chatRoomID}`, {state: { admin_ID }});
         return true;
       } else {
         toggleMemberPopup();
@@ -229,7 +233,7 @@ const Blog = () => {
                         onClick={() => {
                           if (checkMember(userData.userID, chat.id) != true) {
                             setChatID(chat.id);
-                            toggleMemberPopup();
+                            
                           }
                         }}
                       >

@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, changeTheme, addQuotes, fetchQuote, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest } = require('./queries');
+const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, makeAdmin, deleteRequest, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -26,10 +26,11 @@ router.get('/login', async (req, res) => {
 });
 
 router.get('/form', async (req, res) => {
+  const userID = req.query.userID;
   let connection;
   try {
     connection = await connectToDatabase();
-    const tokens = await fetchTokens(connection);
+    const tokens = await fetchTokens(connection, userID);
     res.json({ tokens });
   } catch (err) {
     console.error('Error fetching data:', err);
@@ -54,7 +55,8 @@ router.get('/chatroom/:chatID', async (req, res) => {
     const members = await fetchMembers(connection, chatID);
     const messages = await getMessages(connection, chatID);
     const lastActive = await fetchLastActive(connection, userID, chatID);
-    res.json({ members, messages, lastActive });
+    const requests = await getRequests(connection, chatID);
+    res.json({ members, messages, lastActive, requests });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
@@ -130,6 +132,73 @@ router.post('/chatroom/:chatID/delete', async (req, res) => {
   }
 });
 
+router.post('/chatroom/:chatID/deleteRequest', async (req, res) => {
+  const { userID } = req.body;
+  const chatID = req.params.chatID;
+  let connection;
+
+  try {
+    connection = await connectToDatabase();
+    const status = await deleteRequest(connection, userID, chatID);
+    res.json(status);
+  } catch (err) {
+    console.error('Error deleting data:', err);
+    res.status(500).json({ error: 'Failed to delete data' });
+  } finally {
+    if (connection) {
+      try {
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.post('/chatroom/:chatID/leave', async (req, res) => {
+  const { userID, admin } = req.body;
+  const chatID = req.params.chatID;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    if(admin != 0) {
+      const makingAdmin = await makeAdmin(connection, admin, chatID);
+    }
+    const status = await deleteMember(connection, userID, chatID);
+    res.json(status);
+  } catch (err) {
+    console.error('Error deleting member:', err);
+    res.status(500).json({ error: 'Failed to delete member' });
+  } finally {
+    if (connection) {
+      try {
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.post('/chatroom/:chatID/acceptRequest', async (req, res) => {
+  const { userID } = req.body;
+  const chatID = req.params.chatID;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const adding = await acceptRequest(connection, userID, chatID);
+    const status = await deleteRequest(connection, userID, chatID);
+    res.json(status);
+  } catch (err) {
+    console.error('Error accepting request:', err);
+    res.status(500).json({ error: 'Failed to accept request' });
+  } finally {
+    if (connection) {
+      try {
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
 
 router.post('/chatroom/:chatID', async (req, res) => {
   const chatID = req.params.chatID;
@@ -321,8 +390,9 @@ router.get('/blog/checkMember', async (req, res) => {
   try {
     connection = await connectToDatabase();
     const member = await isMember(connection, userID, chatRoomID);
+    const admin = await getAdmin(connection, chatRoomID);
     const requestCheck = await checkRequest(connection, userID, chatRoomID);
-    res.json({ member, requestCheck });
+    res.json({ member, requestCheck, ADMIN_ID: admin.ADMIN_ID });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });

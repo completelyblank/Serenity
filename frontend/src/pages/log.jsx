@@ -3,10 +3,12 @@ import Navbar from '../components/navbar.jsx';
 import axios from 'axios';
 import Spinner from '../components/spinner.jsx';
 import bookImg from '/book2.png';
+import { useUserContext } from '../../src/context/userContext';
 import Monitor from '../components/monitor.jsx';
 
 const MoodLoggingForm = () => {
   const [mood, setMood] = useState('');
+  const { userData } = useUserContext();
   const [emotion, setEmotion] = useState('');
   const [moodTokens, setMoodTokens] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -30,12 +32,11 @@ const MoodLoggingForm = () => {
           setShowSpinner(false);
         }, 1000);
 
-        const response = await axios.get('http://localhost:3000/form');
+        const response = await axios.get('http://localhost:3000/form', { params: { userID: userData.userID } });
         const data = response.data;
-        setMoodTokens(data.tokens);
+        setMoodTokens(data.tokens || 0);
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError('Failed to fetch data. Please try again later.');
       } finally {
         setLoading(false);
         clearTimeout(spinnerTimeout);
@@ -93,7 +94,7 @@ const MoodLoggingForm = () => {
           flexDirection: "column",
           overflow: 'hidden'
         }}>
-        <Monitor />
+        <Monitor moodTokens={moodTokens} />
       </div>
     </>
   );

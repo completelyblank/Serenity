@@ -67,28 +67,41 @@ async function sendRequest(connection, userID, chatRoomID, sendORDelete) {
         [userID, chatRoomID],
         { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
       );
-      if(result.rows) {
-        return 1;
-      } else {
-        return 0;
-      }
+      return 1;
     } else {
       const result = await connection.execute(
-        `DELETE FROM requests WHERE user_id == :userID AND chat_room_id = :chatRoomID`,
+        `DELETE FROM requests WHERE user_id = :userID AND chat_room_id = :chatRoomID`,
         [userID, chatRoomID],
         { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
       );
-      if(result.rows) {
-        return 0;
-      } else {
-        return 1;
-      }
+      return 0;
     }
   } catch (err) {
     console.error('Error checking member:', err);
     throw err;
   }
 }
+
+async function getRequests(connection, chatRoomID) {
+  try {
+    const result = await connection.execute(
+        `SELECT U.user_id, U.username, U.first_name, U.last_name, U.gender
+        FROM users U 
+        JOIN requests R
+        ON U.user_id = R.user_id
+        WHERE R.chat_room_id = :chatRoomID`,
+        [chatRoomID],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    return result.rows;
+  } 
+  catch (err) 
+  {
+    console.error('Error getting requests:', err);
+    throw err;
+  }
+}
+
 
 async function checkRequest(connection, userID, chatRoomID) {
   try {
@@ -128,6 +141,21 @@ async function isMember(connection, userID, chatRoomID) {
   }
 }
 
+async function getAdmin(connection, chatRoomID) {
+  try {
+    const result = await connection.execute(
+      `SELECT admin_id FROM chat_rooms WHERE chat_room_id = :chatRoomID`,
+      [chatRoomID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows[0];
+  } catch (err) {
+    console.error('Error getting member:', err);
+    throw err;
+  }
+}
+
 async function deleteMessage(connection, messageID) {
   try {
     const result = await connection.execute(
@@ -139,6 +167,66 @@ async function deleteMessage(connection, messageID) {
     return 1;
   } catch (err) {
     console.error('Error deleting message:', err);
+    throw err;
+  }
+}
+
+async function deleteRequest(connection, userID, chatRoomID) {
+  try {
+    const result = await connection.execute(
+      `DELETE FROM requests WHERE user_id = :userID AND chat_room_id = :chatRoomID`,
+      [userID, chatRoomID],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error deleting message:', err);
+    throw err;
+  }
+}
+
+async function makeAdmin(connection, userID, chatRoomID) {
+  try {
+    const result = await connection.execute(
+      `UPDATE chat_rooms SET admin_id = :userID WHERE chat_room_id = :chatRoomID`,
+      [userID, chatRoomID],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error making admin:', err);
+    throw err;
+  }
+}
+
+async function deleteMember(connection, userID, chatRoomID) {
+  try {
+    const result = await connection.execute(
+      `DELETE FROM members WHERE user_id = :userID AND chat_room_id = :chatRoomID`,
+      [userID, chatRoomID],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error deleting member:', err);
+    throw err;
+  }
+}
+
+async function acceptRequest(connection, userID, chatRoomID) {
+  try {
+    const result = await connection.execute(
+      `INSERT INTO members(user_id, chat_room_id) VALUES(:userID, :chatRoomID)`,
+      [userID, chatRoomID],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error accepting request:', err);
     throw err;
   }
 }
@@ -356,11 +444,11 @@ async function addUser(connection, username, password, first_name, last_name, ge
   }
 }
 
-async function fetchTokens(connection) {
+async function fetchTokens(connection, userID) {
   try {
     const result = await connection.execute(
-      `SELECT token_count FROM users WHERE user_id = :id`,
-      [1], // This assumes user_id = 1 for demonstration; modify as needed
+      `SELECT token_count FROM users WHERE user_id = :userID`,
+      [userID],
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
     return result.rows.length > 0 ? result.rows[0].TOKEN_COUNT : null; // Ensure a valid return
@@ -376,6 +464,7 @@ module.exports = {
   fetchTokens,
   addUser,
   findUser,
+  deleteRequest,
   changeTheme,
   addQuotes,
   fetchQuote,
@@ -389,5 +478,10 @@ module.exports = {
   isMember,
   fetchLastActive,
   sendRequest,
-  checkRequest
+  checkRequest,
+  getRequests,
+  getAdmin,
+  acceptRequest,
+  deleteMember,
+  makeAdmin
 };

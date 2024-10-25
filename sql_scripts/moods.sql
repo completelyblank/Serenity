@@ -15,3 +15,4 @@ BEGIN
   INTO :new.mood_id
   FROM dual;
 END;
+/

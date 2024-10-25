@@ -4,10 +4,10 @@ import { motion } from 'framer-motion';
 
 const channelHeadings = ["The Mood Report", "Feelings Forecast"];
 
-const Monitor = () => {
+const Monitor = ({moodTokens}) => {
     const [isOn, setIsOn] = useState(false);
     const [currentChannel, setCurrentChannel] = useState(1);
-    const totalChannels = 6;
+    const totalChannels = 4;
     const [isHoveredMinus, setIsHoveredMinus] = useState(false);
     const [isHoveredPower, setIsHoveredPower] = useState(false);
     const [isHoveredPlus, setIsHoveredPlus] = useState(false);
@@ -60,7 +60,7 @@ const Monitor = () => {
 
         const timer = setTimeout(() => {
             setShowChannel(false);
-        }, 1000); 
+        }, 1000);
 
         setChannelTimer(timer);
 
@@ -104,7 +104,7 @@ const Monitor = () => {
                         borderBottomRightRadius: '0%',
                         backgroundSize: 'cover',
                         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.5)',
-                        backgroundColor: isOn ? '#3e5577' : '#1a1414',
+                        background: isOn ? 'linear-gradient(to bottom, #004d4d, #1a5e5e)' : '#1a1414',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center'
@@ -129,7 +129,8 @@ const Monitor = () => {
                                     transition={{ duration: 0.5 }}
                                     style={{
                                         height: '10px',
-                                        backgroundColor: '#031553',
+                                        backgroundColor: '#39FF14',
+                                        
                                     }}
                                 />
                             </div>
@@ -190,7 +191,7 @@ const Monitor = () => {
                             padding: '2%',
                         }}
                     >
-                        <label className="block mb-4 text-4xl font-BrokenConsole text-black">
+                        <label className="block mb-4 text-4xl font-BrokenConsole text-gray-200">
                             How's your mood today?
                         </label>
 
@@ -224,7 +225,7 @@ const Monitor = () => {
                             textAlign: 'center',
                         }}
                     >
-                        <label className="block mb-4 text-4xl font-BrokenConsole text-black">
+                        <label className="block mb-4 text-4xl font-BrokenConsole text-gray-200">
                             Which Emoji describe you the BEST today?
                         </label>
 
@@ -246,6 +247,51 @@ const Monitor = () => {
                             )}
                         </div>
                     </div>
+                )}
+                {!showStatic && isOn && currentChannel === 3 && (
+                    <div
+                        className="absolute flex flex-col items-center justify-center w-full"
+                        style={{
+                            top: '15%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            maxWidth: '75%',
+                            wordBreak: 'break-word',
+                            padding: '2%',
+                            textAlign: 'center',
+                        }}
+                    >
+                        
+                        <img src="Dream Token.png" width="300" height="300" />
+                        <label className="block mb-4 text-4xl font-BrokenConsole text-gray-200">
+                            Mood Tokens (MT): {moodTokens}
+                        </label>
+
+                 </div>   
+                )}
+                 {!showStatic && isOn && currentChannel === 4 && (
+                    <div
+                        className="absolute flex flex-col items-center justify-center w-full"
+                        style={{
+                            top: '15%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            maxWidth: '75%',
+                            wordBreak: 'break-word',
+                            padding: '2%',
+                            textAlign: 'center',
+                        }}
+                    >
+                       <button
+                        id='post_button'
+                        className="font-PoppinsBold flex items-center justify-center p-1 mt-3 mb-3"
+                        style={{ fontSize: '1.2em', marginTop: '10%', width: '50%' }}
+                        type="submit"
+                        >
+                        Submit
+                        </button>
+
+                 </div>   
                 )}
 
                 <div className="absolute flex justify-between items-center px-10 sm:px-12 py-6 bg-gray-900 w-full bottom-[-55px] rounded-b-lg" style={{ height: '55px' }}>
