@@ -84,24 +84,24 @@ async function sendRequest(connection, userID, chatRoomID, sendORDelete) {
 
 async function getRequests(connection, chatRoomID) {
   try {
-    const result = await connection.execute(
-        `SELECT U.user_id, U.username, U.first_name, U.last_name, U.gender
-        FROM users U 
-        JOIN requests R
-        ON U.user_id = R.user_id
-        WHERE R.chat_room_id = :chatRoomID`,
-        [chatRoomID],
-        { outFormat: oracledb.OUT_FORMAT_OBJECT }
-    );
-    return result.rows;
-  } 
-  catch (err) 
-  {
-    console.error('Error getting requests:', err);
-    throw err;
+      const result = await connection.execute(
+          `SELECT U.user_id, U.username, U.first_name, U.last_name, U.gender, 
+          TO_CHAR(R.request_date, 'DD Mon YYYY') AS sent_date, 
+          TO_CHAR(R.request_date, 'HH:MI AM') AS sent_time
+          FROM users U 
+          JOIN requests R
+          ON U.user_id = R.user_id
+          WHERE R.chat_room_id = :chatRoomID
+          ORDER BY R.request_date DESC`,
+          [chatRoomID],
+          { outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+      return result.rows;
+  } catch (err) {
+      console.error('Error getting requests:', err);
+      throw err;
   }
 }
-
 
 async function checkRequest(connection, userID, chatRoomID) {
   try {

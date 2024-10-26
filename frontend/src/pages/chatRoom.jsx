@@ -570,6 +570,9 @@ const ChatRoom = () => {
                                                         >
                                                             <h1>{request.FIRST_NAME} {request.LAST_NAME}</h1>
                                                             <h1 style={{ fontFamily: 'Poppins', color: '#40918a' }}>@{request.USERNAME}</h1>
+                                                            <h2 style={{ fontFamily: 'Poppins', color: '#a1a1a1', fontSize: '0.9em' }}>
+                                                               {request.SENT_DATE} at {request.SENT_TIME}
+                                                            </h2>
                                                         </div>
                                                     </div>
                                                     {/* Right-aligned button */}
@@ -645,11 +648,11 @@ const ChatRoom = () => {
                                 handleLeaveChatroom();
                                 navigate(-1);
                             }}
-                           
+
                         >
                             Leave Chat Room
                         </motion.button>
-                        
+
 
                         {/* Close Popup Button */}
                         <button
