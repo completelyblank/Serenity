@@ -251,6 +251,62 @@ async function addMessage(connection, chatID, userID, messageContent) {
   }
 }
 
+async function sendFormData(connection, userID, description, emojiID) {
+  try {
+    const result = await connection.execute(
+      `INSERT INTO form_data(user_id, mood_description, emoji_id)
+       VALUES(:userID, :description, :emojiID)
+       RETURNING form_id INTO :formID`,
+      {
+        userID,
+        description,
+        emojiID,
+        formID: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+      },
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.outBinds.formID[0];
+  } catch (err) {
+    console.error('Error sending data:', err);
+    throw err;
+  }
+}
+
+async function addTags(connection, formID, tagIDs) {
+  try {
+    for (const tagID of tagIDs) {
+      await connection.execute(
+        `INSERT INTO form_tags(form_id, tag_id)
+         VALUES(:formID, :tagID)`,
+        { formID, tagID },
+        { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+    }
+
+    return 1; 
+  } catch (err) {
+    console.error('Error sending data:', err);
+    throw err;
+  }
+}
+
+async function updateTokens(connection, tokens, userID) {
+  try {
+    await connection.execute(
+        `UPDATE users SET token_count = token_count + :tokens WHERE user_id = :userID`,
+        { tokens, userID },
+        { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+
+    return 1; 
+  } catch (err) {
+    console.error('Error sending data:', err);
+    throw err;
+  }
+}
+
+
 async function fetchMembers(connection, chatID) {
   try {
     const result = await connection.execute(
@@ -483,5 +539,8 @@ module.exports = {
   getAdmin,
   acceptRequest,
   deleteMember,
-  makeAdmin
+  makeAdmin,
+  sendFormData,
+  addTags,
+  updateTokens
 };

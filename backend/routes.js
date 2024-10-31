@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, makeAdmin, deleteRequest, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests } = require('./queries');
+const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -32,6 +32,49 @@ router.get('/form', async (req, res) => {
     connection = await connectToDatabase();
     const tokens = await fetchTokens(connection, userID);
     res.json({ tokens });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Failed to fetch data' });
+  } finally {
+    if (connection) {
+      try {
+        // Close connection
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.post('/form', async (req, res) => {
+  const { userID, description, emojiID, tags } = req.body;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const formID = await sendFormData(connection, userID, description, emojiID);
+    const tagSubmit = await addTags(connection, formID, tags);
+    res.json({ tagSubmit });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Failed to fetch data' });
+  } finally {
+    if (connection) {
+      try {
+        // Close connection
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
+router.post('/form/tokens', async (req, res) => {
+  const { userID, tokens } = req.body;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const tokenSet = await updateTokens(connection, tokens, userID);
+    res.json({ tokenSet });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });

@@ -7,22 +7,14 @@ import { useUserContext } from '../../src/context/userContext';
 import Monitor from '../components/monitor.jsx';
 
 const MoodLoggingForm = () => {
-  const [mood, setMood] = useState('');
+  const [moodStatus, setMoodStatus] = useState(false);
   const { userData } = useUserContext();
   const [emotion, setEmotion] = useState('');
   const [moodTokens, setMoodTokens] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(true);
-  const [currentStep, setCurrentStep] = useState(1); // Step 1: Mood textarea, Step 2: Emoji selection, Step 3: Submit
+  const [currentStep, setCurrentStep] = useState(1);
   const [allImagesLoaded, setAllImagesLoaded] = useState(false);
-
-  const emotions = [
-    { name: 'Happy', image: 'happy.gif' },
-    { name: 'Sad', image: 'sad.gif' },
-    { name: 'Anxious', image: 'anxious.gif' },
-    { name: 'Angry', image: 'angry.gif' },
-    { name: 'Neutral', image: 'neutral.gif' }
-  ];
 
   useEffect(() => {
     let spinnerTimeout;
@@ -45,19 +37,6 @@ const MoodLoggingForm = () => {
 
     fetchData();
   }, []);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const timestamp = new Date().toISOString();
-    console.log('Mood:', mood);
-    console.log('Emotion:', emotion);
-    console.log('Timestamp:', timestamp);
-
-    const hash = btoa(timestamp + mood + emotion);
-    console.log('Hash:', hash);
-
-    setMoodTokens(prevTokens => prevTokens + 1);
-  };
 
   // Show spinner while loading
   if (loading || showSpinner) {

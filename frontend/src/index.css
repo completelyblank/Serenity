@@ -206,3 +206,16 @@ body {
   background-color: rgba(0, 255, 183, 1); /* Scrollbar color on hover */
 }
 
+@keyframes pulsate {
+  0%, 100% {
+      transform: scale(1);
+  }
+  50% {
+      transform: scale(1.05);
+  }
+}
+
+.pulsate {
+  animation: pulsate 1.5s infinite;
+}
+

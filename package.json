@@ -14,7 +14,11 @@
     "express": "^4.18.1",
     "framer-motion": "^11.3.31",
     "prop-types": "^15.8.1",
+    "react-confetti": "^6.1.0",
     "react-router-dom": "^6.26.1",
+    "react-spin-to-wheel": "^2.0.6",
+    "react-wheel-of-prizes": "^1.1.0",
+    "spin-wheel": "^5.0.2",
     "ws": "^8.18.0"
   },
   "devDependencies": {

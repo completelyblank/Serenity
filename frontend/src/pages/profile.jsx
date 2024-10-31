@@ -184,7 +184,7 @@ const ProfilePage = () => {
     try {
       const themeNumber = parseInt(theme.replace(/\D/g, ''), 10);
       const response = await axios.post('http://localhost:3000/profile/theme', { username: userData.username, theme: themeNumber });
-      setUserData({ userID: userData.userID, username: userData.username, password: userData.password, firstName: userData.firstName, lastName: userData.lastName, gender: userData.gender, age: userData.age, theme: themeNumber });
+      setUserData({ userID: userData.userID, username: userData.username, password: userData.password, firstName: userData.firstName, lastName: userData.lastName, gender: userData.gender, age: userData.age, theme: themeNumber, token: userData.token });
     } catch (error) {
       console.log("error changing themes");
     }
