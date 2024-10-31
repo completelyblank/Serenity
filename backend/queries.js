@@ -40,6 +40,25 @@ async function setActive(connection, userID, active, chatID) {
   }
 }
 
+async function checkLogged(connection, userID, todayDate) {
+  try {
+    const result = await connection.execute(
+      `SELECT *
+      FROM form_data 
+      WHERE user_id = :userID 
+      AND TO_CHAR(submit_date, 'DD-MM-YYYY') = :todayDate`,
+      [userID, todayDate],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows.length > 0;
+    
+  } catch (err) {
+    console.error('Error fetching log:', err);
+    throw err;
+  }
+}
+
 async function getMessages(connection, chatID) {
   try {
     const result = await connection.execute(
@@ -542,5 +561,6 @@ module.exports = {
   makeAdmin,
   sendFormData,
   addTags,
-  updateTokens
+  updateTokens,
+  checkLogged
 };

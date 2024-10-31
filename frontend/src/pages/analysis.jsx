@@ -6,14 +6,37 @@ import Spinner from '../components/spinner'; // Assuming you have a Spinner comp
 
 function Analysis() {
   const [loading, setLoading] = useState(true);
+  const [showSpinner, setShowSpinner] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    let spinnerTimeout;
+    const fetchData = async () => {
+      try {
+        const spinnerTimeout = setTimeout(() => {
+          setShowSpinner(false);
+        }, 1000);
 
-    return () => clearTimeout(timer);
+        
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+        clearTimeout(spinnerTimeout);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  // Show spinner while loading
+  if (loading || showSpinner) {
+    return (
+      <div className="h-screen overflow-y-auto" style={{ backgroundColor: '#b2dfdb' }}>
+        <Navbar />
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-cover bg-center bg-fixed text-white" style={{ backgroundImage: `url("dream_analysis.jpg")` }}>

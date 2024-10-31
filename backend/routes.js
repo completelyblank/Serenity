@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests } = require('./queries');
+const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -27,11 +27,14 @@ router.get('/login', async (req, res) => {
 
 router.get('/form', async (req, res) => {
   const userID = req.query.userID;
+  const date = new Date();
+  const dateToday = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
   let connection;
   try {
     connection = await connectToDatabase();
     const tokens = await fetchTokens(connection, userID);
-    res.json({ tokens });
+    const todayLogging = await checkLogged(connection, userID, dateToday);
+    res.json({ tokens, todayLogging });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });

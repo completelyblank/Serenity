@@ -15,6 +15,7 @@ const MoodLoggingForm = () => {
   const [showSpinner, setShowSpinner] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [allImagesLoaded, setAllImagesLoaded] = useState(false);
+  const [todayLogged, setTodayLogged] = useState(false);
 
   useEffect(() => {
     let spinnerTimeout;
@@ -27,6 +28,7 @@ const MoodLoggingForm = () => {
         const response = await axios.get('http://localhost:3000/form', { params: { userID: userData.userID } });
         const data = response.data;
         setMoodTokens(data.tokens || 0);
+        setTodayLogged(data.todayLogging);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -48,15 +50,6 @@ const MoodLoggingForm = () => {
     );
   }
 
-  // Function to navigate between steps
-  const handleNextStep = () => {
-    if (currentStep < 3) setCurrentStep(currentStep + 1);
-  };
-
-  const handlePreviousStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
-
   return (
     <>
       <Navbar />
@@ -73,7 +66,12 @@ const MoodLoggingForm = () => {
           flexDirection: "column",
           overflow: 'hidden'
         }}>
-        <Monitor moodTokens={moodTokens} />
+        {!todayLogged && (
+          <Monitor moodTokens={moodTokens} isLogged={false}/>
+        )}
+        {todayLogged && (
+          <Monitor moodTokens={moodTokens} isLogged={true}/>
+        )}
       </div>
     </>
   );

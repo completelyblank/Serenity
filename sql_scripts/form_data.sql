@@ -2,7 +2,8 @@ CREATE TABLE form_data (
   form_id NUMBER PRIMARY KEY, 
   user_id NUMBER(10, 0) REFERENCES users(user_id) ON DELETE CASCADE,
   mood_description VARCHAR(100) NOT NULL,
-  emoji_id NUMBER REFERENCES emojis(emoji_id) ON DELETE CASCADE
+  emoji_id NUMBER REFERENCES emojis(emoji_id) ON DELETE CASCADE,
+  submit_date DATE DEFAULT SYSDATE
 );
 
 SELECT * FROM form_data;

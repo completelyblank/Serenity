@@ -8,10 +8,10 @@ import axios from 'axios';
 
 const channelHeadings = ["Assistance Channel", "The Mood Report", "Feelings Forecast", "Vibe Check", "Mood Metrics", "The Submission Station"];
 
-const Monitor = ({ moodTokens }) => {
+const Monitor = ({ moodTokens, isLogged }) => {
     const [selectedTagIndex, setSelectedTagIndex] = useState([]);
     const [selectedEmojiIndex, setSelectedEmojiIndex] = useState(null);
-    const [ error, setError ] = useState("");
+    const [error, setError] = useState("");
     const { userData } = useUserContext();
     const [isOn, setIsOn] = useState(false);
     const [isError, setIsError] = useState(false);
@@ -46,7 +46,7 @@ const Monitor = ({ moodTokens }) => {
     ];
 
     const handleTagClick = (tag) => {
-        const tagIndex = tags.indexOf(tag) + 1; 
+        const tagIndex = tags.indexOf(tag) + 1;
         if (selectedTags.includes(tag)) {
             setSelectedTags(selectedTags.filter((t) => t !== tag));
             setSelectedTagIndex(selectedTagIndex.filter((index) => index !== tagIndex));
@@ -55,25 +55,25 @@ const Monitor = ({ moodTokens }) => {
             setSelectedTagIndex([...selectedTagIndex, tagIndex]);
         }
     };
-    
+
 
     const handleMoodChange = async () => {
         try {
-            if(selectedTags.length == 0 || selectedEmoji == null || mood === '') {
+            if (selectedTags.length == 0 || selectedEmoji == null || mood === '') {
                 setError("Kindly Fill All Channels");
             } else {
                 setError("");
                 try {
-                    const response = await axios.post('http://localhost:3000/form', { 
-                      userID: userData.userID, 
-                      description: mood,
-                      emojiID: selectedEmojiIndex,
-                      tags: selectedTagIndex
+                    const response = await axios.post('http://localhost:3000/form', {
+                        userID: userData.userID,
+                        description: mood,
+                        emojiID: selectedEmojiIndex,
+                        tags: selectedTagIndex
                     });
                     console.log('Response:', response.data);
-                  } catch (error) {
+                } catch (error) {
                     console.error('Error posting data:', error);
-                  }
+                }
             }
         } catch (error) {
             console.log("error :c");
@@ -131,19 +131,21 @@ const Monitor = ({ moodTokens }) => {
     };
 
     const togglePower = () => {
-        setIsOn(prev => {
-            if (!prev) {
-                setShowChannel(true);
-                if (channelTimer) {
-                    clearTimeout(channelTimer);
+        if (isLogged == false) {
+            setIsOn(prev => {
+                if (!prev) {
+                    setShowChannel(true);
+                    if (channelTimer) {
+                        clearTimeout(channelTimer);
+                    }
+                    const timer = setTimeout(() => {
+                        setShowChannel(false);
+                    }, 1000);
+                    setChannelTimer(timer);
                 }
-                const timer = setTimeout(() => {
-                    setShowChannel(false);
-                }, 1000);
-                setChannelTimer(timer);
-            }
-            return !prev;
-        });
+                return !prev;
+            });
+        }
     };
 
     const progressPercentage = ((currentChannel - 1) / (totalChannels - 1)) * 100;
@@ -176,7 +178,7 @@ const Monitor = ({ moodTokens }) => {
                             <img src="https://cliply.co/wp-content/uploads/2021/07/402107790_STATIC_NOISE_400.gif" alt="Static Noise" style={{ width: '100%', height: '100%', position: 'absolute' }} />
                         </div>
                     )}
-                    {isOn && (
+                    {isOn && !isLogged && (
                         <div className="absolute bottom-0 w-full">
                             <div
                                 style={{
@@ -198,7 +200,7 @@ const Monitor = ({ moodTokens }) => {
                         </div>
                     )}
 
-                    {isOn && showChannel && (
+                    {isOn && showChannel && !isLogged && (
                         <div className="absolute top-0 left-0 w-full flex justify-center" style={{ zIndex: 10 }}>
                             <div className="pt-2" style={{
                                 backgroundColor: '#535353',
@@ -229,17 +231,32 @@ const Monitor = ({ moodTokens }) => {
                             >
                                 Mood Logging
                             </h2>
-                            <h2
-                                className="font-BrokenConsole"
-                                style={{
-                                    color: '#5a5a5a',
-                                    fontSize: '2em',
-                                    textAlign: 'center',
-                                    left: '20%'
-                                }}
-                            >
-                                Turn on the Monitor. . .
-                            </h2>
+                            {!isLogged && (
+                                <h2
+                                    className="font-BrokenConsole"
+                                    style={{
+                                        color: '#5a5a5a',
+                                        fontSize: '2em',
+                                        textAlign: 'center',
+                                        left: '20%'
+                                    }}
+                                >
+                                    Turn on the Monitor. . .
+                                </h2>
+                            )}
+                            {isLogged && (
+                                <h2
+                                    className="font-BrokenConsole"
+                                    style={{
+                                        color: '#5a5a5a',
+                                        fontSize: '2em',
+                                        textAlign: 'center',
+                                        left: '20%'
+                                    }}
+                                >
+                                    Mood logged. Check back tomorrow!
+                                </h2>
+                            )}
                         </div>
                     )}
                 </div>
@@ -264,10 +281,10 @@ const Monitor = ({ moodTokens }) => {
                             Ready to jump in? No problem! Just click around and share what you feel—no overthinking required. You got this!
                         </p>
                         <div className="flex flex-row items-center justify-center mt-7 space-x-20">
-                            <h1 style={{fontFamily: "PoppinsBold", fontSize: '1.5em', color: 'white' }} className="pulsate">Navigate Left</h1>
+                            <h1 style={{ fontFamily: "PoppinsBold", fontSize: '1.5em', color: 'white' }} className="pulsate">Navigate Left</h1>
                             <FaArrowLeft className="text-black pulsate" size={60} />
                             <FaArrowRight className="text-black pulsate" size={60} />
-                            <h1 style={{fontFamily: "PoppinsBold", fontSize: '1.5em', color: 'white'}} className="pulsate">Navigate Right</h1>
+                            <h1 style={{ fontFamily: "PoppinsBold", fontSize: '1.5em', color: 'white' }} className="pulsate">Navigate Right</h1>
                         </div>
                     </div>
 
@@ -290,7 +307,7 @@ const Monitor = ({ moodTokens }) => {
                             value={mood}
                             onChange={(e) => {
                                 setMood(e.target.value);
-                            }}                            
+                            }}
                             placeholder="How are you feeling today?"
                             style={{
                                 fontSize: '1.2em',
@@ -439,44 +456,44 @@ const Monitor = ({ moodTokens }) => {
                 )}
                 {!showStatic && isOn && currentChannel === 6 && (
                     <div
-                    className="absolute flex flex-col items-center justify-center w-full"
-                    style={{
-                        top: '15%',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        maxWidth: '75%',
-                        wordBreak: 'break-word',
-                        padding: '2%',
-                        textAlign: 'center',
-                    }}
-                >
-                    <label className="block mb-4 text-4xl font-BrokenConsole text-gray-200">
-                        Ready to Submit Your Mood Data?
-                    </label>
-                    <p className="block mt-3 font-Poppins text-gray-200" style={{ fontSize: '1.5em' }}>
-                            Review your entries and hit submit to send your data. As a thank you, you’ll get to participate in <strong>Test Your Luck</strong>!                        
-                        </p>
-                    <button
-                        id='post_button'
-                        className="font-PoppinsBold flex items-center justify-center p-2 mt-12 w-1/2"
-                        type="submit"
-                        style={{fontSize: '1.2em'}}
-                        onClick={() => {
-                            if(selectedTags.length !== 0 && selectedEmoji !== null && mood !== '') {
-                                setIsPopupOpen(true);
-                            }
-                            handleMoodChange();
+                        className="absolute flex flex-col items-center justify-center w-full"
+                        style={{
+                            top: '15%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            maxWidth: '75%',
+                            wordBreak: 'break-word',
+                            padding: '2%',
+                            textAlign: 'center',
                         }}
                     >
-                        Submit
-                    </button>
-                    {error != "" && (
-                        <p className="block mt-2 font-PoppinsBold text-red-900" style={{ fontSize: '1em' }}>
-                            {error}
+                        <label className="block mb-4 text-4xl font-BrokenConsole text-gray-200">
+                            Ready to Submit Your Mood Data?
+                        </label>
+                        <p className="block mt-3 font-Poppins text-gray-200" style={{ fontSize: '1.5em' }}>
+                            Review your entries and hit submit to send your data. As a thank you, you’ll get to participate in <strong>Test Your Luck</strong>!
                         </p>
-                    )}
-                </div>
-                
+                        <button
+                            id='post_button'
+                            className="font-PoppinsBold flex items-center justify-center p-2 mt-12 w-1/2"
+                            type="submit"
+                            style={{ fontSize: '1.2em' }}
+                            onClick={() => {
+                                if (selectedTags.length !== 0 && selectedEmoji !== null && mood !== '') {
+                                    setIsPopupOpen(true);
+                                }
+                                handleMoodChange();
+                            }}
+                        >
+                            Submit
+                        </button>
+                        {error != "" && (
+                            <p className="block mt-2 font-PoppinsBold text-red-900" style={{ fontSize: '1em' }}>
+                                {error}
+                            </p>
+                        )}
+                    </div>
+
                 )}
 
                 <div className="absolute flex justify-between items-center px-10 sm:px-12 py-6 bg-gray-900 w-full bottom-[-55px] rounded-b-lg" style={{ height: '55px' }}>
@@ -495,7 +512,7 @@ const Monitor = ({ moodTokens }) => {
             </div>
             {isPopupOpen && (
                 <div>
-                    <CardFlipModal/>
+                    <CardFlipModal />
                 </div>
             )}
         </article>
