@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests } = require('./queries');
+const { fetchTagUsage, fetchLogTimes, fetchMoods, fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 
@@ -116,6 +116,29 @@ router.get('/chatroom/:chatID', async (req, res) => {
     }
   }
 });
+
+router.get('/analysis', async (req, res) => {
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const moods = await fetchMoods(connection);
+    const logs = await fetchLogTimes(connection);
+    const tags = await fetchTagUsage(connection);
+    res.json({ moods, logs, tags });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Failed to fetch data' });
+  } finally {
+    if (connection) {
+      try {
+        // Close connection
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+      }
+    }
+  }
+});
+
 
 router.post('/chatroom/:chatID/message', async (req, res) => {
   const chatID = req.params.chatID;

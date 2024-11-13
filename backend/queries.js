@@ -17,6 +17,62 @@ async function fetchUsers(connection, username) {
   }
 }
 
+async function fetchLogTimes(connection) {
+  try {
+    const result = await connection.execute(
+      `SELECT TO_CHAR(submit_date, 'HH24') AS hours, COUNT(*) AS count
+      FROM form_data
+      GROUP BY TO_CHAR(submit_date, 'HH24')
+      ORDER BY hours`,
+      [],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    throw err;
+  }
+}
+
+async function fetchTagUsage(connection) {
+  try {
+    const result = await connection.execute(
+      `SELECT T.tag_id, T.tag_name, COUNT(F.tag_id) 
+      FROM tags T 
+      LEFT JOIN form_tags F ON F.tag_id = T.tag_id 
+      GROUP BY T.tag_id, T.tag_name 
+      ORDER BY COUNT(F.tag_id) DESC`,
+      [],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows.slice(0, 5);
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    throw err;
+  }
+}
+
+async function fetchMoods(connection) {
+  try {
+    const result = await connection.execute(
+      `SELECT E.emoji, COUNT(F.emoji_id) 
+      FROM emojis E 
+      LEFT JOIN form_data F 
+      ON E.emoji_id = F.emoji_id 
+      GROUP BY E.emoji`,
+      [],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching moods:', err);
+    throw err;
+  }
+}
+
 async function setActive(connection, userID, active, chatID) {
   try {
     const result = await connection.execute(
@@ -25,8 +81,8 @@ async function setActive(connection, userID, active, chatID) {
       { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
-    if(active == 0) {
-        const timestamp = await connection.execute(
+    if (active == 0) {
+      const timestamp = await connection.execute(
         `UPDATE members SET last_active = CURRENT_TIMESTAMP WHERE user_id = :userID`,
         [userID],
         { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
@@ -52,7 +108,7 @@ async function checkLogged(connection, userID, todayDate) {
     );
 
     return result.rows.length > 0;
-    
+
   } catch (err) {
     console.error('Error fetching log:', err);
     throw err;
@@ -80,7 +136,7 @@ async function getMessages(connection, chatID) {
 
 async function sendRequest(connection, userID, chatRoomID, sendORDelete) {
   try {
-    if(sendORDelete == 1) {
+    if (sendORDelete == 1) {
       const result = await connection.execute(
         `INSERT INTO requests(user_id, chat_room_id) VALUES(:userID, :chatRoomID)`,
         [userID, chatRoomID],
@@ -103,8 +159,8 @@ async function sendRequest(connection, userID, chatRoomID, sendORDelete) {
 
 async function getRequests(connection, chatRoomID) {
   try {
-      const result = await connection.execute(
-          `SELECT U.user_id, U.username, U.first_name, U.last_name, U.gender, 
+    const result = await connection.execute(
+      `SELECT U.user_id, U.username, U.first_name, U.last_name, U.gender, 
           TO_CHAR(R.request_date, 'DD Mon YYYY') AS sent_date, 
           TO_CHAR(R.request_date, 'HH:MI AM') AS sent_time
           FROM users U 
@@ -112,13 +168,13 @@ async function getRequests(connection, chatRoomID) {
           ON U.user_id = R.user_id
           WHERE R.chat_room_id = :chatRoomID
           ORDER BY R.request_date DESC`,
-          [chatRoomID],
-          { outFormat: oracledb.OUT_FORMAT_OBJECT }
-      );
-      return result.rows;
+      [chatRoomID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    return result.rows;
   } catch (err) {
-      console.error('Error getting requests:', err);
-      throw err;
+    console.error('Error getting requests:', err);
+    throw err;
   }
 }
 
@@ -259,7 +315,7 @@ async function addMessage(connection, chatID, userID, messageContent) {
       { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
-    if(result.rows) {
+    if (result.rows) {
       return 1;
     } else {
       return 0;
@@ -303,7 +359,7 @@ async function addTags(connection, formID, tagIDs) {
       );
     }
 
-    return 1; 
+    return 1;
   } catch (err) {
     console.error('Error sending data:', err);
     throw err;
@@ -313,12 +369,12 @@ async function addTags(connection, formID, tagIDs) {
 async function updateTokens(connection, tokens, userID) {
   try {
     await connection.execute(
-        `UPDATE users SET token_count = token_count + :tokens WHERE user_id = :userID`,
-        { tokens, userID },
-        { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
-      );
+      `UPDATE users SET token_count = token_count + :tokens WHERE user_id = :userID`,
+      { tokens, userID },
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
 
-    return 1; 
+    return 1;
   } catch (err) {
     console.error('Error sending data:', err);
     throw err;
@@ -562,5 +618,8 @@ module.exports = {
   sendFormData,
   addTags,
   updateTokens,
-  checkLogged
+  checkLogged,
+  fetchMoods,
+  fetchLogTimes,
+  fetchTagUsage
 };
