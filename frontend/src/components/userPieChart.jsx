@@ -90,7 +90,7 @@ const UserPieChart = ({ sentiments, currentTheme }) => {
             })
             .on('mousemove', function(event) {
                 tooltip
-                    .style('top', (event.pageY - 40) + 'px')
+                    .style('top', (event.pageY + 10) + 'px')
                     .style('left', (event.pageX + 10) + 'px');
             })
             .on('mouseout', function() {
