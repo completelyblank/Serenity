@@ -5,7 +5,7 @@ const PieChart = ({ animate, tags }) => {
   useEffect(() => {
     if (!animate || !tags || tags.length === 0) return;
 
-    d3.select('#pie-chart').selectAll('*').remove(); 
+    d3.select('#pie-chart').selectAll('*').remove();
     d3.select('#legend').selectAll('*').remove();
 
     const width = window.innerWidth * 0.4;
@@ -41,7 +41,7 @@ const PieChart = ({ animate, tags }) => {
     const tooltip = d3.select('#pie-chart')
       .append('div')
       .style('position', 'absolute')
-      .style('background-color', '#555555') 
+      .style('background-color', '#555555')
       .style('padding', '5px')
       .style('border', '1px solid #444444')
       .style('border-radius', '4px')
@@ -76,21 +76,20 @@ const PieChart = ({ animate, tags }) => {
       });
 
     // Hover tooltip interaction
-    arcs.on('mouseover', function (event, d) {
-      const userLabel = d.value === 1 ? 'entry' : 'entries'; 
-        tooltip.style('visibility', 'visible')
-          .html(`<strong>${d.data["COUNT(F.TAG_ID)"]}</strong> ${userLabel} for <strong>${d.data.TAG_NAME}</strong>`)
-          .style('color', '#FFFFFF')
-          .style('font-size', '0.9em')
-          .style('font-family', 'Poppins');
-        d3.select(this).style('opacity', 0.6);
+    arcs.on('mouseover', function(event, d) {
+      const userLabel = d.value === 1 ? 'entry' : 'entries';
+      tooltip.style('visibility', 'visible')
+        .html(`<strong>${d.data["COUNT(F.TAG_ID)"]}</strong> ${userLabel} for <strong>${d.data.TAG_NAME}</strong>`)
+        .style('color', '#FFFFFF')
+        .style('font-size', '0.9em')
+        .style('font-family', 'Poppins');
       d3.select(this).select('path').style('opacity', 0.6);
     })
-    .on('mousemove', function (event) {
+    .on('mousemove', function(event) {
       tooltip.style('top', (event.pageY - 100) + 'px')
-          .style('left', (event.pageX - 20) + 'px');
+        .style('left', (event.pageX - 20) + 'px');
     })
-    .on('mouseout', function () {
+    .on('mouseout', function() {
       tooltip.style('visibility', 'hidden');
       d3.select(this).select('path').style('opacity', 1);
     });
@@ -127,7 +126,7 @@ const PieChart = ({ animate, tags }) => {
   }, [animate, tags]);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10%', marginTop: '3%'}} >
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10%', marginTop: '3%' }}>
       <div id="pie-chart">
         {/* Pie Chart */}
       </div>

@@ -73,6 +73,24 @@ async function fetchMoods(connection) {
   }
 }
 
+async function fetchSentiments(connection, userID) {
+  try {
+    const result = await connection.execute(
+      `SELECT sentiment, COUNT(sentiment) 
+      FROM form_data
+      WHERE user_id = :userID
+      GROUP BY sentiment`,
+      [userID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching moods:', err);
+    throw err;
+  }
+}
+
 async function setActive(connection, userID, active, chatID) {
   try {
     const result = await connection.execute(
@@ -326,16 +344,17 @@ async function addMessage(connection, chatID, userID, messageContent) {
   }
 }
 
-async function sendFormData(connection, userID, description, emojiID) {
+async function sendFormData(connection, userID, description, emojiID, sentiment) {
   try {
     const result = await connection.execute(
-      `INSERT INTO form_data(user_id, mood_description, emoji_id)
-       VALUES(:userID, :description, :emojiID)
+      `INSERT INTO form_data(user_id, mood_description, emoji_id, sentiment)
+       VALUES(:userID, :description, :emojiID, :sentiment)
        RETURNING form_id INTO :formID`,
       {
         userID,
         description,
         emojiID,
+        sentiment,
         formID: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
       },
       { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
@@ -509,10 +528,10 @@ async function addQuotes(connection, quotes) {
         { autoCommit: true } // Commit the transaction
       );
     }
-    return 1; // Indicate success
+    return 1; 
   } catch (err) {
     console.error('Error adding quotes:', err);
-    throw err; // Rethrow the error to handle it at a higher level
+    throw err; 
   }
 }
 
@@ -621,5 +640,6 @@ module.exports = {
   checkLogged,
   fetchMoods,
   fetchLogTimes,
-  fetchTagUsage
+  fetchTagUsage,
+  fetchSentiments
 };

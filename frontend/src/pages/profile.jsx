@@ -12,6 +12,7 @@ import ReactiveButton from 'reactive-button';
 import { useSnackbar } from "notistack";
 import showPasswordImg from '../assets/eye.png';
 import hidePasswordImg from '../assets/eye-slash.png';
+import UserPieChart from '../components/userPieChart';
 
 // Define themes
 const themes = {
@@ -159,14 +160,17 @@ const ProfilePage = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [sentiments, setSentiments] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/profile');
+        const response = await axios.get('http://localhost:3000/profile', { params: { userID: userData.userID } });
         const data = response.data;
         setQuote(data.QUOTE);
         setAuthor(data.AUTHOR);
+        setSentiments(data.sentiments);
+        console.log(data.sentiments);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to fetch quote. Please try again later.');
@@ -180,7 +184,7 @@ const ProfilePage = () => {
   const handleThemeChange = async (event) => {
     const theme = event.target.value;
     setCurrentTheme(themes[theme]);
-    setSelectedTheme(theme); // Update selected theme
+    setSelectedTheme(theme);
     try {
       const themeNumber = parseInt(theme.replace(/\D/g, ''), 10);
       const response = await axios.post('http://localhost:3000/profile/theme', { username: userData.username, theme: themeNumber });
@@ -668,11 +672,8 @@ const ProfilePage = () => {
 
           {/* Activity Trends */}
           <div className="mt-8">
-            <h3 className="text-xl lg:text-2xl mb-4 font-PoppinsBold" style={{ color: currentTheme.textColor }}>
-              Activity Trends
-            </h3>
             <div className="w-full h-48 lg:h-64 bg-gray-100 rounded-lg flex items-center justify-center mb-6" style={{ backgroundColor: currentTheme.borderColor }}>
-              <p className="text-gray-500">Activity chart coming soon...</p>
+            <UserPieChart sentiments={sentiments} currentTheme={currentTheme} />    
             </div>
           </div>
 

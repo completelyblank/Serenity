@@ -1,7 +1,9 @@
 const express = require('express');
-const { fetchTagUsage, fetchLogTimes, fetchMoods, fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests } = require('./queries');
+const { fetchTagUsage, fetchLogTimes, fetchMoods, fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests, fetchSentiments } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
+const { spawn } = require('child_process');
+const path = require('path');
 
 const router = express.Router();
 
@@ -52,21 +54,63 @@ router.get('/form', async (req, res) => {
 router.post('/form', async (req, res) => {
   const { userID, description, emojiID, tags } = req.body;
   let connection;
+
   try {
+    // Connect to the database
     connection = await connectToDatabase();
-    const formID = await sendFormData(connection, userID, description, emojiID);
-    const tagSubmit = await addTags(connection, formID, tags);
-    res.json({ tagSubmit });
+
+    // Path to the Python script
+    const pythonScriptPath = path.join(__dirname, 'nlp.py');
+    const moodDataJson = JSON.stringify({ MOOD_DESCRIPTION: description });
+
+    // Spawn the Python process
+    const pythonProcess = spawn('python', [pythonScriptPath]);
+
+    // Write the mood data to the Python script's stdin
+    pythonProcess.stdin.write(moodDataJson);
+    pythonProcess.stdin.end();
+
+    let sentimentResults = '';
+
+    // Collect data from the Python script's stdout
+    pythonProcess.stdout.on('data', (data) => {
+      sentimentResults += data.toString();
+    });
+
+    // Handle errors from the Python script
+    pythonProcess.stderr.on('data', (data) => {
+      console.error('Error executing Python script:', data.toString());
+    });
+
+    // When the Python process closes
+    pythonProcess.on('close', async (code) => {
+      if (code !== 0) {
+        return res.status(500).json({ error: 'Failed to analyze sentiment' });
+      }
+
+      try {
+        // Parse the sentiment analysis result
+        const parsedSentimentResults = JSON.parse(sentimentResults);
+        const sentiment = parsedSentimentResults.SENTIMENT;
+
+        // Now call sendFormData with the sentiment
+        const formID = await sendFormData(connection, userID, description, emojiID, sentiment);
+        const tagSubmit = await addTags(connection, formID, tags);
+
+        // Respond with the results
+        res.json({ tagSubmit });
+      } catch (err) {
+        console.error('Error parsing sentiment results:', err);
+        res.status(500).json({ error: 'Failed to parse sentiment analysis results' });
+      }
+    });
+
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
   } finally {
     if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
+      
     }
   }
 });
@@ -400,27 +444,31 @@ router.post('/profile/delete', async (req, res) => {
 });
 
 router.get('/profile', async (req, res) => {
-  const { username, theme } = req.body;
-
+  const { userID } = req.query;
   let connection;
   let status;
-
   try {
     connection = await connectToDatabase();
     status = await fetchQuote(connection);
+    sentiments = await fetchSentiments(connection, userID);
+
     res.json({
       QUOTEID: status.QUOTEID,
       QUOTE: status.QUOTE,
       CATEGORY: status.CATEGORY,
-      AUTHOR: status.AUTHOR
+      AUTHOR: status.AUTHOR,
+      sentiments
     });
+    
+    
+
   } catch (err) {
     console.error('Error fetching quote:', err);
     res.status(500).json({ error: 'Failed to fetch quote' });
   } finally {
     if (connection) {
       try {
-        // Close connection
+        // Close connection if needed
       } catch (err) {
         console.error('Error closing database connection:', err);
       }
