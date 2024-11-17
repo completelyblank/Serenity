@@ -1,5 +1,5 @@
 CREATE TABLE messages (
-    message_id NUMBER(10) PRIMARY KEY,
+    message_id NUMBER PRIMARY KEY,
     chat_room_id NUMBER(10) REFERENCES chat_rooms(chat_room_id),
     user_id NUMBER(10) REFERENCES users(user_id),
     message_content VARCHAR(255),

@@ -14,10 +14,8 @@ const Monitor = ({ moodTokens, isLogged }) => {
     const [error, setError] = useState("");
     const { userData } = useUserContext();
     const [isOn, setIsOn] = useState(false);
-    const [isError, setIsError] = useState(false);
     const [currentChannel, setCurrentChannel] = useState(1);
     const totalChannels = 6;
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [isHoveredMinus, setIsHoveredMinus] = useState(false);
     const [isHoveredPower, setIsHoveredPower] = useState(false);
     const [isHoveredPlus, setIsHoveredPlus] = useState(false);
@@ -28,6 +26,7 @@ const Monitor = ({ moodTokens, isLogged }) => {
     const [selectedEmoji, setSelectedEmoji] = useState(null);
     const [hoveredEmoji, setHoveredEmoji] = useState(null);
     const [hoveredTag, setHoveredTag] = useState(null);
+    const { setUserData } = useUserContext(); 
 
     const emojis = [
         { id: 1, src: "https://em-content.zobj.net/source/apple/391/beaming-face-with-smiling-eyes_1f601.png", name: "Happy" },
@@ -63,6 +62,7 @@ const Monitor = ({ moodTokens, isLogged }) => {
                 setError("Kindly Fill All Channels");
             } else {
                 setError("");
+                setUserData(prevData => ({ ...prevData, logged: true }));
                 try {
                     const response = await axios.post('http://localhost:3000/form', {
                         userID: userData.userID,
@@ -73,6 +73,8 @@ const Monitor = ({ moodTokens, isLogged }) => {
                     console.log('Response:', response.data);
                 } catch (error) {
                     console.error('Error posting data:', error);
+                } finally {
+                    setUserData(prevData => ({ ...prevData, logged: false, card: true }));
                 }
             }
         } catch (error) {
@@ -149,6 +151,65 @@ const Monitor = ({ moodTokens, isLogged }) => {
     };
 
     const progressPercentage = ((currentChannel - 1) / (totalChannels - 1)) * 100;
+
+    if (userData.logged === true) {
+        return (
+            <article className="flex justify-center items-center min-h-screen p-8 sm:p-16">
+                <div className="relative">
+                    <div
+                        className="relative"
+                        style={{
+                            width: '80vw',
+                            maxWidth: '1000px',
+                            height: '32vw',
+                            maxHeight: '410px',
+                            border: '15px solid #2a292e',
+                            borderBottom: '35px solid #2a292e',
+                            borderRadius: '10px',
+                            borderBottomLeftRadius: '0%',
+                            borderBottomRightRadius: '0%',
+                            backgroundSize: 'cover',
+                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.5)',
+                            background: 'linear-gradient(to bottom, #004d4d, #1a5e5e)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <img src="processing.gif" alt="Processing" />
+                        <motion.h1
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 2 }}
+                            style={{
+                                fontFamily: 'PoppinsBold',
+                                fontSize: '2em',
+                                textAlign: 'center',
+                                color: 'white'
+                            }}
+                        >
+                            Processing your mood... Hang tight!
+                        </motion.h1>
+                    </div>
+
+                    <div className="absolute flex justify-between items-center px-10 sm:px-12 py-6 bg-gray-900 w-full bottom-[-55px] rounded-b-lg" style={{ height: '55px' }}>
+                        <motion.button whileTap={{ scale: 0.85 }} className="w-12 h-12 flex justify-center items-center cursor-pointer" onClick={() => changeChannel('down')} onMouseEnter={() => setIsHoveredMinus(true)} onMouseLeave={() => setIsHoveredMinus(false)}>
+                            <FaMinus className={`text-gray-300 ${isHoveredMinus ? 'text-white' : ''}`} size={32} />
+                        </motion.button>
+
+                        <motion.button whileTap={{ scale: 0.85 }} className="flex items-center justify-center w-16 h-16 cursor-pointer" onClick={togglePower} onMouseEnter={() => setIsHoveredPower(true)} onMouseLeave={() => setIsHoveredPower(false)}>
+                            <FaPowerOff className={`text-gray-300 ${isHoveredPower ? 'text-white' : ''}`} size={38} />
+                        </motion.button>
+
+                        <motion.button whileTap={{ scale: 0.85 }} className="w-12 h-12 flex justify-center items-center cursor-pointer" onClick={() => changeChannel('up')} onMouseEnter={() => setIsHoveredPlus(true)} onMouseLeave={() => setIsHoveredPlus(false)}>
+                            <FaPlus className={`text-gray-300 ${isHoveredPlus ? 'text-white' : ''}`} size={32} />
+                        </motion.button>
+                    </div>
+                </div>
+            </article>
+        );
+    }
 
     return (
         <article className="flex justify-center items-center min-h-screen p-8 sm:p-16">
@@ -479,9 +540,6 @@ const Monitor = ({ moodTokens, isLogged }) => {
                             type="submit"
                             style={{ fontSize: '1.2em' }}
                             onClick={() => {
-                                if (selectedTags.length !== 0 && selectedEmoji !== null && mood !== '') {
-                                    setIsPopupOpen(true);
-                                }
                                 handleMoodChange();
                             }}
                         >
@@ -510,7 +568,7 @@ const Monitor = ({ moodTokens, isLogged }) => {
                     </motion.button>
                 </div>
             </div>
-            {isPopupOpen && (
+            {userData.card && (
                 <div>
                     <CardFlipModal />
                 </div>

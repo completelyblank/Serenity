@@ -1,5 +1,6 @@
 const oracledb = require('oracledb');
 const connectToDatabase = require('./db');
+const { replace } = require('react-router-dom');
 
 async function fetchUsers(connection, username) {
   try {
@@ -264,6 +265,36 @@ async function deleteMessage(connection, messageID) {
   }
 }
 
+async function deletePost(connection, postID) {
+  try {
+    const result = await connection.execute(
+      `DELETE FROM posts WHERE post_id = :postID`,
+      [postID],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error deleting post:', err);
+    throw err;
+  }
+}
+
+async function deleteReply(connection, replyID) {
+  try {
+    const result = await connection.execute(
+      `DELETE FROM replies WHERE reply_id = :replyID`,
+      [replyID],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return 1;
+  } catch (err) {
+    console.error('Error deleting reply:', err);
+    throw err;
+  }
+}
+
 async function deleteRequest(connection, userID, chatRoomID) {
   try {
     const result = await connection.execute(
@@ -344,6 +375,36 @@ async function addMessage(connection, chatID, userID, messageContent) {
   }
 }
 
+async function addPost(connection, category, userID, postContent) {
+  try {
+    const result = await connection.execute(
+      `INSERT INTO posts(user_id, post_category, post_content)
+      VALUES(:userID, :category, :postContent)`,
+      [userID, category, postContent],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    return 1;
+  } catch (err) {
+    console.error('Error adding post:', err);
+    throw err;
+  }
+}
+
+async function addReply(connection, userID, postID, replyContent) {
+  try {
+    const result = await connection.execute(
+      `INSERT INTO replies(user_id, post_id, reply_content)
+      VALUES(:userID, :postID, :replyContent)`,
+      [userID, postID, replyContent],
+      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    return 1;
+  } catch (err) {
+    console.error('Error adding post:', err);
+    throw err;
+  }
+}
+
 async function sendFormData(connection, userID, description, emojiID, sentiment) {
   try {
     const result = await connection.execute(
@@ -385,17 +446,25 @@ async function addTags(connection, formID, tagIDs) {
   }
 }
 
-async function updateTokens(connection, tokens, userID) {
+async function updateTokens(connection, tokens, userID, add) {
   try {
-    await connection.execute(
-      `UPDATE users SET token_count = token_count + :tokens WHERE user_id = :userID`,
-      { tokens, userID },
-      { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
-    );
+    if (add === 1) {
+      await connection.execute(
+        `UPDATE users SET token_count = token_count + :tokens WHERE user_id = :userID`,
+        { tokens, userID },
+        { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+    } else {
+      await connection.execute(
+        `UPDATE users SET token_count = token_count - :tokens WHERE user_id = :userID`,
+        { tokens, userID },
+        { autoCommit: true, outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+    }
 
     return 1;
   } catch (err) {
-    console.error('Error sending data:', err);
+    console.error('Error updating data:', err);
     throw err;
   }
 }
@@ -416,6 +485,42 @@ async function fetchMembers(connection, chatID) {
     return result.rows;
   } catch (err) {
     console.error('Error fetching members:', err);
+    throw err;
+  }
+}
+
+async function fetchPosts(connection, categoryName) {
+  try {
+    const result = await connection.execute(
+      `SELECT P.user_id, P.post_id, P.post_content, P.post_date, TO_CHAR(P.post_date, 'FMDay, DD Month YYYY') AS p_date, TO_CHAR(P.post_date, 'HH:MI AM') AS p_time, P.post_category, U.username, U.first_name, U.last_name, U.gender
+      FROM posts P JOIN users U ON P.user_id = U.user_id
+      WHERE post_category = :categoryName
+      ORDER BY P.post_date DESC`,
+      [categoryName],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching posts:', err);
+    throw err;
+  }
+}
+
+async function fetchReplies(connection, postID) {
+  try {
+    const result = await connection.execute(
+      `SELECT R.user_id, R.reply_id, R.post_id, R.reply_content, R.reply_date, TO_CHAR(R.reply_date, 'FMDay, DD Month YYYY') AS r_date, TO_CHAR(R.reply_date, 'HH:MI AM') AS r_time, U.username, U.first_name, U.last_name, U.gender
+      FROM replies R JOIN users U ON R.user_id = U.user_id
+      WHERE post_id = :postID
+      ORDER BY R.reply_date`,
+      [postID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching replies:', err);
     throw err;
   }
 }
@@ -528,10 +633,10 @@ async function addQuotes(connection, quotes) {
         { autoCommit: true } // Commit the transaction
       );
     }
-    return 1; 
+    return 1;
   } catch (err) {
     console.error('Error adding quotes:', err);
-    throw err; 
+    throw err;
   }
 }
 
@@ -564,6 +669,21 @@ async function findUser(connection, username, password) {
     return 0; // User not found
   } catch (err) {
     console.error('Error fetching users:', err);
+    throw err;
+  }
+}
+
+async function addInteraction(connection, userID, postID, inter) {
+  try {
+    const result = await connection.execute(
+      `INSERT INTO interactions(user_id, post_id, interaction)
+      VALUES(:userID, :postID, :inter)`,
+      [userID, postID, inter],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT, autoCommit: true }
+    );
+    return 1;
+  } catch (err) {
+    console.error('Error adding interaction:', err);
     throw err;
   }
 }
@@ -608,6 +728,70 @@ async function fetchTokens(connection, userID) {
   }
 }
 
+async function fetchInteractions(connection, userID, postID) {
+  try {
+    const result = await connection.execute(
+      `SELECT user_id, interaction FROM interactions
+      WHERE user_id = :userID AND post_id = :postID`,
+      [userID, postID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    if (result.rows.length === 0) {
+      return null;
+    }
+    return result.rows[0].INTERACTION;
+  } catch (err) {
+    console.error('Error fetching interactions:', err);
+    throw err;
+  }
+}
+
+async function fetchPostInteractions(connection, postID) {
+  try {
+    const result = await connection.execute(
+      `SELECT 
+      COUNT(CASE WHEN interaction = 0 THEN 1 END) AS likes,
+      COUNT(CASE WHEN interaction = 1 THEN 1 END) AS dislikes
+      FROM interactions
+      WHERE post_id = :postID`,
+      [postID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    return result.rows[0];
+  } catch (err) {
+    console.error('Error fetching interactions:', err);
+    throw err;
+  }
+}
+
+async function deleteInteraction(connection, userID, postID) {
+  try {
+    const result = await connection.execute(
+      `DELETE FROM interactions WHERE user_id = :userID AND post_id = :postID`,
+      [userID, postID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT, autoCommit: true }
+    );
+    return 1;
+  } catch (err) {
+    console.error('Error adding interaction:', err);
+    throw err;
+  }
+}
+
+async function updateInteraction(connection, userID, postID, inter) {
+  try {
+    const result = await connection.execute(
+      `UPDATE interactions SET interaction = :inter WHERE user_id = :userID AND post_id = :postID`,
+      [inter, userID, postID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT, autoCommit: true }
+    );
+    return 1;
+  } catch (err) {
+    console.error('Error adding interaction:', err);
+    throw err;
+  }
+}
+
 module.exports = {
   fetchUsers,
   fetchNumUsers,
@@ -625,6 +809,7 @@ module.exports = {
   getMessages,
   addMessage,
   deleteMessage,
+  deletePost,
   isMember,
   fetchLastActive,
   sendRequest,
@@ -633,6 +818,7 @@ module.exports = {
   getAdmin,
   acceptRequest,
   deleteMember,
+  deleteReply,
   makeAdmin,
   sendFormData,
   addTags,
@@ -641,5 +827,14 @@ module.exports = {
   fetchMoods,
   fetchLogTimes,
   fetchTagUsage,
-  fetchSentiments
+  fetchSentiments,
+  fetchPosts,
+  fetchReplies,
+  addPost,
+  addReply,
+  fetchInteractions,
+  addInteraction,
+  deleteInteraction,
+  updateInteraction,
+  fetchPostInteractions
 };

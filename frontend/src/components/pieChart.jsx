@@ -19,7 +19,6 @@ const PieChart = ({ animate, tags }) => {
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
-    // Updated color palette for 5 segments
     const color = d3.scaleOrdinal()
       .domain(tags.map(tag => tag.TAG_NAME))
       .range([
@@ -38,16 +37,7 @@ const PieChart = ({ animate, tags }) => {
       .innerRadius(0)
       .outerRadius(radius);
 
-    const tooltip = d3.select('#pie-chart')
-      .append('div')
-      .style('position', 'absolute')
-      .style('background-color', '#555555')
-      .style('padding', '5px')
-      .style('border', '1px solid #444444')
-      .style('border-radius', '4px')
-      .style('visibility', 'hidden')
-      .style('font-family', 'PoppinsBold')
-      .style('z-index', '10');
+    const totalValue = d3.sum(tags, d => d["COUNT(F.TAG_ID)"]);
 
     const arcs = svg.selectAll('arc')
       .data(pie(tags))
@@ -57,10 +47,7 @@ const PieChart = ({ animate, tags }) => {
 
     arcs.append('path')
       .attr('fill', d => color(d.data.TAG_NAME))
-      .attr('stroke', d => {
-        const fillColor = d3.rgb(color(d.data.TAG_NAME));
-        return fillColor.darker(2);
-      })
+      .attr('stroke', d => d3.rgb(color(d.data.TAG_NAME)).darker(2))
       .style('stroke-width', '2px')
       .transition()
       .duration(1500)
@@ -75,24 +62,14 @@ const PieChart = ({ animate, tags }) => {
         };
       });
 
-    // Hover tooltip interaction
-    arcs.on('mouseover', function(event, d) {
-      const userLabel = d.value === 1 ? 'entry' : 'entries';
-      tooltip.style('visibility', 'visible')
-        .html(`<strong>${d.data["COUNT(F.TAG_ID)"]}</strong> ${userLabel} for <strong>${d.data.TAG_NAME}</strong>`)
-        .style('color', '#FFFFFF')
-        .style('font-size', '0.9em')
-        .style('font-family', 'Poppins');
-      d3.select(this).select('path').style('opacity', 0.6);
-    })
-    .on('mousemove', function(event) {
-      tooltip.style('top', (event.pageY - 100) + 'px')
-        .style('left', (event.pageX - 20) + 'px');
-    })
-    .on('mouseout', function() {
-      tooltip.style('visibility', 'hidden');
-      d3.select(this).select('path').style('opacity', 1);
-    });
+    arcs.append('text')
+      .attr('transform', d => `translate(${arc.centroid(d)})`)
+      .attr('dy', '.35em')
+      .attr('text-anchor', 'middle')
+      .style('fill', 'white')
+      .style('font-size', '1em')
+      .style('font-family', 'PoppinsBold')
+      .text(d => `${((d.value / totalValue) * 100).toFixed(1)}%`);
 
     const legendWidth = 150;
     const legendHeight = tags.length * 30;
@@ -127,12 +104,8 @@ const PieChart = ({ animate, tags }) => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10%', marginTop: '3%' }}>
-      <div id="pie-chart">
-        {/* Pie Chart */}
-      </div>
-      <div id="legend" style={{ marginLeft: '40%', display: 'inline-block', position: 'absolute' }}>
-        {/* Legend */}
-      </div>
+      <div id="pie-chart"></div>
+      <div id="legend" style={{ marginLeft: '40%', display: 'inline-block', position: 'absolute' }}></div>
     </div>
   );
 };

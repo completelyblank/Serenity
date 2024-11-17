@@ -32,10 +32,10 @@ const GenerateMP3 = () => {
   };
 
   return (
-    <div className='flex justify-center items-center' style={{marginRight: '25%'}}>
+    <div className='flex justify-center items-center mt-4'>
       <ReactiveButton
         className="bg-gradient-to-r from-black via-gray-600 to-gray-400 text-white rounded-lg shadow-lg hover:scale-105 hover:from-gray-500 hover:to-black transition-all duration-300"
-        style={{ fontFamily: 'Poppins', borderRadius: '10px', width: '200%', height: '120%', fontSize: '1.1em' }}
+        style={{ fontFamily: 'Poppins', borderRadius: '10px', width: '200px', height: '50px', fontSize: '1.1em' }}
         buttonState={state}
         idleText="Generate MP3"
         loadingText="Generating..."

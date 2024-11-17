@@ -1,5 +1,17 @@
 /* src/index.css */
 
+.highlightPost {
+  background-color: #212038 !important;  /* Set background color */
+  transition: background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out !important; 
+  box-shadow: 0 0 10px #2f2e49 !important;  /* Light white glow */
+}
+
+.highlightReply {
+  background-color: #464550 !important;  /* Set background color */
+  transition: background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out !important; 
+  box-shadow: 0 0 10px #737374 !important;  /* Light white glow */
+}
+
 .carousel-slide {
   display: flex;
   align-items: center;

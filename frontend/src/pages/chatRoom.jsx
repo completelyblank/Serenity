@@ -113,7 +113,7 @@ const ChatRoom = () => {
     useEffect(() => {
         // Scroll to the bottom whenever loading changes
         if (!loading) {
-            endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+            endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [loading]);
 
@@ -244,16 +244,18 @@ const ChatRoom = () => {
         <div className={'dark'}>
             <div className="h-screen overflow-hidden relative">
                 <Navbar />
-                <div className="flex">
+                <div className="fixed flex w-full h-full">
                     {/* Left Part */}
-                    <div style={{ maxHeight: '100vh' }} className="md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden">
+                    <div
+                        style={{ maxHeight: '100vh' }}
+                        className="fixed md:w-1/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 rounded-lg shadow-lg overflow-x-hidden"
+                    >
                         <h2 className="font-DirtyHeadline" style={{
                             fontSize: '3.1em',
                             textAlign: 'center',
                             color: '#74bdb7',
                             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
                         }}>
-                            <br />
                             The Zen Board
                         </h2>
                         <h2 className="font-DirtyHeadline mb-10" style={{
@@ -282,6 +284,7 @@ const ChatRoom = () => {
                         }}>
                             Members in the Room ({members.length})
                         </h2>
+
                         <div style={{ paddingBottom: '100px' }}>
                             {/* Scrollable Members Table */}
                             <div className="flex-grow overflow-y-auto max-h-60 mt-5">
@@ -305,8 +308,7 @@ const ChatRoom = () => {
                                                                 src={(member.GENDER === 'F'
                                                                     ? `/girls/${member.USER_ID % 10}.jpg`
                                                                     : `/boys/${member.USER_ID % 10}.jpg`
-                                                                )
-                                                                }
+                                                                )}
                                                                 alt="Member"
                                                                 className="rounded-full"
                                                                 style={{ width: '30px', height: '30px', marginRight: '10px' }}
@@ -338,7 +340,7 @@ const ChatRoom = () => {
                                     </tbody>
                                 </table>
                             </div>
-                            {adminID == userData.userID && (
+                            {adminID === userData.userID && (
                                 <>
                                     <h2 className="mb-2 mt-9 font-DirtyHeadline" style={{
                                         color: '#74bdb7',
@@ -368,20 +370,17 @@ const ChatRoom = () => {
                                 </>
                             )}
                         </div>
-                        <div className="flex-grow"></div>
                     </div>
 
                     {/* Right Part */}
                     <div
-                        className="md:w-3/4 w-max-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden"
+                        className="fixed mt-2 mb-9 right-0 md:w-3/4 w-full backdrop-blur-sm bg-white/10 dark:bg-gray-900/70 p-4 ml-auto rounded-lg shadow-lg overflow-x-hidden"
                         style={{
                             borderRadius: '20px',
-                            height: '86.5vh',
-                            width: '73.5%',
+                            maxHeight: '87.5vh', 
+                            width: '73.5vw',
                             marginLeft: '10px',
-                            marginTop: '5.8%',
                             marginRight: '10px',
-                            marginBottom: '10px',
                             padding: '0px',
                             boxSizing: 'border-box',
                             backgroundImage: `url("/chatBack${id}.jpg")`,
@@ -571,7 +570,7 @@ const ChatRoom = () => {
                                                             <h1>{request.FIRST_NAME} {request.LAST_NAME}</h1>
                                                             <h1 style={{ fontFamily: 'Poppins', color: '#40918a' }}>@{request.USERNAME}</h1>
                                                             <h2 style={{ fontFamily: 'Poppins', color: '#a1a1a1', fontSize: '0.9em' }}>
-                                                               {request.SENT_DATE} at {request.SENT_TIME}
+                                                                {request.SENT_DATE} at {request.SENT_TIME}
                                                             </h2>
                                                         </div>
                                                     </div>

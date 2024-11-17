@@ -1,5 +1,5 @@
 CREATE TABLE requests (
-    user_id NUMBER(10) REFERENCES users(user_id),
+    user_id NUMBER REFERENCES users(user_id),
     chat_room_id NUMBER(10) REFERENCES chat_rooms(chat_room_id),
     request_date DATE DEFAULT SYSDATE,
     PRIMARY KEY (user_id, chat_room_id)

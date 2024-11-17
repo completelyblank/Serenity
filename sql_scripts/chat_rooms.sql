@@ -1,7 +1,7 @@
 CREATE TABLE chat_rooms (
     chat_room_id NUMBER(10) PRIMARY KEY,
     chat_room_name VARCHAR2(100),
-    admin_id NUMBER(10) REFERENCES users(user_id)
+    admin_id NUMBER REFERENCES users(user_id)
 );
 
 CREATE SEQUENCE chat_sequence 

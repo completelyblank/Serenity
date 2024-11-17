@@ -1,5 +1,5 @@
 CREATE TABLE members (
-    user_id NUMBER(10, 0) REFERENCES users(user_id) ON DELETE CASCADE, 
+    user_id NUMBER REFERENCES users(user_id) ON DELETE CASCADE, 
     chat_room_id NUMBER(10, 0) REFERENCES chat_rooms(chat_room_id) ON DELETE CASCADE, 
     is_active NUMBER DEFAULT 0,
     PRIMARY KEY (user_id, chat_room_id)

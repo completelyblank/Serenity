@@ -1,13 +1,16 @@
 CREATE TABLE form_data (
   form_id NUMBER PRIMARY KEY, 
-  user_id NUMBER(10, 0) REFERENCES users(user_id) ON DELETE CASCADE,
-  mood_description VARCHAR(100) NOT NULL,
+  user_id NUMBER REFERENCES users(user_id) ON DELETE CASCADE,
+  mood_description VARCHAR(500) NOT NULL,
   emoji_id NUMBER REFERENCES emojis(emoji_id) ON DELETE CASCADE,
   submit_date DATE DEFAULT SYSDATE,
   sentiment VARCHAR(15) NOT NULL
 );
 
 SELECT * FROM form_data;
+
+ALTER TABLE form_data
+MODIFY mood_description VARCHAR(500);
 
 CREATE SEQUENCE form_sequence 
   START WITH 1 
@@ -117,4 +120,35 @@ INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentimen
 INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) VALUES(35, 'Relaxed after a busy day', 1, TIMESTAMP '2023-12-10 10:45:50', 'Positive');
 INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) VALUES(36, 'A bit overwhelmed, but hopeful for progress', 3, TIMESTAMP '2023-12-10 11:55:12', 'Neutral');
 INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) VALUES(37, 'Worried about upcoming deadlines', 5, TIMESTAMP '2023-12-10 13:05:10', 'Negative');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Feeling great after a productive day', 1, TIMESTAMP '2022-01-15 08:20:15', 'Positive');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Stressed out due to the amount of work', 5, TIMESTAMP '2022-02-03 09:30:45', 'Negative');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Neutral about the current situation', 3, TIMESTAMP '2022-03-22 14:05:30', 'Neutral');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Excited for the weekend plans', 1, TIMESTAMP '2022-04-10 17:45:10', 'Positive');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Overwhelmed with personal issues', 5, TIMESTAMP '2022-05-12 11:20:00', 'Negative');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Feeling calm and collected', 3, TIMESTAMP '2022-06-19 07:10:25', 'Neutral');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Happy to finish a challenging task', 1, TIMESTAMP '2022-07-04 16:30:55', 'Positive');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Frustrated with the progress of the project', 5, TIMESTAMP '2022-08-25 10:05:40', 'Negative');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Content with where I am in life', 3, TIMESTAMP '2022-09-13 12:50:35', 'Neutral');
+
+INSERT INTO form_data(user_id, mood_description, emoji_id, submit_date, sentiment) 
+VALUES (3, 'Eager to start a new adventure', 1, TIMESTAMP '2022-10-30 15:15:50', 'Positive');
+
 

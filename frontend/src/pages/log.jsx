@@ -2,19 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navbar.jsx';
 import axios from 'axios';
 import Spinner from '../components/spinner.jsx';
-import bookImg from '/book2.png';
 import { useUserContext } from '../../src/context/userContext';
 import Monitor from '../components/monitor.jsx';
 
 const MoodLoggingForm = () => {
-  const [moodStatus, setMoodStatus] = useState(false);
   const { userData } = useUserContext();
-  const [emotion, setEmotion] = useState('');
   const [moodTokens, setMoodTokens] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(true);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [allImagesLoaded, setAllImagesLoaded] = useState(false);
   const [todayLogged, setTodayLogged] = useState(false);
 
   useEffect(() => {

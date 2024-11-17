@@ -81,3 +81,5 @@ INSERT INTO users(username, password, first_name, last_name, gender, token_count
 
 
 SELECT * FROM users;
+
+UPDATE users SET first_name = 'Ahmed', last_name = 'Ali' WHERE first_name = 'Ali' AND last_name = 'Ahmed';

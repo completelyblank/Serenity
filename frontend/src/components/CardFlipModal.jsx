@@ -15,16 +15,13 @@ const getRandomNumber = () => {
 const CardFlipModal = () => {
     const [chosen, setChosen] = useState(false);
     const [cards, setCards] = useState([]);
-    const [loading, setLoading] = useState(false);
     const { userData, setUserData } = useUserContext();
     const [selectedCard, setSelectedCard] = useState(null);
     const navigate = useNavigate();
 
     const handleNavigation = () => {
-        setLoading(true);
-        setTimeout(() => {
-            navigate('/dashboard');
-        }, 3000);
+        setUserData(prevData => ({ ...prevData, card: false }));
+        navigate('/dashboard');
     };
 
     useEffect(() => {
@@ -51,21 +48,10 @@ const CardFlipModal = () => {
             console.error('Error posting data:', error);
         }
 
-        // Display the confetti and message after card selection
-        setChosen(true);
-
+        setTimeout(() => {
+            setChosen(true); 
+        }, 1000);
     };
-
-    if (loading) {
-        return (
-            <div
-                className="fixed inset-0 h-screen w-screen flex justify-center items-center"
-                style={{ backgroundColor: '#b2dfdb' }}
-            >
-                <Spinner />
-            </div>
-        );
-    }
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 overflow-y-hidden overflow-x-hidden mt-9">

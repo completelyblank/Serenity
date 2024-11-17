@@ -36,7 +36,7 @@ const LoginPage = () => {
       formErrors.required = 'All fields are required';
       setIsError(true);
     };
-    if (isSignup && (!username || !password || !firstName || !lastName || !gender || !dateOfBirth)) {
+    if (isSignup && (!username || !password || !firstName || !lastName || !gender || !age)) {
       formErrors.required = 'All fields are required'
       setIsError(true);
     };
@@ -87,7 +87,7 @@ const LoginPage = () => {
 
       if (response.data.status === 1) {
         const { USER_ID, PASSWORD, FIRST_NAME, LAST_NAME, GENDER, AGE, TOKEN_COUNT, THEME } = response.data.user;
-        setUserData({ userID: USER_ID, username, password: PASSWORD, firstName: FIRST_NAME, lastName: LAST_NAME, gender: GENDER, age: AGE, theme: THEME, token: TOKEN_COUNT });
+        setUserData({ userID: USER_ID, username, password: PASSWORD, firstName: FIRST_NAME, lastName: LAST_NAME, gender: GENDER, age: AGE, theme: THEME, token: TOKEN_COUNT, logged: false, card: false });
         navigate('/dashboard');
       } else {
         setLoginError(true);

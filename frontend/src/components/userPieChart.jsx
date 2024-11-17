@@ -7,8 +7,8 @@ const UserPieChart = ({ sentiments, currentTheme }) => {
         d3.select('#pie-chart').selectAll('*').remove();
         d3.select('#legend').selectAll('*').remove();
 
-        const width = 160;
-        const height = 160;
+        const width = 200;
+        const height = 200;
         const radius = Math.min(width, height) / 2;
 
         // Append the SVG object
@@ -132,12 +132,10 @@ const UserPieChart = ({ sentiments, currentTheme }) => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center' }}>
-            <h1 style={{ fontSize: '1.1em', fontFamily: 'PoppinsBold', color: currentTheme.textColor }}>
-                NLP Sentiment Analysis - Overview of Sentiments in Your Mood Logs
-            </h1>
+            
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10%' }}>
-                <div id="pie-chart" style={{ marginRight: '80%' }}></div>
-                <div id="legend" className="absolute" style={{ fontSize: '1.2em', fontFamily: 'PoppinsBold', color: currentTheme.textColor, marginBottom: '5%', marginLeft: '20%' }}></div>
+                <div id="pie-chart" style={{ }}></div>
+                <div id="legend" style={{ fontSize: '1.2em', fontFamily: 'PoppinsBold', color: currentTheme.textColor }}></div>
             </div>
         </div>
     );

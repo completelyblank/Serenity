@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchTagUsage, fetchLogTimes, fetchMoods, fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests, fetchSentiments } = require('./queries');
+const { deleteInteraction, fetchTagUsage, fetchLogTimes, fetchMoods, fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests, fetchSentiments, fetchPosts, fetchReplies, addPost, deletePost, deleteReply, addReply, fetchInteractions, addInteraction, updateInteraction, fetchPostInteractions } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 const { spawn } = require('child_process');
@@ -16,14 +16,6 @@ router.get('/login', async (req, res) => {
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -40,14 +32,6 @@ router.get('/form', async (req, res) => {
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -108,10 +92,6 @@ router.post('/form', async (req, res) => {
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
-  } finally {
-    if (connection) {
-      
-    }
   }
 });
 
@@ -120,19 +100,24 @@ router.post('/form/tokens', async (req, res) => {
   let connection;
   try {
     connection = await connectToDatabase();
-    const tokenSet = await updateTokens(connection, tokens, userID);
+    const tokenSet = await updateTokens(connection, tokens, userID, 1);
     res.json({ tokenSet });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
+  }
+});
+
+router.post('/profile/tokens', async (req, res) => {
+  const { userID } = req.body;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const tokenSet = await updateTokens(connection, 1, userID, 0);
+    res.json({ tokenSet });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Failed to fetch data' });
   }
 });
 
@@ -150,14 +135,6 @@ router.get('/chatroom/:chatID', async (req, res) => {
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -172,14 +149,6 @@ router.get('/analysis', async (req, res) => {
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -191,7 +160,7 @@ router.post('/chatroom/:chatID/message', async (req, res) => {
 
   try {
     connection = await connectToDatabase();
-    
+
     // Get the current time and date
     const now = new Date();
     const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -212,13 +181,6 @@ router.post('/chatroom/:chatID/message', async (req, res) => {
   } catch (err) {
     console.error('Error updating data:', err);
     res.status(500).json({ error: 'Failed to update data' });
-  } finally {
-    if (connection) {
-      try {
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -228,20 +190,13 @@ router.post('/chatroom/:chatID/delete', async (req, res) => {
 
   try {
     connection = await connectToDatabase();
-  
+
     const status = await deleteMessage(connection, messageID);
 
     res.json(status);
   } catch (err) {
     console.error('Error deleting data:', err);
     res.status(500).json({ error: 'Failed to delete data' });
-  } finally {
-    if (connection) {
-      try {
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -257,13 +212,6 @@ router.post('/chatroom/:chatID/deleteRequest', async (req, res) => {
   } catch (err) {
     console.error('Error deleting data:', err);
     res.status(500).json({ error: 'Failed to delete data' });
-  } finally {
-    if (connection) {
-      try {
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -273,7 +221,7 @@ router.post('/chatroom/:chatID/leave', async (req, res) => {
   let connection;
   try {
     connection = await connectToDatabase();
-    if(admin != 0) {
+    if (admin != 0) {
       const makingAdmin = await makeAdmin(connection, admin, chatID);
     }
     const status = await deleteMember(connection, userID, chatID);
@@ -281,13 +229,6 @@ router.post('/chatroom/:chatID/leave', async (req, res) => {
   } catch (err) {
     console.error('Error deleting member:', err);
     res.status(500).json({ error: 'Failed to delete member' });
-  } finally {
-    if (connection) {
-      try {
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -303,13 +244,6 @@ router.post('/chatroom/:chatID/acceptRequest', async (req, res) => {
   } catch (err) {
     console.error('Error accepting request:', err);
     res.status(500).json({ error: 'Failed to accept request' });
-  } finally {
-    if (connection) {
-      try {
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -324,14 +258,6 @@ router.post('/chatroom/:chatID', async (req, res) => {
   } catch (err) {
     console.error('Error updating data:', err);
     res.status(500).json({ error: 'Failed to update data' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -360,14 +286,6 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -384,14 +302,6 @@ router.post('/profile/theme', async (req, res) => {
   } catch (err) {
     console.error('Error changing theme:', err);
     res.status(500).json({ error: 'Failed to change theme' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -408,14 +318,6 @@ router.post('/profile/password', async (req, res) => {
   } catch (err) {
     console.error('Error changing password:', err);
     res.status(500).json({ error: 'Failed to change password' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -432,14 +334,6 @@ router.post('/profile/delete', async (req, res) => {
   } catch (err) {
     console.error('Error deleting account:', err);
     res.status(500).json({ error: 'Failed to delete account' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -459,20 +353,12 @@ router.get('/profile', async (req, res) => {
       AUTHOR: status.AUTHOR,
       sentiments
     });
-    
-    
+
+
 
   } catch (err) {
     console.error('Error fetching quote:', err);
     res.status(500).json({ error: 'Failed to fetch quote' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection if needed
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
-    }
   }
 });
 
@@ -502,7 +388,7 @@ router.get('/api/quotes', async (req, res) => {
 });
 
 router.get('/blog/checkMember', async (req, res) => {
-  const {userID, chatRoomID} = req.query;
+  const { userID, chatRoomID } = req.query;
   let connection;
   try {
     connection = await connectToDatabase();
@@ -513,14 +399,50 @@ router.get('/blog/checkMember', async (req, res) => {
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
+  }
+});
+
+router.get('/blog', async (req, res) => {
+  const { categoryName } = req.query;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    if (categoryName === "All Categories") {
+      const general = await fetchPosts(connection, "General");
+      const advice = await fetchPosts(connection, "Advice");
+      const questions = await fetchPosts(connection, "Questions");
+      const discussion = await fetchPosts(connection, "Discussion");
+      const allPosts = [
+        ...general,
+        ...advice,
+        ...questions,
+        ...discussion
+      ];
+      allPosts.sort((a, b) => new Date(b.POST_DATE) - new Date(a.POST_DATE));
+      res.json({ posts: allPosts });
+    } else {
+      const posts = await fetchPosts(connection, categoryName);
+      posts.sort((a, b) => new Date(b.POST_DATE) - new Date(a.POST_DATE));
+      res.json({ posts });
     }
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Failed to fetch data' });
+  }
+});
+
+router.post('/blog/replies', async (req, res) => {
+  const { userID, postID } = req.body;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const replies = await fetchReplies(connection, postID);
+    const inter = await fetchInteractions(connection, userID, postID);
+    const pInter = await fetchPostInteractions(connection, postID);
+    res.json({ replies, inter, pInter });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Failed to fetch data' });
   }
 });
 
@@ -534,14 +456,70 @@ router.post('/blog/request', async (req, res) => {
   } catch (err) {
     console.error('Error updating data:', err);
     res.status(500).json({ error: 'Failed to update data' });
-  } finally {
-    if (connection) {
-      try {
-        // Close connection
-      } catch (err) {
-        console.error('Error closing database connection:', err);
-      }
+  }
+});
+
+router.post('/blog/interact', async (req, res) => {
+  const { userID, postID, flag } = req.body;
+  let connection, inter;
+  try {
+    connection = await connectToDatabase();
+    const getInter = await fetchInteractions(connection, userID, postID);
+    if(getInter == null) {
+      inter = await addInteraction(connection, userID, postID, flag);
+    } else if(getInter == flag) {
+      inter = await deleteInteraction(connection, userID, postID);
+    } else {
+      inter = await updateInteraction(connection, userID, postID, flag);
     }
+    res.json({ inter });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Failed to fetch data' });
+  }
+});
+
+router.post('/blog/post', async (req, res) => {
+  const { userID, categoryName, postContent } = req.body;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const postSend = await addPost(connection, categoryName, userID, postContent);
+    res.json({ postSend });
+  } catch (err) {
+    console.error('Error updating data:', err);
+    res.status(500).json({ error: 'Failed to update data' });
+  }
+});
+
+router.post('/blog/reply', async (req, res) => {
+  const { userID, postID, replyContent } = req.body;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const replySend = await addReply(connection, userID, postID, replyContent);
+    res.json({ replySend });
+  } catch (err) {
+    console.error('Error updating data:', err);
+    res.status(500).json({ error: 'Failed to update data' });
+  }
+});
+
+router.post('/blog/delete', async (req, res) => {
+  const { deleteID, flag } = req.body;
+  let connection, status;
+
+  try {
+    connection = await connectToDatabase();
+    if(flag === 1) {
+      status = await deletePost(connection, deleteID);
+    } else {
+      status = await deleteReply(connection, deleteID);
+    }
+    res.json(status);
+  } catch (err) {
+    console.error('Error deleting data:', err);
+    res.status(500).json({ error: 'Failed to delete data' });
   }
 });
 

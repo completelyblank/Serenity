@@ -188,7 +188,7 @@ const ProfilePage = () => {
     try {
       const themeNumber = parseInt(theme.replace(/\D/g, ''), 10);
       const response = await axios.post('http://localhost:3000/profile/theme', { username: userData.username, theme: themeNumber });
-      setUserData({ userID: userData.userID, username: userData.username, password: userData.password, firstName: userData.firstName, lastName: userData.lastName, gender: userData.gender, age: userData.age, theme: themeNumber, token: userData.token });
+      setUserData({ userID: userData.userID, username: userData.username, password: userData.password, firstName: userData.firstName, lastName: userData.lastName, gender: userData.gender, age: userData.age, theme: themeNumber, token: userData.token, logged: userData.logged, card: userData.card });
     } catch (error) {
       console.log("error changing themes");
     }
@@ -294,12 +294,28 @@ const ProfilePage = () => {
   // Toggle token usage confirmation popup visibility
   const toggleTokenPopup = () => {
     setIsTokenPopupOpen(!isTokenPopupOpen);
+    setErrorMessage("");
   };
 
   // Handle using the token
-  const handleUseToken = () => {
-    toggleTokenPopup(); // Close token popup
-    togglePopup(); // Open the envelope popup
+  const handleUseToken = async () => {
+    if (userData.token < 1) {
+      setErrorMessage("Insufficient Tokens");
+    } else {
+      try {
+        const response = await axios.post('http://localhost:3000/profile/tokens', {
+          userID: userData.userID,
+        });
+        const newCount = userData.token - 1;
+        setUserData({ ...userData, token: newCount });
+      } catch (error) {
+        console.error('Error posting data:', error);
+      }
+
+      toggleTokenPopup();
+      togglePopup();
+    }
+
   };
 
   useEffect(() => {
@@ -435,7 +451,7 @@ const ProfilePage = () => {
                   <button
                     className="text-xl py-2"
                     style={{ backgroundColor: currentTheme.backgroundColor, color: currentTheme.textColor, borderRadius: '20px', width: '150px' }}
-                    onClick={handleUseToken} // Use the token
+                    onClick={handleUseToken}
                   >
                     Yes
                   </button>
@@ -447,6 +463,9 @@ const ProfilePage = () => {
                     No
                   </button>
                 </div>
+                {errorMessage && (
+                  <p className="absolute text-red-500" style={{ marginTop: '20%' }}>{errorMessage}</p>
+                )}
               </div>
             </div>
           )}
@@ -460,7 +479,7 @@ const ProfilePage = () => {
                   width: '60%',
                   height: '60%',
                   backgroundColor: currentTheme.borderColor,
-                  borderWidth: '10px', 
+                  borderWidth: '10px',
                   borderStyle: 'solid',
                   borderImage: "url('border.png') 100 round",
                 }}
@@ -468,6 +487,16 @@ const ProfilePage = () => {
                 <Envelope togglePopup={togglePopup} />
                 <button
                   className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-PoppinsBold hover:bg-red-600"
+                  style={{
+                    boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.5)',
+                    background: 'linear-gradient(90deg, #e45a5a, #ff1a1a)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(90deg, #e26464, #e50000)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(90deg, #e45a5a, #ff1a1a)';
+                  }}
                   onClick={togglePopup}
                 >
                   Close
@@ -485,7 +514,7 @@ const ProfilePage = () => {
               Change Password
             </button>
 
-            <button 
+            <button
               className="px-6 py-3 bg-gradient-to-r from-red-700 to-red-900 text-white font-PoppinsBold rounded-lg shadow-lg hover:from-red-500 hover:to-red-700 transition duration-300 ease-in-out transform hover:scale-105"
               onClick={setDeletionPopup}
             >
@@ -513,52 +542,52 @@ const ProfilePage = () => {
                   Change Password
                 </h2>
                 <div className="relative w-3/4">
-                <input
-                  type={showCurrentPassword ? 'text' : 'password'}
-                  placeholder="Current Password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="my-2 p-2 rounded border w-full"
-                />
-                <img
-                      src={showCurrentPassword ? hidePasswordImg : showPasswordImg}
-                      alt={showCurrentPassword ? 'Hide password' : 'Show password'}
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-4 cursor-pointer"
-                      style={{ width: '24px', height: '24px' }}
-                />
+                  <input
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    placeholder="Current Password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="my-2 p-2 rounded border w-full"
+                  />
+                  <img
+                    src={showCurrentPassword ? hidePasswordImg : showPasswordImg}
+                    alt={showCurrentPassword ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    className="absolute right-3 top-4 cursor-pointer"
+                    style={{ width: '24px', height: '24px' }}
+                  />
                 </div>
                 <div className="relative w-3/4">
-                <input
-                  type={showNewPassword ? 'text' : 'password'}
-                  placeholder="New Password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="my-2 p-2 rounded border w-full"
-                />
-                <img
-                      src={showNewPassword ? hidePasswordImg : showPasswordImg}
-                      alt={showNewPassword ? 'Hide password' : 'Show password'}
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-4 cursor-pointer"
-                      style={{ width: '24px', height: '24px' }}
-                />
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    placeholder="New Password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="my-2 p-2 rounded border w-full"
+                  />
+                  <img
+                    src={showNewPassword ? hidePasswordImg : showPasswordImg}
+                    alt={showNewPassword ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-4 cursor-pointer"
+                    style={{ width: '24px', height: '24px' }}
+                  />
                 </div>
                 <div className="relative w-3/4">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="Confirm New Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="my-2 p-2 rounded border w-full"
-                />
-                <img
-                      src={showConfirmPassword ? hidePasswordImg : showPasswordImg}
-                      alt={showConfirmPassword ? 'Hide password' : 'Show password'}
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-4 cursor-pointer"
-                      style={{ width: '24px', height: '24px' }}
-                />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="Confirm New Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="my-2 p-2 rounded border w-full"
+                  />
+                  <img
+                    src={showConfirmPassword ? hidePasswordImg : showPasswordImg}
+                    alt={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-4 cursor-pointer"
+                    style={{ width: '24px', height: '24px' }}
+                  />
                 </div>
                 {errorMessage && (
                   <p className="text-red-500">{errorMessage}</p> // Display error message
@@ -609,20 +638,20 @@ const ProfilePage = () => {
                   Confirm Deletion
                 </h2>
                 <div className="relative w-3/4">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="Confirm Current Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="my-2 p-2 rounded border w-full"
-                />
-                <img
-                      src={showConfirmPassword ? hidePasswordImg : showPasswordImg}
-                      alt={showConfirmPassword ? 'Hide password' : 'Show password'}
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-4 cursor-pointer"
-                      style={{ width: '24px', height: '24px' }}
-                />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="Confirm Current Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="my-2 p-2 rounded border w-full"
+                  />
+                  <img
+                    src={showConfirmPassword ? hidePasswordImg : showPasswordImg}
+                    alt={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-4 cursor-pointer"
+                    style={{ width: '24px', height: '24px' }}
+                  />
                 </div>
                 {errorMessage && (
                   <p className="text-red-500">{errorMessage}</p>
@@ -672,10 +701,30 @@ const ProfilePage = () => {
 
           {/* Activity Trends */}
           <div className="mt-8">
-            <div className="w-full h-48 lg:h-64 bg-gray-100 rounded-lg flex items-center justify-center mb-6" style={{ backgroundColor: currentTheme.borderColor }}>
-            <UserPieChart sentiments={sentiments} currentTheme={currentTheme} />    
+            <div
+              className="w-full h-48 lg:h-64 bg-gray-100 rounded-lg mb-6 flex items-center"
+              style={{ backgroundColor: currentTheme.borderColor }}
+            >
+              {/* Left Column: Heading */}
+              <div className="w-1/2 pl-4 ml-6 pr-3">
+                <h1
+                  style={{
+                    fontSize: '1.1em',
+                    fontFamily: 'PoppinsBold',
+                    color: currentTheme.textColor,
+                  }}
+                >
+                  NLP Sentiment Analysis - Overview of Sentiments in Your Mood Logs
+                </h1>
+              </div>
+
+              {/* Right Column: Chart */}
+              <div className="w-2/3 flex justify-center">
+                <UserPieChart sentiments={sentiments} currentTheme={currentTheme} />
+              </div>
             </div>
           </div>
+
 
           {/* Mp3 Generate */}
           <GenerateMP3 />
