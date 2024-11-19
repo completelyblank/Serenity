@@ -29,6 +29,16 @@ const ChatRoom = () => {
     const titles = ['The Listening Lounge', 'Sunny Side Up', 'Achievement Arena', 'Compassion Corner'];
     let imageNum = userData.userID % 10;
 
+    useEffect(() => {
+        if (!userData || Object.keys(userData).length === 0) {
+          navigate('/');
+        }
+      }, [userData, navigate]);
+    
+      if (!userData || Object.keys(userData).length === 0) {
+        return null;
+      }
+
     const togglePopup = () => {
         setIsPopupOpen(!isPopupOpen);
     };
@@ -348,7 +358,7 @@ const ChatRoom = () => {
                                         fontSize: '1.7em',
                                         textAlign: 'center'
                                     }}>
-                                        Join Requests
+                                        Join Requests {requests.length > 0 && `(${requests.length})`}
                                     </h2>
                                     <motion.button
                                         whileTap={{ scale: 0.85 }}
@@ -395,7 +405,7 @@ const ChatRoom = () => {
                             {/* Back Button */}
                             <button
                                 onClick={() => {
-                                    handleStatusChange(); // Call your status change function
+                                    handleStatusChange(); 
                                     navigate(-1);        // Navigate back
                                 }}
                                 className="font-PoppinsBold text-white bg-gray-600 hover:bg-gray-500 px-4 py-1 rounded-lg mr-auto"
@@ -495,24 +505,34 @@ const ChatRoom = () => {
                         {/* Message Input */}
                         {/* Message Input Box */}
                         <div
-                            className="sticky bottom-0 left-0 right-0 p-4 bg-gray-800 bg-opacity-60 flex items-center justify-between"
-                            style={{ borderRadius: '20px' }}
-                        >
-                            <input
-                                type="text"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                className="font-Poppins flex-grow rounded-lg p-2 text-black pl-4"
-                                placeholder="Type your message..."
-                                style={{ backgroundColor: 'white', borderRadius: '10px', marginRight: '10px' }}
-                            />
-                            <button
-                                onClick={handleSendMessage}
-                                className="font-PoppinsBold text-white bg-blue-500 hover:bg-blue-400 px-8 py-2 rounded-lg"
-                            >
-                                Send
-                            </button>
-                        </div>
+  className="sticky bottom-0 left-0 right-0 p-4 bg-gray-800 bg-opacity-60 flex items-center justify-between"
+  style={{ borderRadius: '20px' }}
+>
+  <input
+    type="text"
+    value={newMessage}
+    onChange={(e) => setNewMessage(e.target.value)}
+    className="font-Poppins flex-grow rounded-lg p-2 text-black pl-4"
+    placeholder="Type your message..."
+    style={{
+      backgroundColor: 'white',
+      borderRadius: '10px',
+      marginRight: '10px',
+    }}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        handleSendMessage(e);
+      }
+    }}
+  />
+  <button
+    onClick={handleSendMessage}
+    className="font-PoppinsBold text-white bg-blue-500 hover:bg-blue-400 px-8 py-2 rounded-lg"
+  >
+    Send
+  </button>
+</div>
+
                     </div>
                 </div>
             </div>

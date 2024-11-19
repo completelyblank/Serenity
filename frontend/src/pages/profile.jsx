@@ -402,7 +402,7 @@ const ProfilePage = () => {
             <select
               value={selectedTheme}
               onChange={handleThemeChange}
-              className="w-full p-2 text-center rounded border font-PoppinsBold"
+              className="w-full p-2 text-center rounded border font-PoppinsBold cursor-pointer"
               style={{
                 backgroundColor: currentTheme.textColor,
                 color: currentTheme.backgroundColor,

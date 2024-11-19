@@ -29,7 +29,7 @@ const Blog = () => {
   const { userData } = useUserContext();
   const { enqueueSnackbar } = useSnackbar();
   const [chatID, setChatID] = useState("");
-  const [categories] = useState(['All Categories', 'General', 'Advice', 'Questions', 'Discussion']);
+  const [categories] = useState(['All Categories', 'General', 'Advice', 'Questions', 'Discussions']);
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [selectedPostCategory, setSelectedPostCategory] = useState('General');
   const [threads, setThreads] = useState([]);
@@ -55,6 +55,18 @@ const Blog = () => {
   const [postOrReply, setPostOrReply] = useState([]);
   const [interactions, setInteractions] = useState(null);
   const [postInteractions, setPostInteractions] = useState([]);
+  const [allPostInteractions, setAllPostInteractions] = useState([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!userData || Object.keys(userData).length === 0) {
+      navigate('/');
+    }
+  }, [userData, navigate]);
+
+  if (!userData || Object.keys(userData).length === 0) {
+    return null;
+  }
 
   useEffect(() => {
     // Scroll to the newest reply when the replies change
@@ -96,10 +108,12 @@ const Blog = () => {
     try {
       const response = await axios.post(`http://localhost:3000/blog/interact`, { userID: userData.userID, postID: thread.POST_ID, flag: 0 });
       if (response.data.inter === 1) {
-        const response = await axios.post('http://localhost:3000/blog/replies', { userID: userData.userID, postID: selectedThread.POST_ID });
+        const postID = selectedThread ? selectedThread.POST_ID : thread.POST_ID;
+        const response = await axios.post('http://localhost:3000/blog/replies', { userID: userData.userID, postID });
         setReplies(response.data.replies);
         setInteractions(response.data.inter);
         setPostInteractions(response.data.pInter);
+        setAllPostInteractions(response.data.allInter);
       } else {
         console.log("Error: Like not sent");
       }
@@ -116,6 +130,7 @@ const Blog = () => {
         setReplies(response.data.replies);
         setInteractions(response.data.inter);
         setPostInteractions(response.data.pInter);
+        setAllPostInteractions(response.data.allInter);
       } else {
         console.log("Error: Dislike not sent");
       }
@@ -149,6 +164,7 @@ const Blog = () => {
         setReplies(response.data.replies);
         setInteractions(response.data.inter);
         setPostInteractions(response.data.pInter);
+        setAllPostInteractions(response.data.allInter);
       } catch (error) {
         console.log("Error fetching replies: ", error);
       } finally {
@@ -190,6 +206,8 @@ const Blog = () => {
       await new Promise(resolve => setTimeout(resolve, 700));
       const response = await axios.get('http://localhost:3000/blog', { params: { categoryName } });
       setThreads(response.data.posts);
+      setAllPostInteractions(response.data.allInter);
+      console.log(response.data.allInter);
     } catch (error) {
 
     } finally {
@@ -213,7 +231,10 @@ const Blog = () => {
   const handleNewPostSubmit = async (e) => {
     e.preventDefault();
     const currentCategory = selectedCategory !== "All Categories" ? selectedCategory : selectedPostCategory;
-
+    if (newPost == '') {
+      setError("Post field cannot be empty");
+      return;
+    }
     try {
       const response = await axios.post('http://localhost:3000/blog/post', {
         userID: userData.userID,
@@ -230,6 +251,8 @@ const Blog = () => {
 
         setThreads(getPosts.data.posts);
         setNewPost("");
+        setAllPostInteractions(response.data.allInter);
+        console.log(response.data.allInter);
         setTimeout(() => {
           setNewPostAdded(false);
         }, 800);
@@ -278,9 +301,9 @@ const Blog = () => {
         await new Promise(resolve => setTimeout(resolve, 700));
         const response = await axios.get('http://localhost:3000/blog', { params: { categoryName: selectedCategory } });
         setThreads(response.data.posts);
+        setAllPostInteractions(response.data.allInter);
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError('Failed to fetch data. Please try again later.');
       } finally {
         setLoading(false);
         clearTimeout(spinnerTimeout);
@@ -521,10 +544,14 @@ const Blog = () => {
                   className="focus: outline-none font-Poppins w-full p-2 pl-4 pr-4 rounded dark:bg-gray-800 dark:text-gray-200"
                   placeholder="Share your thoughts..."
                   value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
+                  onChange={(e) => {
+                    setNewPost(e.target.value);
+                    setError("");
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
+                      setError("");
                       handleNewPostSubmit(e);
                     }
                   }}
@@ -551,6 +578,7 @@ const Blog = () => {
                     </select>
                   )}
 
+                  <h1 className='mt-2 font-PoppinsBold ml-5' style={{ color: '#be3030', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)', }}>{error}</h1>
                   <motion.button
                     whileTap={{ scale: 0.85 }}
                     className="w-1/5 h-1/2 p-2 mt-2 text-center rounded border font-Poppins ml-auto cursor-pointer"
@@ -629,122 +657,163 @@ const Blog = () => {
                     No posts yet.
                   </p>
                 ) : (
-                  threads.map((thread) => (
-                    <div
-                      key={thread.POST_ID}
-                      className={`p-4 backdrop-blur-md bg-white/10 dark:bg-gray-800/50 dark:text-gray-300 rounded-lg mb-4 shadow-lg relative ${newPostAdded && thread.POST_ID === threads[0]?.POST_ID ? 'highlightPost' : ''
-                        }`}
-                      style={{
-                        minHeight: '150px',
-                        overflow: 'hidden',
-                        wordWrap: 'break-word',
-                        boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.5)',
-                        marginBottom: '5%',
-                      }}
-                    >
-                      <div className="flex flex-row">
-                        <img
-                          src={
-                            thread.GENDER === 'F'
-                              ? `/girls/${thread.USER_ID % 10}.jpg`
-                              : `/boys/${thread.USER_ID % 10}.jpg`
-                          }
-                          alt="Member"
-                          className="rounded-full"
-                          style={{ width: '30px', height: '30px', marginRight: '10px' }}
-                        />
-                        <div className="flex flex-col w-3/4">
-                          <div className="flex flex-row space-x-2">
+                  threads.map((thread) => {
+                    const interaction = allPostInteractions.find((item) => item.POST_ID === thread.POST_ID && item.USER_ID === userData.userID);
+                    const interactions = interaction ? interaction.INTERACTION : 2;
+
+                    return (
+                      <div
+                        key={thread.POST_ID}
+                        className={`p-4 backdrop-blur-md bg-white/10 dark:bg-gray-800/50 dark:text-gray-300 rounded-lg mb-4 shadow-lg relative ${newPostAdded && thread.POST_ID === threads[0]?.POST_ID ? 'highlightPost' : ''
+                          }`}
+                        style={{
+                          minHeight: '150px',
+                          overflow: 'hidden',
+                          wordWrap: 'break-word',
+                          boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.5)',
+                          marginBottom: '5%',
+                        }}
+                      >
+                        <div className="flex flex-row">
+                          <img
+                            src={
+                              thread.GENDER === 'F'
+                                ? `/girls/${thread.USER_ID % 10}.jpg`
+                                : `/boys/${thread.USER_ID % 10}.jpg`
+                            }
+                            alt="Member"
+                            className="rounded-full"
+                            style={{ width: '30px', height: '30px', marginRight: '10px' }}
+                          />
+
+                          <div className="flex flex-col w-3/4">
+                            <div className="flex flex-row space-x-2">
+                              <h3
+                                className="text-lg font-PoppinsBold"
+                                style={{
+                                  fontSize: '1.1em',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  color: darkMode ? '#70bdb7' : '#0b0629',
+                                }}
+                              >
+                                {thread.FIRST_NAME} {thread.LAST_NAME}
+                              </h3>
+                              {thread.USER_ID === userData.userID && (
+                                <button
+                                  className="cursor-pointer"
+                                  onClick={() => {
+                                    toggleDelete();
+                                    setPostOrReply([0, thread]);
+                                  }}
+                                >
+                                  <FaTrashCan className="w-5 h-5 text-[#a03b3b] hover:text-[#832020]" />
+                                </button>
+                              )}
+                            </div>
                             <h3
-                              className="text-lg font-PoppinsBold"
+                              className="font-PoppinsBold mb-2"
                               style={{
-                                fontSize: '1.1em',
+                                fontSize: '0.9em',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
-                                color: darkMode ? '#70bdb7' : '#0b0629',
+                                color: darkMode ? '#60928e' : '#0b0629',
                               }}
                             >
-                              {thread.FIRST_NAME} {thread.LAST_NAME}
+                              @{thread.USERNAME}
                             </h3>
-                            {thread.USER_ID === userData.userID && (
-                              <button
-                                className="cursor-pointer"
-                                onClick={() => {
-                                  toggleDelete();
-                                  setPostOrReply([0, thread]);
-                                }}
-                              >
-                                <FaTrashCan className="w-5 h-5 text-[#a03b3b] hover:text-[#832020]" />
-                              </button>
-                            )}
+                            <h3
+                              className="text-lg font-Poppins mb-2"
+                              style={{
+                                fontSize: '1em',
+                                whiteSpace: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                color: darkMode ? '#ffffff' : '#000000',
+                              }}
+                            >
+                              {thread.POST_CONTENT}
+                            </h3>
                           </div>
-                          <h3
-                            className="font-PoppinsBold mb-2"
+                        </div>
+                        <p
+                          className="font-Poppins text-sm absolute top-2 right-2 p-2"
+                          style={{ color: darkMode ? '#b8b8b8' : '#181818' }}
+                        >
+                          {thread.P_DATE} - {thread.P_TIME}
+                        </p>
+                        <p
+                          className="font-PoppinsBold text-sm dark:text-gray-500 absolute top-8 right-2 p-2"
+                          style={{ color: darkMode ? '#70bdb7' : '#0b0629' }}
+                        >
+                          {thread.POST_CATEGORY}
+                        </p>
+                        <div className='flex flex-row justify-end items-center'>
+                          <motion.button
+                            whileTap={{ scale: 0.85 }}
+                            className="flex items-center px-3 py-1 rounded font-PoppinsBold"
                             style={{
-                              fontSize: '0.9em',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              color: darkMode ? '#60928e' : '#0b0629',
+                              backgroundColor: 'transparent',
+                              color: interactions === 0 ? '#70bdb7' : '#8f8f8f',
+                              transition: '0.2s ease',
                             }}
+                            onClick={() => handleLike(thread)}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor = darkMode ? '#4e4e4e' : '#211a46')
+                            }
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                           >
-                            @{thread.USERNAME}
-                          </h3>
-                          <h3
-                            className="text-lg font-Poppins mb-2"
+                            <BiSolidLike className="mr-1" /> {interactions === 0 ? 'Liked' : 'Like'}
+                          </motion.button>
+
+                          <motion.button
+                            whileTap={{ scale: 0.85 }}
+                            className="flex items-center px-3 py-1 rounded font-PoppinsBold"
                             style={{
+                              backgroundColor: 'transparent',
+                              color: interactions == 1 ? '#70bdb7' : '#8f8f8f',
+                              transition: '0.2s ease',
+                            }}
+                            onClick={() => handleDislike(thread)}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = darkMode ? '#4e4e4e' : '#211a46')}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          >
+                            <BiSolidDislike className="mr-1" /> {interactions === 1 ? 'Disliked' : 'Dislike'}
+                          </motion.button>
+
+                          <motion.button
+                            whileTap={{ scale: 0.85 }}
+                            className="flex p-2 w-1/6 h-1/4 text-center items-center justify-center rounded border font-Poppins hover:cursor-pointer"
+                            style={{
+                              backgroundImage: 'linear-gradient(to right, #416461, #2f534e)',
+                              color: 'white',
+                              borderColor: '#1f2c2b',
+                              textAlign: 'center',
                               fontSize: '1em',
-                              whiteSpace: 'normal',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              color: darkMode ? '#ffffff' : '#000000',
+                              transition: 'background-color 0.1s ease',
+                              boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.5)',
+                              marginLeft: '10px',
                             }}
+                            type="submit"
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #2f534e, #1f3936)')
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #416461, #2f534e)')
+                            }
+                            onClick={() => togglePopup(thread)}
                           >
-                            {thread.POST_CONTENT}
-                          </h3>
+                            View Replies
+                          </motion.button>
                         </div>
                       </div>
-                      <p
-                        className="font-Poppins text-sm absolute top-2 right-2 p-2"
-                        style={{ color: darkMode ? '#b8b8b8' : '#181818' }}
-                      >
-                        {thread.P_DATE} - {thread.P_TIME}
-                      </p>
-                      <p
-                        className="font-PoppinsBold text-sm dark:text-gray-500 absolute top-8 right-2 p-2"
-                        style={{ color: darkMode ? '#70bdb7' : '#0b0629' }}
-                      >
-                        {thread.POST_CATEGORY}
-                      </p>
-                      <motion.button
-                        whileTap={{ scale: 0.85 }}
-                        className="flex absolute bottom-4 right-4 w-1/6 h-1/4 p-2 mt-2 text-center items-center justify-center rounded border font-Poppins ml-auto hover:cursor-pointer"
-                        style={{
-                          backgroundImage: 'linear-gradient(to right, #416461, #2f534e)',
-                          color: 'white',
-                          borderColor: '#1f2c2b',
-                          textAlign: 'center',
-                          fontSize: '1em',
-                          transition: 'background-color 0.1s ease',
-                          boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.5)',
-                        }}
-                        type="submit"
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #2f534e, #1f3936)')
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #416461, #2f534e)')
-                        }
-                        onClick={() => togglePopup(thread)}
-                      >
-                        View Replies
-                      </motion.button>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             )}

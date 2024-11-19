@@ -499,8 +499,21 @@ async function fetchPosts(connection, categoryName) {
       [categoryName],
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
-
     return result.rows;
+  } catch (err) {
+    console.error('Error fetching posts:', err);
+    throw err;
+  }
+}
+
+async function isFirstLog(connection, userID) {
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM form_data WHERE user_id = :userID`,
+      [userID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    return result.rows.length > 0;
   } catch (err) {
     console.error('Error fetching posts:', err);
     throw err;
@@ -746,6 +759,20 @@ async function fetchInteractions(connection, userID, postID) {
   }
 }
 
+async function fetchAllInteractions(connection) {
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM interactions`,
+      [],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching interactions:', err);
+    throw err;
+  }
+}
+
 async function fetchPostInteractions(connection, postID) {
   try {
     const result = await connection.execute(
@@ -836,5 +863,7 @@ module.exports = {
   addInteraction,
   deleteInteraction,
   updateInteraction,
-  fetchPostInteractions
+  fetchPostInteractions,
+  isFirstLog,
+  fetchAllInteractions
 };

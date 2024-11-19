@@ -8,7 +8,7 @@ import axios from 'axios';
 
 const channelHeadings = ["Assistance Channel", "The Mood Report", "Feelings Forecast", "Vibe Check", "Mood Metrics", "The Submission Station"];
 
-const Monitor = ({ moodTokens, isLogged }) => {
+const Monitor = ({ moodTokens, isLogged, newUser }) => {
     const [selectedTagIndex, setSelectedTagIndex] = useState([]);
     const [selectedEmojiIndex, setSelectedEmojiIndex] = useState(null);
     const [error, setError] = useState("");
@@ -26,7 +26,7 @@ const Monitor = ({ moodTokens, isLogged }) => {
     const [selectedEmoji, setSelectedEmoji] = useState(null);
     const [hoveredEmoji, setHoveredEmoji] = useState(null);
     const [hoveredTag, setHoveredTag] = useState(null);
-    const { setUserData } = useUserContext(); 
+    const { setUserData } = useUserContext();
 
     const emojis = [
         { id: 1, src: "https://em-content.zobj.net/source/apple/391/beaming-face-with-smiling-eyes_1f601.png", name: "Happy" },
@@ -70,7 +70,6 @@ const Monitor = ({ moodTokens, isLogged }) => {
                         emojiID: selectedEmojiIndex,
                         tags: selectedTagIndex
                     });
-                    console.log('Response:', response.data);
                 } catch (error) {
                     console.error('Error posting data:', error);
                 } finally {
@@ -322,7 +321,7 @@ const Monitor = ({ moodTokens, isLogged }) => {
                     )}
                 </div>
 
-                {!showStatic && isOn && currentChannel === 1 && (
+                {!showStatic && isOn && currentChannel === 1 && newUser && (
                     <div
                         className="absolute flex flex-col items-center justify-center w-full"
                         style={{
@@ -349,6 +348,31 @@ const Monitor = ({ moodTokens, isLogged }) => {
                         </div>
                     </div>
 
+                )}
+
+                {!showStatic && isOn && currentChannel === 1 && !newUser && (
+                    <div
+                        className="absolute flex flex-col items-center justify-center w-full"
+                        style={{
+                            top: '15%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            maxWidth: '75%',
+                            wordBreak: 'break-word',
+                            padding: '2%',
+                            textAlign: 'center',
+                        }}
+                    >
+                        <label className="block mb-4 text-4xl font-BrokenConsole text-gray-200">
+                            Welcome Back, {userData.firstName}!
+                        </label>
+                        <p className="block font-BrokenConsole text-gray-200" style={{ fontSize: '1.5em' }}>
+                            It's great to have you here again!
+                        </p>
+                        <p className="mt-10 block font-PoppinsBold text-gray-200" style={{ fontSize: '1.5em' }}>
+                            You know the drill. A new day brings new possibilities. How are you feeling today?
+                        </p>
+                    </div>
                 )}
 
                 {!showStatic && isOn && currentChannel === 2 && (

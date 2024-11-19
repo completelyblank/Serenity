@@ -1,5 +1,5 @@
 const express = require('express');
-const { deleteInteraction, fetchTagUsage, fetchLogTimes, fetchMoods, fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests, fetchSentiments, fetchPosts, fetchReplies, addPost, deletePost, deleteReply, addReply, fetchInteractions, addInteraction, updateInteraction, fetchPostInteractions } = require('./queries');
+const { deleteInteraction, fetchTagUsage, fetchLogTimes, fetchMoods, fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests, fetchSentiments, fetchPosts, fetchReplies, addPost, deletePost, deleteReply, addReply, fetchInteractions, addInteraction, updateInteraction, fetchPostInteractions, isFirstLog, fetchAllInteractions } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 const { spawn } = require('child_process');
@@ -28,7 +28,8 @@ router.get('/form', async (req, res) => {
     connection = await connectToDatabase();
     const tokens = await fetchTokens(connection, userID);
     const todayLogging = await checkLogged(connection, userID, dateToday);
-    res.json({ tokens, todayLogging });
+    const newUser = await isFirstLog(connection, userID);
+    res.json({ tokens, todayLogging, isFirstLog });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
@@ -411,7 +412,7 @@ router.get('/blog', async (req, res) => {
       const general = await fetchPosts(connection, "General");
       const advice = await fetchPosts(connection, "Advice");
       const questions = await fetchPosts(connection, "Questions");
-      const discussion = await fetchPosts(connection, "Discussion");
+      const discussion = await fetchPosts(connection, "Discussions");
       const allPosts = [
         ...general,
         ...advice,
@@ -419,11 +420,13 @@ router.get('/blog', async (req, res) => {
         ...discussion
       ];
       allPosts.sort((a, b) => new Date(b.POST_DATE) - new Date(a.POST_DATE));
-      res.json({ posts: allPosts });
+      const allInter = await fetchAllInteractions(connection);
+      res.json({ posts: allPosts, allInter });
     } else {
       const posts = await fetchPosts(connection, categoryName);
       posts.sort((a, b) => new Date(b.POST_DATE) - new Date(a.POST_DATE));
-      res.json({ posts });
+      const allInter = await fetchAllInteractions(connection);
+      res.json({ posts, allInter });
     }
   } catch (err) {
     console.error('Error fetching data:', err);
@@ -439,7 +442,8 @@ router.post('/blog/replies', async (req, res) => {
     const replies = await fetchReplies(connection, postID);
     const inter = await fetchInteractions(connection, userID, postID);
     const pInter = await fetchPostInteractions(connection, postID);
-    res.json({ replies, inter, pInter });
+    const allInter = await fetchAllInteractions(connection);
+    res.json({ replies, inter, pInter, allInter });
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });

@@ -1,16 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navbar.jsx';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import Spinner from '../components/spinner.jsx';
 import { useUserContext } from '../../src/context/userContext';
 import Monitor from '../components/monitor.jsx';
 
 const MoodLoggingForm = () => {
+  const navigate = useNavigate();
   const { userData } = useUserContext();
   const [moodTokens, setMoodTokens] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(true);
   const [todayLogged, setTodayLogged] = useState(false);
+  const [newUser, setNewUser] = useState(false);
+
+  useEffect(() => {
+    if (!userData || Object.keys(userData).length === 0) {
+      navigate('/');
+    }
+  }, [userData, navigate]);
+
+  if (!userData || Object.keys(userData).length === 0) {
+    return null;
+  }
 
   useEffect(() => {
     let spinnerTimeout;
@@ -24,6 +37,7 @@ const MoodLoggingForm = () => {
         const data = response.data;
         setMoodTokens(data.tokens || 0);
         setTodayLogged(data.todayLogging);
+        setNewUser(data.response.newUser);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -62,10 +76,10 @@ const MoodLoggingForm = () => {
           overflow: 'hidden'
         }}>
         {!todayLogged && (
-          <Monitor moodTokens={moodTokens} isLogged={false}/>
+          <Monitor moodTokens={moodTokens} isLogged={false} newUser={newUser}/>
         )}
         {todayLogged && (
-          <Monitor moodTokens={moodTokens} isLogged={true}/>
+          <Monitor moodTokens={moodTokens} isLogged={true} newUser={newUser}/>
         )}
       </div>
     </>
