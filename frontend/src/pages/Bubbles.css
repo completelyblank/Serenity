@@ -1,6 +1,6 @@
 /* Body with background image */
 .bubble-game {
-  background: url('bubbles.png') no-repeat center center fixed;
+  background: url('breathe.jpeg') no-repeat center center fixed;
   background-size: cover;
   font-family: sans-serif;
   color: #ffffff;
@@ -74,7 +74,7 @@
   position: relative;
   width: 480px;
   height: 800px;
-  background: url('bubbles.png') no-repeat center center fixed;
+  background: url('breathe.jpeg') no-repeat center center fixed;
   overflow: hidden;
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
