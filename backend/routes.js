@@ -1,9 +1,10 @@
 const express = require('express');
-const { deleteInteraction, fetchTagUsage, fetchLogTimes, fetchMoods, fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests, fetchSentiments, fetchPosts, fetchReplies, addPost, deletePost, deleteReply, addReply, fetchInteractions, addInteraction, updateInteraction, fetchPostInteractions, isFirstLog, fetchAllInteractions } = require('./queries');
+const { deleteInteraction, fetchTagUsage, fetchLogTimes, fetchMoods, fetchUsers, fetchNumUsers, fetchTokens, addUser, findUser, updateTokens, checkLogged, makeAdmin, deleteRequest, addTags, sendFormData, changeTheme, deleteMember, acceptRequest, addQuotes, fetchQuote, getAdmin, changePassword, deleteAccount, fetchMembers, setActive, getMessages, addMessage, deleteMessage, isMember, fetchLastActive, sendRequest, checkRequest, getRequests, fetchSentiments, fetchPosts, fetchReplies, addPost, deletePost, deleteReply, addReply, fetchInteractions, addInteraction, updateInteraction, fetchPostInteractions, isFirstLog, fetchAllInteractions, fetchAllUsers, fetchMostRecentMood, fetchCategory } = require('./queries');
 const connectToDatabase = require('./db');
 const axios = require('axios');
 const { spawn } = require('child_process');
 const path = require('path');
+const { LinkedList, linkedListHash } = require('./hashing');
 
 const router = express.Router();
 
@@ -106,6 +107,19 @@ router.post('/form/tokens', async (req, res) => {
   } catch (err) {
     console.error('Error fetching data:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
+  }
+});
+
+router.post('/games/tokens', async (req, res) => {
+  const { userID, tokens } = req.body;
+  let connection;
+  try {
+    connection = await connectToDatabase();
+    const tokenSet = await updateTokens(connection, tokens, userID, 1);
+    res.json({ tokenSet });
+  } catch (err) {
+    console.error('Error updating tokens:', err);
+    res.status(500).json({ error: 'Failed to update tokens' });
   }
 });
 
@@ -273,12 +287,19 @@ router.post('/', async (req, res) => {
   let status;
   let user;
   try {
+    let linkedList = new LinkedList();
+    for (let char of password) {
+      linkedList.add(char);
+    }
+    let hashedPassword = linkedListHash(linkedList);
+    hashedPassword = (hashedPassword >>> 0);
+    hashedPassword = hashedPassword.toString();
     connection = await connectToDatabase();
 
     if (isSignup) {
-      status = await addUser(connection, username, password, firstName, lastName, gender, age);
+      status = await addUser(connection, username, hashedPassword, firstName, lastName, gender, age);
     } else {
-      status = await findUser(connection, username, password);
+      status = await findUser(connection, username, hashedPassword);
       if (status === 1) {
         user = await fetchUsers(connection, username);
       }
@@ -313,14 +334,42 @@ router.post('/profile/password', async (req, res) => {
   let status;
 
   try {
+    let linkedList = new LinkedList();
+    for (let char of password) {
+      linkedList.add(char);
+    }
+    let hashedPassword = linkedListHash(linkedList);
+    hashedPassword = (hashedPassword >>> 0);
+    hashedPassword = hashedPassword.toString();
+
     connection = await connectToDatabase();
-    status = await changePassword(connection, username, password);
+    status = await changePassword(connection, username, hashedPassword);
     res.json({ status });
   } catch (err) {
     console.error('Error changing password:', err);
     res.status(500).json({ error: 'Failed to change password' });
   }
 });
+
+router.post('/profile/passwordHash', async (req, res) => {
+  const { password } = req.body;
+  let connection;
+
+  try {
+    let linkedList = new LinkedList();
+    for (let char of password) {
+      linkedList.add(char);
+    }
+    let hashedPassword = linkedListHash(linkedList);
+    hashedPassword = (hashedPassword >>> 0);
+    hashedPassword = hashedPassword.toString()
+    res.json({ hashedPassword });
+  } catch (err) {
+    console.error('Error fetching password:', err);
+    res.status(500).json({ error: 'Failed to fetch password' });
+  }
+});
+
 
 router.post('/profile/delete', async (req, res) => {
   const { username } = req.body;
@@ -344,7 +393,9 @@ router.get('/profile', async (req, res) => {
   let status;
   try {
     connection = await connectToDatabase();
-    status = await fetchQuote(connection);
+    latestMood = await fetchMostRecentMood(connection, userID);
+    category = await fetchCategory(connection, latestMood);
+    status = await fetchQuote(connection, category);
     sentiments = await fetchSentiments(connection, userID);
 
     res.json({
@@ -469,9 +520,9 @@ router.post('/blog/interact', async (req, res) => {
   try {
     connection = await connectToDatabase();
     const getInter = await fetchInteractions(connection, userID, postID);
-    if(getInter == null) {
+    if (getInter == null) {
       inter = await addInteraction(connection, userID, postID, flag);
-    } else if(getInter == flag) {
+    } else if (getInter == flag) {
       inter = await deleteInteraction(connection, userID, postID);
     } else {
       inter = await updateInteraction(connection, userID, postID, flag);
@@ -515,7 +566,7 @@ router.post('/blog/delete', async (req, res) => {
 
   try {
     connection = await connectToDatabase();
-    if(flag === 1) {
+    if (flag === 1) {
       status = await deletePost(connection, deleteID);
     } else {
       status = await deleteReply(connection, deleteID);

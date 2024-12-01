@@ -114,9 +114,7 @@ const Blog = () => {
         setInteractions(response.data.inter);
         setPostInteractions(response.data.pInter);
         setAllPostInteractions(response.data.allInter);
-      } else {
-        console.log("Error: Like not sent");
-      }
+      } 
     } catch (error) {
       console.log("error liking");
     }
@@ -126,14 +124,13 @@ const Blog = () => {
     try {
       const response = await axios.post(`http://localhost:3000/blog/interact`, { userID: userData.userID, postID: thread.POST_ID, flag: 1 });
       if (response.data.inter === 1) {
-        const response = await axios.post('http://localhost:3000/blog/replies', { userID: userData.userID, postID: selectedThread.POST_ID });
+        const postID = selectedThread ? selectedThread.POST_ID : thread.POST_ID;
+        const response = await axios.post('http://localhost:3000/blog/replies', { userID: userData.userID, postID });
         setReplies(response.data.replies);
         setInteractions(response.data.inter);
         setPostInteractions(response.data.pInter);
         setAllPostInteractions(response.data.allInter);
-      } else {
-        console.log("Error: Dislike not sent");
-      }
+      } 
     } catch (error) {
       console.log("error disliking");
     }
@@ -251,8 +248,7 @@ const Blog = () => {
 
         setThreads(getPosts.data.posts);
         setNewPost("");
-        setAllPostInteractions(response.data.allInter);
-        console.log(response.data.allInter);
+        setAllPostInteractions(getPosts.data.allInter);
         setTimeout(() => {
           setNewPostAdded(false);
         }, 800);

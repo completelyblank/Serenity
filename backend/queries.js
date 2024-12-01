@@ -2,6 +2,21 @@ const oracledb = require('oracledb');
 const connectToDatabase = require('./db');
 const { replace } = require('react-router-dom');
 
+async function fetchAllUsers(connection) {
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM users`,
+      [],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    throw err;
+  }
+}
+
 async function fetchUsers(connection, username) {
   try {
     const result = await connection.execute(
@@ -556,21 +571,6 @@ async function fetchLastActive(connection, userID, chatID) {
   }
 }
 
-async function fetchQuote(connection) {
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM quotes`,
-      [],
-      { outFormat: oracledb.OUT_FORMAT_OBJECT }
-    );
-    const randomIndex = Math.floor(Math.random() * 200);
-    return result.rows[randomIndex];
-  } catch (err) {
-    console.error('Error fetching users:', err);
-    throw err;
-  }
-}
-
 async function changeTheme(connection, theme, username) {
   try {
     const result = await connection.execute(
@@ -587,7 +587,7 @@ async function changeTheme(connection, theme, username) {
 }
 
 async function changePassword(connection, username, password) {
-  console.log(password);
+  console.log(username, password);
   try {
     const result = await connection.execute(
       `UPDATE users SET password=:password WHERE username = :username`,
@@ -677,6 +677,7 @@ async function findUser(connection, username, password) {
 
     if (result.rows.length > 0) {
       const passwordFetched = result.rows[0].PASSWORD;
+      console.log(result.rows[0].PASSWORD);
       return password === passwordFetched ? 1 : 0; // Return 1 for match, 0 for mismatch
     }
     return 0; // User not found
@@ -755,6 +756,56 @@ async function fetchInteractions(connection, userID, postID) {
     return result.rows[0].INTERACTION;
   } catch (err) {
     console.error('Error fetching interactions:', err);
+    throw err;
+  }
+}
+
+async function fetchCategory(connection, emojiID) {
+  try {
+    const result = await connection.execute(
+      `SELECT category FROM quote_categories
+      WHERE emoji_id = :emojiID`,
+      [emojiID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    const randomIndex = Math.floor(Math.random() * result.rows.length);
+    return result.rows[randomIndex].CATEGORY;
+  } catch (err) {
+    console.error('Error fetching interactions:', err);
+    throw err;
+  }
+}
+
+async function fetchMostRecentMood(connection, userID) {
+  try {
+    const result = await connection.execute(
+      `SELECT emoji_id FROM form_data
+      WHERE user_id = :userID
+      ORDER BY submit_date DESC`,
+      [userID],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    if (result.rows.length === 0) {
+      return null;
+    }
+    return result.rows[0].EMOJI_ID;
+  } catch (err) {
+    console.error('Error fetching interactions:', err);
+    throw err;
+  }
+}
+
+async function fetchQuote(connection, category) {
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM quotes WHERE category = :category`,
+      [category],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    const randomIndex = Math.floor(Math.random() * result.rows.length);
+    return result.rows[randomIndex];
+  } catch (err) {
+    console.error('Error fetching users:', err);
     throw err;
   }
 }
@@ -865,5 +916,8 @@ module.exports = {
   updateInteraction,
   fetchPostInteractions,
   isFirstLog,
-  fetchAllInteractions
+  fetchAllInteractions,
+  fetchAllUsers,
+  fetchCategory,
+  fetchMostRecentMood
 };

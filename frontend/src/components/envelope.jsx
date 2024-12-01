@@ -8,6 +8,7 @@ const Envelope = () => {
   const { userData } = useUserContext();
   const [quote, setQuote] = useState("");
   const [author, setAuthor] = useState("");
+  const [category, setCategory] = useState("");
   const [error, setError] = useState("");
 
   const toggleFlap = () => {
@@ -17,10 +18,11 @@ const Envelope = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/profile');
+        const response = await axios.get('http://localhost:3000/profile', { params: { userID: userData.userID } });
         const data = response.data;
         setQuote(data.QUOTE);
         setAuthor(data.AUTHOR);
+        setCategory(data.CATEGORY);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to fetch quote. Please try again later.');
@@ -38,9 +40,10 @@ const Envelope = () => {
       >
         <div className={styles.envelope}>
           <div className={styles.letter}>
-            <div className={styles.text}>
-              <strong>Dear {userData.firstName}</strong>
+            <div style={{textAlign: 'left'}} className={styles.text}>
+              <strong>Dear {userData.firstName},</strong>
               <p>{quote}</p>
+              <p style={{textAlign: 'right', marginRight: '4%'}}>~ {author}, {category}</p>
             </div>
           </div>
         </div>

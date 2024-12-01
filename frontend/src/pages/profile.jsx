@@ -140,10 +140,8 @@ const ProfilePage = () => {
   let imageNum = userData.userID % 10;
   const [currentTheme, setCurrentTheme] = useState(themes[themeNum]);
   const [randomQuote, setRandomQuote] = useState('');
-  const [selectedTheme, setSelectedTheme] = useState(`theme${userData.theme}`); // Track selected theme
-  const [quote, setQuote] = useState("");
-  const [author, setAuthor] = useState("");
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
+  const [selectedTheme, setSelectedTheme] = useState(`theme${userData.theme}`); 
+  const [isPopupOpen, setIsPopupOpen] = useState(false); 
   const [isTokenPopupOpen, setIsTokenPopupOpen] = useState(false);
   const [passwordPopup, setPasswordPopup] = useState(false);
   const [deletionPopup, setDeletionPopup] = useState(false);
@@ -167,10 +165,7 @@ const ProfilePage = () => {
       try {
         const response = await axios.get('http://localhost:3000/profile', { params: { userID: userData.userID } });
         const data = response.data;
-        setQuote(data.QUOTE);
-        setAuthor(data.AUTHOR);
         setSentiments(data.sentiments);
-        console.log(data.sentiments);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to fetch quote. Please try again later.');
@@ -254,12 +249,15 @@ const ProfilePage = () => {
       setErrorMessage("");
     }
 
-    if (currentPassword !== userData.password) {
-      setErrorMessage("Incorrect password.");
-      return;
-    }
-
     try {
+      const userResponse = await axios.post('http://localhost:3000/profile/passwordHash', {
+        password: currentPassword,
+      });
+      console.log(userResponse.data.userPassword);
+      if (userData.password !== userResponse.data.hashedPassword) {
+        setErrorMessage("Incorrect password.");
+        return;
+      }
       const response = await axios.post('http://localhost:3000/profile/password', {
         username: userData.username,
         password: newPassword,

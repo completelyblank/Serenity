@@ -1,305 +1,430 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import playerImage from "../assets/jumper.png";
-import skyImage from "../assets/sky.png";
+import tokenImage from "../assets/token.png";
 import platformImage from "../assets/cloud.png";
-import tokenImage from "../assets/dream_token.png";
+import skyImage from "../assets/sky.png";
+import grassImage from "../assets/grass.png";
+import axios from 'axios';
+import { useUserContext } from '../context/userContext';
 
-const Jumper_Game = ({ onMilestone }) => {
-  const [playerX, setPlayerX] = useState(window.innerWidth / 2 - 35); // Center player horizontally
-  const [playerY, setPlayerY] = useState(0); // Start from the top
-  const [playerVelocity, setPlayerVelocity] = useState(0); // Initially falling down
-  const [isFacingRight, setIsFacingRight] = useState(true); // Track player direction
-  const [platforms, setPlatforms] = useState([]);
-  const [platformVelocities, setPlatformVelocities] = useState([]);
-  const [isGameOver, setIsGameOver] = useState(false);
-  const [score, setScore] = useState(0);
-  const [tokens, setTokens] = useState([]);
-  const [gameStarted, setGameStarted] = useState(false); // Track whether the game has started
+const Jumper_Game = () => {
+    const [blockPosition, setBlockPosition] = useState({ x: 50, y: 50 });
+    const [velocity, setVelocity] = useState(0);
+    const [jumpCount, setJumpCount] = useState(0);
+    const [platforms, setPlatforms] = useState([]);
+    const [score, setScore] = useState(0);
+    const [timer, setTimer] = useState(30);
+    const [token, setToken] = useState(null);
+    const [gameStarted, setGameStarted] = useState(false);
+    const gameContainerRef = useRef(null);
+    const [gameOver, setGameOver] = useState(false);
+    const [scorePopup, setScorePopup] = useState(null);
+    const [preGameCountdown, setPreGameCountdown] = useState(3);
+    const [tokensUpdated, setTokensUpdated] = useState(false);
+    const { userData, setUserData } = useUserContext();
 
-  const gameAreaRef = useRef(null);
-
-  // Initialize platforms
-  useEffect(() => {
-    const initialPlatforms = [];
-    const initialVelocities = [];
-    for (let i = 0; i < 5; i++) {
-      initialPlatforms.push({
-        x: Math.random() * (window.innerWidth - 100),
-        y: i * 100 + 100,
-      });
-      initialVelocities.push(Math.random() * 2 + 1); // Random horizontal speed
-    }
-    setPlatforms(initialPlatforms);
-    setPlatformVelocities(initialVelocities);
-  }, []);
-
-  // Handle player movement with WASD keys
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!isGameOver && gameStarted) {
-        switch (e.key) {
-          case "a":
-            setPlayerX((prevX) => Math.max(prevX - 10, 0));
-            setIsFacingRight(false);
-            break;
-          case "d":
-            setPlayerX((prevX) => Math.min(prevX + 10, window.innerWidth - 70));
-            setIsFacingRight(true);
-            break;
-          default:
-            break;
-        }
+    const gravity = -0.2;
+    const jumpStrength = 15;
+    const blockSize = 50;
+    const platformWidth = 150;
+    const platformHeight = 60;
+    const groundLevel = 50;
+    const floorSegmentWidth = 200;
+  
+    const handleTokenUpdate = async (score) => {
+      const tokenCount = score/20;
+      try {
+        const response = await axios.post('http://localhost:3000/games/tokens', {
+          userID: userData.userID,
+          tokens: tokenCount
+        });
+        const newCount = userData.token + tokenCount;
+        setUserData({ ...userData, token: newCount });
+      } catch (error) {
+        console.error('Error posting data:', error);
       }
     };
+  
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+    const handlePlayAgain = () => {
+        setGameOver(false);
+        setGameStarted(false);
+        setScore(0);
+        setTimer(30);
+        setVelocity(0);
+        setBlockPosition({ x: 50, y: 50 });
+        setPlatforms(Array.from({ length: 100 }, (_, i) => ({
+            x: Math.random() * 400 + 400 * i,
+            y: Math.random() * 100 + 200,
+            hasToken: Math.random() < 0.3,
+            isActivated: false,
+        })));
     };
-  }, [isGameOver, gameStarted]);
 
-  // Game loop
-  useEffect(() => {
-    if (!gameStarted) return;
-
-    const gameLoop = setInterval(() => {
-      if (!isGameOver) {
-        // Update player's position
-        setPlayerY((prevY) => prevY + playerVelocity);
-
-        // Apply gravity
-        setPlayerVelocity((prevVelocity) => Math.min(prevVelocity + 0.5, 5)); // Cap falling speed
-
-        // Move platforms down (to simulate the player going up)
-        setPlatforms((prevPlatforms) =>
-          prevPlatforms.map((platform, index) => ({
-            x: Math.max(
-              0,
-              Math.min(platform.x + platformVelocities[index], window.innerWidth - 100)
-            ),
-            y: platform.y - 5, // Move platforms downwards
-          }))
-        );
-
-        // Check platform collisions
-        platforms.forEach((platform, index) => {
-          const playerTop = playerY;
-          const playerBottom = playerY + 90; // Player's height is 90px
-          const playerLeft = playerX;
-          const playerRight = playerX + 70; // Player's width is 70px
-
-          const platformTop = platform.y;
-          const platformBottom = platform.y + 20; // Adjust based on platform height
-          const platformLeft = platform.x;
-          const platformRight = platform.x + 90; // Adjust based on platform width
-
-          // Check if any part of the player intersects with the platform
-          if (
-            playerRight > platformLeft && // Player's right side intersects platform's left side
-            playerLeft < platformRight && // Player's left side intersects platform's right side
-            playerBottom > platformTop && // Player's bottom side intersects platform's top side
-            playerTop < platformBottom // Player's top side intersects platform's bottom side
-          ) {
-            setPlayerVelocity(-10); // Make the player jump
-            setScore((prevScore) => prevScore + 1); // Increment score for successful jump
-            platforms[index].y = -9999; // Move the platform out of the screen after collision
-          }
-        });
-
-        // Add a new platform when the previous ones move out of view
-        setPlatforms((prevPlatforms) => {
-          return prevPlatforms.map((platform) => {
-            if (platform.y < -20) {
-              return {
-                x: Math.random() * (window.innerWidth - 100),
-                y: window.innerHeight + 100,
-              };
-            }
-            return platform;
-          });
-        });
-
-        // Spawn dream tokens randomly
-        if (Math.random() < 0.01) {
-          setTokens((prevTokens) => [
-            ...prevTokens,
-            {
-              x: Math.random() * (window.innerWidth - 30),
-              y: Math.random() * window.innerHeight,
-            },
-          ]);
+    useEffect(() => {
+        if (preGameCountdown > 0 && gameStarted) {
+            const countdownTimer = setInterval(() => {
+                setPreGameCountdown((prev) => prev - 1);
+            }, 1000);
+            return () => clearInterval(countdownTimer);
         }
+    }, [preGameCountdown, gameStarted]);
 
-        // Check token collection
-        setTokens((prevTokens) => {
-          return prevTokens.filter((token) => {
-            if (
-              playerY >= token.y &&
-              playerY <= token.y + 30 &&
-              Math.abs(token.x - playerX) < 50
-            ) {
-              setScore((prevScore) => prevScore + 5); // Award more points for tokens
-              onMilestone(5); // Award more tokens for collection
-              return false;
-            }
-            return true;
-          });
-        });
+    useEffect(() => {
+        const initialPlatforms = Array.from({ length: 100 }, (_, i) => ({
+            x: Math.random() * 400 + 400 * i,
+            y: Math.random() * 100 + 200,
+            hasToken: Math.random() < 0.3,
+            isActivated: false,
+        }));
+        setPlatforms(initialPlatforms);
+    }, []);
 
-        // Check for game over
-        if (playerY > window.innerHeight) {
-          setIsGameOver(true);
+    const handleStartGame = () => {
+        setGameStarted(true);
+        setScore(0);
+        setTimer(30);
+        setGameOver(false);
+        setPreGameCountdown(3);
+        setTokensUpdated(false);
+    };
+
+    const handleKeyPress = (e) => {
+        if (gameOver) return;
+        if (e.key === "ArrowUp" && jumpCount < 2) {
+            setVelocity(jumpStrength);
+            setJumpCount((prev) => prev + 1);
         }
-      }
-    }, 20);
+    };
 
-    return () => clearInterval(gameLoop);
-  }, [playerY, playerVelocity, platforms, tokens, isGameOver, gameStarted, playerX, onMilestone]);
 
-  const resetGame = () => {
-    setPlayerY(0);
-    setPlayerX(window.innerWidth / 2 - 35);
-    setPlayerVelocity(0);
-    setIsGameOver(false);
-    setScore(0);
-    setTokens([]);
-  };
+    const updatePosition = () => {
+        if (gameOver) return; // Stop updating if game is over
 
-  const startGame = () => {
-    setGameStarted(true); // Start the game when the button is clicked
-  };
+        setBlockPosition((prev) => {
+            let newY = prev.y + velocity;
+            let newX = prev.x + 4;
+            let isGrounded = false;
 
-  return (
-    <div
-      style={{
-        position: "relative",
-        width: "100vw",
-        height: "100vh",
-        backgroundImage: `url(${skyImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        overflow: "hidden",
-      }}
-    >
-      {!gameStarted ? (
-        <div
-          className="start-screen"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            textAlign: "center",
-            color: "white",
-            background: "rgba(0, 0, 0, 0.6)",
-            borderRadius: "15px",
-            padding: "20px",
-            backdropFilter: "blur(10px)",
-            boxShadow: "0 8px 20px rgba(0,0,0,0.6)",
-          }}
-        >
-          <h1 className="text-4xl font-bold">Airborne Adventures</h1>
-          <p className="mt-4 text-xl">
-            In this thrilling game, you control a jumper who must navigate through floating platforms, avoiding obstacles and collecting dream tokens to rack up points. The sky is your limit, but be careful not to fall!
-          </p>
-          <button
-            onClick={startGame}
-            className="mt-6 px-6 py-3 text-lg font-medium text-black bg-gradient-to-r from-blue-200 to-gray-400 rounded-lg shadow-lg hover:scale-105 transform transition-all duration-300"
-          >
-            Start Game
-          </button>
+            setPlatforms((prevPlatforms) => {
+                const updatedPlatforms = prevPlatforms.map((platform) => {
+                    if (
+                        prev.x + blockSize > platform.x &&
+                        prev.x < platform.x + platformWidth &&
+                        prev.y + blockSize <= platform.y &&
+                        prev.y + blockSize + velocity > platform.y
+                    ) {
+                        newY = platform.y - blockSize;
+                        setVelocity(0);
+                        setJumpCount(0);
+                        isGrounded = true;
+
+                        if (platform.hasToken && !platform.isActivated) {
+                            setToken({
+                                x: platform.x + platformWidth / 2,
+                                y: platform.y + platformHeight / 2,
+                            });
+
+                            setScore((prevScore) => prevScore + 10);
+                            // Show score popup
+                            setScorePopup({
+                                x: platform.x + platformWidth / 2,
+                                y: platform.y + platformHeight / 2,
+                                value: "+20",
+                            });
+
+                            // Hide the popup after 1 second
+                            setTimeout(() => setScorePopup(null), 1000);
+                            setTimeout(() => setToken(null), 1000);
+                        }
+
+                        return { ...platform, isActivated: true };
+                    }
+                    return platform;
+                });
+
+                return updatedPlatforms;
+            });
+
+            if (!isGrounded) {
+                setVelocity((prevVelocity) => prevVelocity + gravity);
+            }
+
+            if (newY <= groundLevel) {
+                newY = groundLevel;
+                setVelocity(0);
+                setJumpCount(0);
+            }
+
+            return { x: newX, y: newY };
+        });
+    };
+
+    useEffect(() => {
+        if (gameStarted && timer > 0 && preGameCountdown == 0) {
+            const timerInterval = setInterval(() => {
+                setTimer((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(timerInterval);
+                        setGameOver(true);
+                        if(!tokensUpdated) {
+                            handleTokenUpdate(score);
+                            setTokensUpdated(true);
+                        }
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+            return () => clearInterval(timerInterval);
+        }
+    }, [gameStarted, timer, preGameCountdown, tokensUpdated]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (gameStarted && preGameCountdown == 0) updatePosition();
+        }, 1000 / 100);
+        window.addEventListener("keydown", handleKeyPress);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [gameStarted, velocity, jumpCount, platforms, preGameCountdown]);
+
+    return (
+        <div className="w-full h-full relative">
+            {!gameStarted ? (
+                <div className="absolute inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                    <div
+                        className="relative p-8 rounded-lg shadow-lg bg-gray-400"
+                        style={{
+                            width: "60%",
+                            height: "60%",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                        }}
+                    >
+                        <h2 className="font-DirtyHeadline mb-2" style={{ fontSize: "1.8em" }}>
+                            Airborne Adventures
+                        </h2>
+                        <div
+                            className="relative"
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            <div className="flex flex-row">
+                                <h2 className="font-PoppinsBold text-m mt-2 mb-2 mr-2">
+                                    In this game, you guide a jumper through the skies using the "Up Arrow". Some clouds reveal shiny tokens, while others leave you guessing—how many can you collect before time runs out?                
+                                </h2>
+                            </div>
+
+                            <motion.button
+                                whileTap={{ scale: 0.85 }}
+                                className="w-3/4 p-2 mt-2 text-center rounded font-PoppinsBold cursor-pointer"
+                                style={{
+                                    backgroundImage: "linear-gradient(to right, #1479ec, #1727bd)",
+                                    color: "white",
+                                    textAlign: "center",
+                                    fontSize: "1em",
+                                    transition: "background-color 0.1s ease",
+                                    boxShadow: "4px 4px 8px rgba(0, 0, 0, 0.5)",
+                                }}
+                                onClick={handleStartGame}
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #075ab9, #0a1685)')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #1479ec, #1727bd)')}
+                            >
+                                Start Game
+                            </motion.button>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div
+                    className="relative overflow-hidden"
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        backgroundImage: `url(${skyImage})`,
+                        backgroundPosition: "center",
+                        backgroundSize: "cover",
+                        backgroundRepeat: "no-repeat",
+                    }}
+                >
+                    <div
+                        className="absolute top-4 left-4 px-4 py-2 rounded shadow-lg font-PoppinsBold text-l"
+                        style={{
+                            zIndex: 10,
+                            backgroundColor: 'white',
+                            color: timer <= 5 ? 'red' : 'black',
+                        }}
+                    >
+                        Time Remaining: {timer}s
+                    </div>
+
+                    <div
+                        className="absolute top-4 right-4 flex items-center text-black font-bold space-x-4 font-PoppinsBold text-l"
+                        style={{ zIndex: 10 }}
+                    >
+                        {scorePopup && (
+                            <div
+                                className="relative z-1000"
+                                style={{
+                                    fontSize: "1.2em",
+                                    fontWeight: "bold",
+                                    color: "gold",
+                                    animation: "fadeOut 1s forwards",
+                                    whiteSpace: "nowrap",
+                                }}
+                            >
+                                {scorePopup.value}
+                            </div>
+                        )}
+                        <div className="bg-white px-4 py-2 rounded shadow-lg ">Score: {score}</div>
+                    </div>
+                    <div
+                        ref={gameContainerRef}
+                        className="absolute bottom-0 left-0 w-full h-full"
+                        style={{
+                            transform: `translateX(-${blockPosition.x - 100}px)`,
+                        }}
+                    >
+                        {preGameCountdown > 0 && gameStarted && (
+                            <div className="absolute inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                                <h1
+                                    className="text-white font-bold"
+                                    style={{ fontSize: '2.5em', fontFamily: 'PoppinsBold' }}
+                                >
+                                    Starting in {preGameCountdown}...
+                                </h1>
+                            </div>
+                        )}
+                        {timer > 0 && !gameOver && preGameCountdown == 0 && (
+                            platforms.map((platform, index) => (
+                                <div
+                                    key={index}
+                                    className={`absolute ${platform.isActivated ? "platform-activated" : "platform"
+                                        }`}
+                                    style={{
+                                        left: `${platform.x}px`,
+                                        bottom: `${platform.y}px`,
+                                        width: `${platformWidth}px`,
+                                        height: `${platformHeight}px`,
+                                        backgroundImage: `url(${platformImage})`,
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center",
+                                    }}
+                                />
+                            )))}
+                        <div
+                            className="absolute"
+                            style={{
+                                left: `${blockPosition.x}px`,
+                                bottom: `${blockPosition.y}px`,
+                                width: "50px",
+                                height: "80px",
+                                backgroundImage: `url(${playerImage})`,
+                                backgroundSize: "cover",
+                                backgroundPosition: "center",
+                            }}
+                        />
+                        {token && (
+                            <div
+                                className="absolute fade-out"
+                                style={{
+                                    left: `${token.x - 10}px`,
+                                    bottom: `${token.y - 10}px`,
+                                    width: "50px",
+                                    height: "50px",
+                                    backgroundImage: `url(${tokenImage})`,
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                    animation: "fadeOut 2s forwards",
+                                }}
+                            />
+                        )}
+                        {Array.from({ length: 10 }, (_, i) => i - 5).map((offset) => (
+                            <div
+                                key={offset}
+                                className="absolute h-20 w-full"
+                                style={{
+                                    left: `${Math.floor(
+                                        blockPosition.x / floorSegmentWidth + offset
+                                    ) * floorSegmentWidth}px`,
+                                    bottom: 0,
+                                    backgroundImage: `url(${grassImage})`,
+                                    backgroundSize: "fixed",
+                                    backgroundRepeat: "repeat-x",
+                                }}
+                            />
+                        ))}
+                    </div>
+                    {gameOver && (
+                        <div className="absolute inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                            <div
+                                className="relative p-6 rounded-lg shadow-lg bg-gray-400"
+                                style={{
+                                    width: '50%',
+                                    height: '50%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'center',
+                                    boxShadow: "0 4px 8px rgba(0, 0, 0, 1)",
+                                }}
+                            >
+                                <h2 className="font-DirtyHeadline mb-2" style={{ fontSize: '1.8em' }}>Time's Up!</h2>
+                                <div
+                                    className="relative"
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <div className="flex flex-row">
+                                        <h2 className="font-PoppinsBold text-xl mb-2 mr-2">Your Score:</h2>
+                                        <h2 className="font-Poppins text-xl mb-2">{score}</h2>
+                                    </div>
+
+                                    <div className="flex flex-row">
+                                        <h2 className="font-PoppinsBold text-xl mb-2 mr-2">Tokens Earned:</h2>
+                                        <h2 className="font-Poppins text-xl mb-3">{Math.floor(score / 20)}</h2>
+                                    </div>
+                                    <motion.button
+                                        whileTap={{ scale: 0.85 }}
+                                        className="w-full p-2 mt-2 text-center rounded font-PoppinsBold cursor-pointer"
+                                        style={{
+                                            backgroundImage: 'linear-gradient(to right, #1479ec, #1727bd)',
+                                            color: 'white',
+                                            textAlign: 'center',
+                                            fontSize: '1em',
+                                            transition: 'background-color 0.1s ease',
+                                            boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.5)',
+                                        }}
+                                        type="submit"
+                                        onClick={handlePlayAgain}
+                                        onMouseEnter={(e) => (e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #075ab9, #0a1685)')}
+                                        onMouseLeave={(e) => (e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #1479ec, #1727bd)')}
+                                    >
+                                        Play Again
+                                    </motion.button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
-      ) : (
-        <div
-          className="game-area"
-          ref={gameAreaRef}
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            width: "70vw",
-            height: "100vh",
-            backgroundImage: `url(${skyImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            overflow: "hidden",
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          <img
-            src={playerImage}
-            alt="Player"
-            className="player"
-            style={{
-              position: "absolute",
-              width: "150px",
-              height: "100px",
-              left: `${playerX}px`,
-              top: `${playerY}px`,
-              transform: isFacingRight ? "scaleX(-1)" : "scaleX(1)",
-            }}
-          />
-          {platforms.map((platform, index) => (
-            <img
-              key={index}
-              src={platformImage}
-              alt="Platform"
-              className="platform"
-              style={{
-                position: "absolute",
-                width: "80px",
-                height: "80px",
-                left: `${platform.x}px`,
-                top: `${platform.y}px`,
-              }}
-            />
-          ))}
-          {tokens.map((token, index) => (
-            <img
-              key={index}
-              src={tokenImage}
-              alt="Token"
-              className="token"
-              style={{
-                position: "absolute",
-                width: "30px",
-                height: "30px",
-                left: `${token.x}px`,
-                top: `${token.y}px`,
-              }}
-            />
-          ))}
-        </div>
-      )}
-      {isGameOver && (
-        <div
-          className="game-over"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            textAlign: "center",
-            color: "white",
-            background: "rgba(0, 0, 0, 0.8)",
-            borderRadius: "15px",
-            padding: "20px",
-            backdropFilter: "blur(10px)",
-            boxShadow: "0 8px 20px rgba(0,0,0,0.6)",
-          }}
-        >
-          <h1 className="text-3xl font-bold">Game Over</h1>
-          <p className="mt-4 text-xl">Your score: {score}</p>
-          <button
-            onClick={resetGame}
-            className="mt-6 px-6 py-3 text-lg font-medium text-black bg-gradient-to-r from-blue-200 to-gray-400 rounded-lg shadow-lg hover:scale-105 transform transition-all duration-300"
-          >
-            Restart Game
-          </button>
-        </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default Jumper_Game;

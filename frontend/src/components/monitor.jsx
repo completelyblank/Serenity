@@ -530,7 +530,7 @@ const Monitor = ({ moodTokens, isLogged, newUser }) => {
                             </div>
                             <div className="flex flex-col w-5/6 items-center">
                                 {/* Right section content */}
-                                <img src="Dream Token.png" width="250" height="250" />
+                                <img src="../assets/token.png" width="250" height="250" />
                                 <label className="block mb-4 mt-2 text-4xl font-BrokenConsole text-gray-200">
                                     Collected: {moodTokens}
                                 </label>
