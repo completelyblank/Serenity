@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import CardFlipModal from './CardFlipModal';
 import { useUserContext } from '../context/userContext';
 import axios from 'axios';
+import token from '../assets/token.png';
 
 const channelHeadings = ["Assistance Channel", "The Mood Report", "Feelings Forecast", "Vibe Check", "Mood Metrics", "The Submission Station"];
 
@@ -530,7 +531,7 @@ const Monitor = ({ moodTokens, isLogged, newUser }) => {
                             </div>
                             <div className="flex flex-col w-5/6 items-center">
                                 {/* Right section content */}
-                                <img src="../assets/token.png" width="250" height="250" />
+                                <img src={token} width="250" height="250" />
                                 <label className="block mb-4 mt-2 text-4xl font-BrokenConsole text-gray-200">
                                     Collected: {moodTokens}
                                 </label>
