@@ -12,6 +12,7 @@ import GameHandler from './pages/Game_Handler.jsx';
 import './index.css';
 import Blog from './pages/blog.jsx';
 import ChatRoom from './pages/chatRoom.jsx';
+import CreatorsPage from './pages/creators.jsx';
 
 const AppRoutes = () => {
   return (
@@ -27,6 +28,7 @@ const AppRoutes = () => {
       <Route path="/profile" element={<ProfilePage />} /> 
       <Route path="/blog" element={<Blog />} /> 
       <Route path="/chatroom/:id" element={<ChatRoom />} />
+      <Route path="/creators" element={<CreatorsPage />} />
     </Routes>
   );
 };
