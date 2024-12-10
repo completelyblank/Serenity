@@ -139,8 +139,6 @@ https://github.com/zayyscodes
 ![WhatsApp Image 2024-12-09 at 19 47 20_46bb600f](https://github.com/user-attachments/assets/7265876f-3705-454a-a1ed-7867ad8d49fa)
 https://github.com/completelyblank
 
-
-
-
+---
 
 **Serenity** is the ultimate platform to manage your mental wellness while fostering a secure, supportive, and engaging environment.
