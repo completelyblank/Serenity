@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const creators = [
   {
@@ -30,7 +31,7 @@ const creators = [
 
 const CreatorsPage = () => {
   const [activeCreator, setActiveCreator] = useState(0);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveCreator((prev) => (prev + 1) % creators.length);
@@ -110,7 +111,7 @@ const CreatorsPage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.5, duration: 1 }}
       >
-        <button className="px-8 py-4 bg-gradient-to-br from-pink-700 to-black rounded-lg text-gray-200 font-bold hover:from-black hover:to-pink-700 transition-all duration-300 shadow-lg">
+        <button className="px-8 py-4 bg-gradient-to-br from-pink-700 to-black rounded-lg text-gray-200 font-bold hover:from-black hover:to-pink-700 transition-all duration-300 shadow-lg" onClick={() => navigate('/')}>
           Explore the Website
         </button>
       </motion.div>
